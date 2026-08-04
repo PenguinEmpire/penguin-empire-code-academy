@@ -58,7 +58,8 @@
           u.lessons.forEach((l) => {
             const tag = l.ready ? `<span class="sl-tag">${l.dur || "Ready"}</span>` : `<span class="sl-tag">Locked</span>`;
             const cls = l.ready ? "" : "is-soon";
-            const href = l.ready ? l.href + ".html" : "#";
+            // Manifest hrefs are real paths; SITE_BASE mounts the site on a sub-path.
+            const href = l.ready ? (window.SITE_BASE || "") + l.href : "#";
             html += `<li><a class="${cls}" href="${href}" data-syl-link="${l.id}">
               <span class="sl-dot">${check}</span>
               <span class="sl-title">${l.t}</span>${tag}</a></li>`;

@@ -141,7 +141,7 @@ SparkMax intakeRoller = new SparkMax(2, MotorType.kBrushless);</code></pre>
           <div class="c-body"><p>Vendor class names and import paths move between seasons. REVLib renamed
             <code>CANSparkMax</code> to <code>SparkMax</code>, and CTRE's Phoenix 6 replaced most of the Phoenix 5
             API. Confirm every class name against the version of the library your project actually pulls in, which
-            is a thing you will learn to check in <a href="/lessons/frc/vendordeps">Vendor Libraries</a>.</p></div>
+            is a thing you will learn to check in <a href="/lessons/frc/vendordeps.html">Vendor Libraries</a>.</p></div>
         </div>
 
         <!-- ===================== BRUSH ===================== -->
@@ -184,7 +184,7 @@ SparkMax rightMotor2 = new SparkMax(5, MotorType.kBrushless);</code></pre>
         </div>
 
         <p>Notice every ID is different. Two devices sharing an ID on one bus is a real and confusing failure, and
-          <a href="/lessons/frc/can-ids">CAN IDs</a> covers exactly what happens.</p>
+          <a href="/lessons/frc/can-ids.html">CAN IDs</a> covers exactly what happens.</p>
         <p>When a mechanism has several motors, one method usually writes to all of them at once:</p>
 
         <div class="code with-lines">

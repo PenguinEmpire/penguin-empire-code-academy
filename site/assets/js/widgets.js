@@ -67,7 +67,7 @@
   // <div class="sandbox" data-compiler data-sim> and we prepend a plain-Java
   // teaching shim (fake SparkMax / PIDController / CommandScheduler / ...) so
   // robot-shaped code actually runs. Fetched once, shared by every sandbox.
-  const SIM_URL = "/assets/js/sim/penguinsim.java.txt";
+  const SIM_URL = (window.SITE_BASE || "") + "/assets/js/sim/penguinsim.java.txt";
   let simPromise = null;
   function loadSim() {
     if (!simPromise) {
