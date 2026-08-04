@@ -8,6 +8,8 @@ a "just read the WPILib docs." This is the replacement: a sequenced, 68-lesson c
 you write and run real Java in the browser on the very first page, and end up shipping a swerve
 drivetrain with vision-assisted autonomous.
 
+**→ Live site: <https://hamzalovescoding.github.io/penguin-empire-code-academy/>**
+
 **Status:** 47 of 68 lessons written and live. Both phases are fully outlined; the remaining
 lessons are drafted as specs and render as "coming soon" in the sidebar.
 
@@ -91,7 +93,16 @@ npm install       # only if you want to run audit.mjs / smoke.mjs
 node serve.mjs    # → http://localhost:4321
 ```
 
-There is nothing to build. To deploy, upload the contents of `site/` to any static host.
+There is nothing to build. To deploy to a host that serves from the domain root, upload the
+contents of `site/` as-is.
+
+`site/` is written with root-absolute URLs. GitHub Pages project sites serve from `/<repo>/`,
+so [build-pages.mjs](build-pages.mjs) rebuilds the tree into `_site/` with a base path baked
+in, and [the Pages workflow](.github/workflows/pages.yml) runs it on every push to `main`:
+
+```bash
+node build-pages.mjs /penguin-empire-code-academy
+```
 
 ---
 
@@ -117,6 +128,7 @@ content/                        ← authoring material (not deployed)
   specs/                        ← one spec per lesson, written before the page
   research/                     ← verified notes on hardware + PID behavior
 serve.mjs  audit.mjs  smoke.mjs  shot.mjs  inspect.mjs   ← dev tooling
+build-pages.mjs                 ← sub-path build for GitHub Pages
 ```
 
 ### The course manifest (`site/assets/js/course.js`)
