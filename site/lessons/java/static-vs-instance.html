@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>static vs. Instance · Penguin Empire 2551</title>
+  <meta name="description" content="An instance field belongs to one object. A static field belongs to the class itself, one copy shared by every object. Static methods, static constants, and when to use each." />
+  <link rel="icon" href="/assets/img/logo-2551.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Aldrich&family=Russo+One&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/brand.css" />
+  <link rel="stylesheet" href="/assets/css/layout.css" />
+  <link rel="stylesheet" href="/assets/css/lesson.css" />
+</head>
+<body data-page="lesson" data-lesson="j-static-vs-instance">
+  <main id="main" class="content">
+    <div class="content-inner">
+
+      <header class="lesson-hero">
+        <nav class="crumbs" aria-label="Breadcrumb">
+          <a href="/">Home</a><span class="sep">/</span>
+          <a href="/syllabus.html">Phase 1 · Java &amp; OOP</a><span class="sep">/</span>
+          <span>Unit J5 · Object-Oriented Programming</span>
+        </nav>
+        <span class="badge badge--ocean">Lesson 23</span>
+        <h1 class="lesson-title">static vs. Instance</h1>
+        <p class="lesson-lede">An instance field belongs to one object. A <code>static</code> field belongs
+          to the class itself, a single copy shared by every object made from it.</p>
+        <div class="lesson-meta">
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg> 20 min</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h2v-4H3zM9 20h2V10H9zM15 20h2V4h-2z"/></svg> Beginner</span>
+        </div>
+      </header>
+
+      <div class="goal">
+        <div class="goal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div>
+        <div>
+          <h2>Your goal</h2>
+          <p>Add a static field shared by every object, a static constant, and explain why a static method
+            cannot touch an instance field directly.</p>
+        </div>
+      </div>
+
+      <nav class="toc" aria-label="On this page">
+        <strong>On this page</strong>
+        <ol>
+          <li><a href="#fields">Two kinds of fields</a></li>
+          <li><a href="#classname">Reached through the class name</a></li>
+          <li><a href="#methods">Static methods cannot see instance fields</a></li>
+          <li><a href="#constant">A static constant shared by every object</a></li>
+          <li><a href="#when">Which one to use</a></li>
+          <li><a href="#run">Run it yourself</a></li>
+          <li><a href="#challenges">Practice challenges</a></li>
+          <li><a href="#mistakes">Common mistakes</a></li>
+          <li><a href="#exercise">Exercise</a></li>
+          <li><a href="#checkpoint">Checkpoint</a></li>
+        </ol>
+      </nav>
+
+      <div class="prose">
+
+        <h2 id="fields"><span class="section-h"><span class="num">1</span> Two kinds of fields</span></h2>
+        <p>Every field you have written so far is an <strong>instance field</strong>. Each object gets its
+          own separate copy, exactly like <code>canId</code> and <code>name</code> in the last three
+          lessons. Adding <code>static</code> to a field changes that completely. A static field has exactly
+          one copy, owned by the class, and every object made from that class shares it.</p>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">class Flywheel {
+    static int flywheelCount = 0;
+
+    int canId;
+    String name;
+
+    Flywheel(int canId, String name) {
+        this.canId = canId;
+        this.name = name;
+        flywheelCount = flywheelCount + 1;
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Flywheel shooter = new Flywheel(5, "Shooter Flywheel");
+        Flywheel climber = new Flywheel(6, "Climber Flywheel");
+        Flywheel spare = new Flywheel(7, "Spare Flywheel");
+
+        System.out.println(Flywheel.flywheelCount);
+    }
+}</code></pre>
+        </div>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">3</code></pre>
+        </div>
+
+        <p>Three objects were built. Each one has its own <code>canId</code>, but there is only one
+          <code>flywheelCount</code> in the whole program. Every constructor call adds to the same number.</p>
+
+        <h2 id="classname"><span class="section-h"><span class="num">2</span> Reached through the class name</span></h2>
+        <p><code>Flywheel.flywheelCount</code> reads the static field through the class name, not through
+          any one object. That matches what the field actually is, a single value that belongs to
+          <code>Flywheel</code> as a whole rather than to <code>shooter</code> or <code>climber</code>
+          specifically.</p>
+
+        <div class="vocab">
+          <div class="vocab-term"><dt>Instance field</dt><dd>One copy per object. Reached with <code>object.field</code>.</dd></div>
+          <div class="vocab-term"><dt>Static field</dt><dd>One copy per class. Reached with <code>ClassName.field</code>.</dd></div>
+        </div>
+
+        <h2 id="methods"><span class="section-h"><span class="num">3</span> Static methods cannot see instance fields</span></h2>
+        <p>Every method you wrote before lesson 22, and <code>main</code> itself, is <code>static</code>. A
+          static method runs without any particular object behind it, so it has no way to reach an instance
+          field. There is no object to ask.</p>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">class Flywheel {
+    double currentRPM;
+
+    static void badStaticMethod() {
+        System.out.println(currentRPM);
+    }
+}</code></pre>
+        </div>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">error: non-static variable currentRPM cannot be referenced from a static context</code></pre>
+        </div>
+
+        <p>This is the same error methods.html mentioned in the other direction. <code>main</code> is
+          static, so it cannot call an instance method without an object either. A static method can only
+          touch static fields and other static methods directly.</p>
+
+        <h2 id="constant"><span class="section-h"><span class="num">4</span> A static constant shared by every object</span></h2>
+        <p>A value that describes a rule for the whole class, not one object's own data, is a natural fit
+          for <code>static final</code>. Every <code>Flywheel</code> should respect the same maximum speed,
+          so the limit is written once.</p>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">class Flywheel {
+    static final double MAX_RPM = 6000;
+
+    int canId;
+    String name;
+    double targetRPM;
+
+    Flywheel(int canId, String name, double targetRPM) {
+        this.canId = canId;
+        this.name = name;
+        this.targetRPM = Math.min(targetRPM, MAX_RPM);
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Flywheel shooter = new Flywheel(5, "Shooter Flywheel", 5200);
+        Flywheel overdriven = new Flywheel(6, "Overdriven Flywheel", 9000);
+
+        System.out.println(shooter.targetRPM);
+        System.out.println(overdriven.targetRPM);
+    }
+}</code></pre>
+        </div>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">5200.0
+6000.0</code></pre>
+        </div>
+
+        <p><code>MAX_RPM</code> is <code>static</code> because every <code>Flywheel</code> shares the same
+          limit, and <code>final</code> because that limit never changes once the program starts, the same
+          reason <code>final</code> showed up for ordinary constants back in lesson 3. <code>overdriven</code>
+          asked for 9000 and was clamped down to the shared limit in the constructor.</p>
+
+        <h2 id="when"><span class="section-h"><span class="num">5</span> Which one to use</span></h2>
+        <p>Two short rules cover almost every case.</p>
+        <ol class="task-list">
+          <li><b>Data that differs per object</b> is an instance field. <code>canId</code>,
+            <code>currentRPM</code>, and <code>targetRPM</code> all vary from one <code>Flywheel</code> to
+            the next.</li>
+          <li><b>Data or behavior that belongs to the whole class</b> is static. A count of how many objects
+            exist, a shared limit, or a helper like <code>Math.max</code> that needs no object's state at
+            all.</li>
+        </ol>
+
+        <div class="callout callout--note">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16v-4M12 8h.01"/><circle cx="12" cy="12" r="9"/></svg></div>
+          <div class="c-title">Math is a static-only class</div>
+          <div class="c-body"><p><code>Math.max(3, 9)</code> never creates a <code>Math</code> object. Every
+            method on <code>Math</code> is static, because none of them need an object's own state to do
+            their job.</p></div>
+        </div>
+
+        <h2 id="run"><span class="section-h"><span class="num">6</span> Run it yourself</span></h2>
+        <p>Create a fourth <code>Flywheel</code> and check that <code>flywheelCount</code> updates.</p>
+
+        <div class="sandbox" data-compiler data-title="Live Java Sandbox" data-lang="java">
+          <script type="text/x-java" class="sb-src">
+class Flywheel {
+    static int flywheelCount = 0;
+    static final double MAX_RPM = 6000;
+
+    int canId;
+    String name;
+    double targetRPM;
+
+    Flywheel(int canId, String name, double targetRPM) {
+        this.canId = canId;
+        this.name = name;
+        this.targetRPM = Math.min(targetRPM, MAX_RPM);
+        flywheelCount = flywheelCount + 1;
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Flywheel shooter = new Flywheel(5, "Shooter Flywheel", 5200);
+        Flywheel overdriven = new Flywheel(6, "Overdriven Flywheel", 9000);
+
+        System.out.println(shooter.targetRPM);
+        System.out.println(overdriven.targetRPM);
+        System.out.println("Flywheels built: " + Flywheel.flywheelCount);
+
+        // Try it: create a fourth Flywheel and print Flywheel.flywheelCount again.
+    }
+}
+          </script>
+        </div>
+
+        <h2 id="challenges"><span class="section-h"><span class="num">7</span> Practice challenges</span></h2>
+
+        <div class="challenge" data-kind="text"
+             data-win="Correct. Two constructor calls, each adding 1 to the one shared flywheelCount."
+             data-lose="It is 2. Every constructor call adds 1 to the same shared flywheelCount, since there is only one copy for the whole class.">
+          <div class="challenge-head"><span class="ch-kind">Predict the output</span><span class="ch-title">Counting objects</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">What number is printed?</p>
+            <pre class="fib">class Flywheel {
+    static int flywheelCount = 0;
+    int canId;
+
+    Flywheel(int canId) {
+        this.canId = canId;
+        flywheelCount = flywheelCount + 1;
+    }
+}
+
+Flywheel shooter = new Flywheel(5);
+Flywheel climber = new Flywheel(6);
+System.out.println(Flywheel.flywheelCount);</pre>
+            <div class="answer-row">
+              <input class="answer-input" type="text" placeholder="Type the number…" data-answer="2" aria-label="Your answer" />
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check answer</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="fib"
+             data-win="Correct. final locks the value, and MAX_RPM names the shared limit used to clamp targetRPM."
+             data-lose="static final double MAX_RPM declares the constant, and Math.min(targetRPM, MAX_RPM) is what clamps it.">
+          <div class="challenge-head"><span class="ch-kind">Fill in the blanks</span><span class="ch-title">A shared, unchanging limit</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Complete a constant every <code>Flywheel</code> shares, and use it to
+              clamp <code>targetRPM</code>.</p>
+<pre class="fib">static <span class="blank" data-answer="final"></span> double MAX_RPM = 6000;
+
+Flywheel(int canId, String name, double targetRPM) {
+    this.canId = canId;
+    this.name = name;
+    this.targetRPM = Math.min(targetRPM, <span class="blank" data-answer="MAX_RPM"></span>);
+}</pre>
+            <div class="challenge-actions">
+              <button class="btn btn--sm check-btn" type="button">Check</button>
+              <button class="btn btn--sm btn--ghost reset-btn" type="button">Reset</button>
+            </div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">A static method reaching for instance data</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">A <code>static</code> method tries to read an instance field
+              directly, with no object in sight. What happens?</p>
+            <div class="options">
+              <label class="option" data-explain="A static method has no specific object behind it, so this never compiles."><input type="radio" name="q-staticfield" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It compiles and reads the field's default value</span></label>
+              <label class="option" data-correct data-explain="Correct. There is no object for the static method to read the field from, so the compiler rejects it."><input type="radio" name="q-staticfield" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It fails to compile</span></label>
+              <label class="option" data-explain="This is caught before the program ever runs, not while it is running."><input type="radio" name="q-staticfield" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It compiles and crashes when the method runs</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <h2 id="mistakes"><span class="section-h"><span class="num">8</span> Common mistakes</span></h2>
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">Watch out for these</div>
+          <div class="c-body">
+            <ul>
+              <li>Reading or changing an instance field directly from a static method, which gives
+                <code>non-static variable cannot be referenced from a static context</code>.</li>
+              <li>Making a value that should be shared, like a counter or a shared limit, an ordinary
+                instance field. Each object then keeps its own separate copy instead of one shared value.</li>
+              <li>Reaching a static field through an object, such as <code>shooter.flywheelCount</code>. It
+                compiles, but the class name makes clear the value does not belong to <code>shooter</code>
+                alone.</li>
+              <li>Forgetting that a static field keeps its value for the entire run of the program, across
+                every object ever built.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="exercise" id="exercise">
+          <div class="exercise-head">
+            <div class="ex-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4L12 17l-6.3 4.4L8 14 2 9.4h7.6z"/></svg></div>
+            <div>
+              <div class="ex-kicker">Exercise</div>
+              <h3>Counting the Fleet</h3>
+            </div>
+          </div>
+          <div class="exercise-body">
+            <p>Add class-wide data to the <code>Motor</code> class from earlier lessons.</p>
+            <ol class="task-list">
+              <li>Add a static field <code>motorCount</code>, starting at <code>0</code>, and increase it by
+                one inside the constructor.</li>
+              <li>Add a static final constant <code>MAX_CAN_ID</code> set to <code>20</code>.</li>
+              <li>In the constructor, set <code>canId</code> to whichever is smaller, the value passed in or
+                <code>MAX_CAN_ID</code>.</li>
+              <li>Create three <code>Motor</code> objects, one with a <code>canId</code> above 20, and print
+                each one's <code>canId</code>.</li>
+              <li>Bonus: write a static method <code>describeFleet()</code> that prints
+                <code>"Fleet size: " + motorCount + " motors"</code>, and call it through the class name.</li>
+            </ol>
+            <div class="sandbox" data-compiler data-title="Project Sandbox" data-lang="java">
+              <script type="text/x-java" class="sb-src">
+class Motor {
+    // TODO: static motorCount, static final MAX_CAN_ID
+    int canId;
+    String name;
+
+    Motor(int canId, String name) {
+        // TODO: clamp canId, assign name, count this motor
+        this.name = name;
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        // TODO: create three Motor objects and print their canId
+
+    }
+}
+              </script>
+            </div>
+            <details class="reveal">
+              <summary><svg class="rv-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg> Show one possible solution</summary>
+              <div class="reveal-body">
+                <div class="code">
+                  <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">solution · Main.java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">class Motor {
+    static int motorCount = 0;
+    static final int MAX_CAN_ID = 20;
+
+    int canId;
+    String name;
+
+    Motor(int canId, String name) {
+        this.canId = Math.min(canId, MAX_CAN_ID);
+        this.name = name;
+        motorCount = motorCount + 1;
+    }
+
+    static void describeFleet() {
+        System.out.println("Fleet size: " + motorCount + " motors");
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Motor leftDrive = new Motor(1, "Left Drive");
+        Motor rightDrive = new Motor(2, "Right Drive");
+        Motor overLimit = new Motor(25, "Over Limit Motor");
+
+        System.out.println(leftDrive.name + " CAN " + leftDrive.canId);
+        System.out.println(rightDrive.name + " CAN " + rightDrive.canId);
+        System.out.println(overLimit.name + " CAN " + overLimit.canId);
+
+        Motor.describeFleet();
+    }
+}</code></pre>
+                </div>
+                <div class="code">
+                  <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">Left Drive CAN 1
+Right Drive CAN 2
+Over Limit Motor CAN 20
+Fleet size: 3 motors</code></pre>
+                </div>
+                <p><code>overLimit</code> asked for CAN 25 and was clamped to 20 by the shared constant.
+                  <code>motorCount</code> reached 3 no matter which object you ask, because there is only
+                  one copy of it.</p>
+              </div>
+            </details>
+          </div>
+        </div>
+
+        <div class="checkpoint" id="checkpoint">
+          <div class="checkpoint-head">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            <h3>Checkpoint</h3>
+            <span class="cp-score">0 / 5</span>
+          </div>
+          <div class="checkpoint-body">
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q1.</span> How many copies of a static field exist while the program runs?</div>
+              <div class="options">
+                <label class="option" data-explain="That describes an instance field. A static field is exactly the opposite of one-per-object."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">One per object</span></label>
+                <label class="option" data-correct data-explain="Correct. A static field belongs to the class, not to any one object, so there is a single shared copy."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">One, shared by every object</span></label>
+                <label class="option" data-explain="A static field exists once the class is used, whether or not any object has been created yet."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Zero, until an object reads it</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q2.</span> How is a static field normally read?</div>
+              <div class="options">
+                <label class="option" data-correct data-explain="Correct. ClassName.field reads the one shared copy."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Through the class name, like <code>Flywheel.flywheelCount</code></span></label>
+                <label class="option" data-explain="This compiles, but it reads the same one shared value the class name would reach. The class name is the clearer style."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Only through an object, like <code>shooter.flywheelCount</code></span></label>
+                <label class="option" data-explain="A field, static or not, is never called with parentheses. Those are for methods."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">With parentheses, like <code>flywheelCount()</code></span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q3.</span> Why can a static method not read an instance field directly?</div>
+              <div class="options">
+                <label class="option" data-correct data-explain="Correct. An instance field only exists as part of a specific object, and a static method has no object to look inside."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A static method has no specific object to read the field from</span></label>
+                <label class="option" data-explain="This has nothing to do with data type. Even a simple int instance field is unreachable from a static method."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Instance fields are always private</span></label>
+                <label class="option" data-explain="Order in the file never decides whether a field is reachable."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The field was declared below the method</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q4.</span> A value should be the same shared limit for every object of a class and never change. What should it be declared as?</div>
+              <div class="options">
+                <label class="option" data-explain="A plain instance field gives every object its own separate copy, which is wasteful for one shared limit."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A plain instance field</span></label>
+                <label class="option" data-correct data-explain="Correct. static shares one copy across the class, and final locks it once it is set."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>static final</code></span></label>
+                <label class="option" data-explain="void is a return type for a method with no result. It has no meaning on a field."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>void</code></span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q5.</span> Why is every method on <code>Math</code>, such as <code>Math.max</code>, static?</div>
+              <div class="options">
+                <label class="option" data-correct data-explain="Correct. Math.max just computes an answer from its arguments. There is no object's state involved at all."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">None of them need any object's own state</span></label>
+                <label class="option" data-explain="Static has no effect on how fast a method runs."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Static methods run faster</span></label>
+                <label class="option" data-explain="Plenty of classes mix static and instance methods. Math simply has no need for the instance kind."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Java requires every method in every class to be static</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check my answers</button></div>
+          </div>
+        </div>
+
+        <div class="mark-complete">
+          <div class="mc-text"><b>Lesson complete.</b><span>Next: keeping fields private and controlling access through methods.</span></div>
+          <button class="complete-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>Mark as complete</span></button>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="/assets/js/course.js"></script>
+  <script src="/assets/js/site.js"></script>
+  <script src="/assets/js/widgets.js"></script>
+</body>
+</html>

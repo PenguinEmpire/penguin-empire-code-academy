@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Alice's Kitchen 2 · The Kitchen Grid · Penguin Empire 2551</title>
+  <meta name="description" content="Stage 2 of the capstone project. Build the kitchen floor as a 2D array, place items on it, move them around, and resize it to 5 by 7." />
+  <link rel="icon" href="/assets/img/logo-2551.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Aldrich&family=Russo+One&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/brand.css" />
+  <link rel="stylesheet" href="/assets/css/layout.css" />
+  <link rel="stylesheet" href="/assets/css/lesson.css" />
+</head>
+<body data-page="lesson" data-lesson="j-kitchen-2">
+  <main id="main" class="content">
+    <div class="content-inner">
+
+      <header class="lesson-hero">
+        <nav class="crumbs" aria-label="Breadcrumb">
+          <a href="/">Home</a><span class="sep">/</span>
+          <a href="/syllabus.html">Phase 1 · Java &amp; OOP</a><span class="sep">/</span>
+          <span>Unit J6 · Capstone Project</span>
+        </nav>
+        <span class="badge badge--ocean">Lesson 31</span>
+        <h1 class="lesson-title">Alice's Kitchen 2 · The Kitchen Grid</h1>
+        <p class="lesson-lede">Alice needs somewhere to stand. This stage adds a <code>Kitchen</code> class
+          holding a 2D array of items, with methods to place, move and print.</p>
+        <div class="lesson-meta">
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg> 50 min</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h2v-4H3zM9 20h2V10H9zM15 20h2V4h-2z"/></svg> Project</span>
+        </div>
+      </header>
+
+      <div class="goal">
+        <div class="goal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div>
+        <div>
+          <h2>Your goal</h2>
+          <p>Store items in a grid, move one around it, and stop it walking through walls.</p>
+        </div>
+      </div>
+
+      <nav class="toc" aria-label="On this page">
+        <strong>On this page</strong>
+        <ol>
+          <li><a href="#start">Where you start</a></li>
+          <li><a href="#position">Items need a position</a></li>
+          <li><a href="#kitchen">The Kitchen class</a></li>
+          <li><a href="#move">Moving an item</a></li>
+          <li><a href="#tasks">Your tasks</a></li>
+          <li><a href="#checkpoint">Checkpoint</a></li>
+        </ol>
+      </nav>
+
+      <div class="prose">
+
+        <h2 id="start"><span class="section-h"><span class="num">1</span> Where you start</span></h2>
+        <p>Begin from your stage 1 solution. You have an <code>Item</code> class with a name and a getter.
+          This stage adds two things to <code>Item</code> and one whole new class.</p>
+
+        <h2 id="position"><span class="section-h"><span class="num">2</span> Items need a position</span></h2>
+        <p>An item has to know where it is, otherwise moving it is impossible. Add a row and a column, both
+          starting at −1 to mean “not placed yet”.</p>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">static class Item {
+    private String name;
+    private int row = -1;
+    private int col = -1;
+
+    public Item(String name) { this.name = name; }
+
+    public String getName() { return name; }
+    public int getRow() { return row; }
+    public int getCol() { return col; }
+    public void setPosition(int row, int col) { this.row = row; this.col = col; }
+
+    public String symbol() { return name.substring(0, 1).toUpperCase(); }
+}</code></pre>
+        </div>
+
+        <p><code>symbol()</code> returns the first letter, uppercased, so the grid can show
+          <code>A</code> for Alice and <code>F</code> for Fridge. It uses
+          <code>substring</code> and <code>toUpperCase</code> from lesson 5.</p>
+
+        <h2 id="kitchen"><span class="section-h"><span class="num">3</span> The Kitchen class</span></h2>
+        <p>The floor is an <code>Item[][]</code>. An empty cell holds <code>null</code>, which is exactly
+          what a fresh object array contains.</p>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">static class Kitchen {
+    private Item[][] floor;
+
+    public Kitchen(int rows, int cols) {
+        floor = new Item[rows][cols];
+    }
+
+    public void placeObject(Item item, int row, int col) {
+        if (row &lt; 0 || row &gt;= floor.length || col &lt; 0 || col &gt;= floor[0].length) {
+            System.out.println("Cannot place " + item.getName() + " outside the kitchen");
+            return;
+        }
+        floor[row][col] = item;
+        item.setPosition(row, col);
+    }
+
+    public void printKitchen() {
+        System.out.print("   ");
+        for (int c = 0; c &lt; floor[0].length; c++) System.out.print(c + " ");
+        System.out.println();
+        for (int r = 0; r &lt; floor.length; r++) {
+            System.out.print(r + "  ");
+            for (int c = 0; c &lt; floor[r].length; c++) {
+                System.out.print((floor[r][c] == null ? "." : floor[r][c].symbol()) + " ");
+            }
+            System.out.println();
+        }
+    }
+}</code></pre>
+        </div>
+
+        <p>The constructor takes the size, so the kitchen can be any dimensions without editing anything
+          else. Every loop reads <code>floor.length</code> and <code>floor[0].length</code>, never a typed
+          number. That is what makes the resize in the tasks a one line change.</p>
+
+        <div class="callout callout--note">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16v-4M12 8h.01"/><circle cx="12" cy="12" r="9"/></svg></div>
+          <div class="c-title">placeObject does two things</div>
+          <div class="c-body"><p>It puts the item in the grid and tells the item where it now is. Both have
+            to happen. Skip the second and the item still prints in the right place but has no idea where
+            it is, so moving it later fails.</p></div>
+        </div>
+
+        <h2 id="move"><span class="section-h"><span class="num">4</span> Moving an item</span></h2>
+        <p>Work out the new position, check it is still on the floor, then clear the old cell before
+          filling the new one.</p>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">public void moveObject(Item item, String direction) {
+    int r = item.getRow();
+    int c = item.getCol();
+
+    if (direction.equals("up")) r--;
+    else if (direction.equals("down")) r++;
+    else if (direction.equals("left")) c--;
+    else if (direction.equals("right")) c++;
+    else { System.out.println("Unknown direction: " + direction); return; }
+
+    if (r &lt; 0 || r &gt;= floor.length || c &lt; 0 || c &gt;= floor[0].length) {
+        System.out.println(item.getName() + " cannot move " + direction + ", that is a wall");
+        return;
+    }
+
+    floor[item.getRow()][item.getCol()] = null;
+    floor[r][c] = item;
+    item.setPosition(r, c);
+}</code></pre>
+        </div>
+
+        <p>Note the order of the last three lines. The old cell is cleared using the item's current
+          position, and only then is the position updated. Updating first would clear the wrong cell.</p>
+        <p><code>direction.equals("up")</code> uses <code>.equals</code> and not <code>==</code>, for the
+          reason given in lesson 7.</p>
+
+        <h2 id="tasks"><span class="section-h"><span class="num">5</span> Your tasks</span></h2>
+
+        <div class="exercise" id="exercise">
+          <div class="exercise-head">
+            <div class="ex-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4L12 17l-6.3 4.4L8 14 2 9.4h7.6z"/></svg></div>
+            <div>
+              <div class="ex-kicker">Stage 2</div>
+              <h3>The Kitchen Grid</h3>
+            </div>
+          </div>
+          <div class="exercise-body">
+            <ol class="task-list">
+              <li>Add <code>row</code>, <code>col</code>, their getters, <code>setPosition</code> and
+                <code>symbol()</code> to <code>Item</code>.</li>
+              <li>Finish <code>placeObject</code> so the item lands in the right cell and knows its
+                position.</li>
+              <li>Place Alice and call <code>printKitchen</code> to check it worked.</li>
+              <li>Finish <code>moveObject</code> so the four directions work and walls are refused.</li>
+              <li>Make the kitchen <strong>5 rows by 7 columns</strong>. If your loops use
+                <code>length</code>, this is one line.</li>
+              <li>Bonus: move Alice into a wall on purpose and confirm the message appears.</li>
+            </ol>
+            <div class="sandbox" data-compiler data-title="Project Sandbox" data-lang="java">
+              <script type="text/x-java" class="sb-src">
+public class Main {
+
+    static class Item {
+        private String name;
+        private int row = -1;
+        private int col = -1;
+
+        public Item(String name) { this.name = name; }
+
+        public String getName() { return name; }
+        public int getRow() { return row; }
+        public int getCol() { return col; }
+        public void setPosition(int row, int col) { this.row = row; this.col = col; }
+        public String symbol() { return name.substring(0, 1).toUpperCase(); }
+    }
+
+    static class Kitchen {
+        private Item[][] floor;
+
+        public Kitchen(int rows, int cols) {
+            floor = new Item[rows][cols];
+        }
+
+        public void placeObject(Item item, int row, int col) {
+            // TODO: bounds check, then put the item in the grid and set its position
+        }
+
+        public void moveObject(Item item, String direction) {
+            // TODO: work out the new row and col, refuse walls, then move
+        }
+
+        public void printKitchen() {
+            // TODO: print column numbers, then each row with a dot for empty cells
+        }
+    }
+
+    public static void main(String[] args) {
+        Kitchen kitchen = new Kitchen(5, 7);
+        Item alice = new Item("Alice");
+
+        kitchen.placeObject(alice, 2, 1);
+        kitchen.printKitchen();
+    }
+}
+              </script>
+            </div>
+            <details class="reveal">
+              <summary><svg class="rv-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg> Show the stage 2 solution</summary>
+              <div class="reveal-body">
+                <div class="code">
+                  <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">solution · main method</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">public static void main(String[] args) {
+    Kitchen kitchen = new Kitchen(5, 7);
+    Item alice = new Item("Alice");
+
+    kitchen.placeObject(alice, 2, 1);
+    kitchen.printKitchen();
+
+    System.out.println();
+    kitchen.moveObject(alice, "right");
+    kitchen.moveObject(alice, "down");
+    kitchen.printKitchen();
+
+    System.out.println();
+    kitchen.moveObject(alice, "left");
+    kitchen.moveObject(alice, "left");
+    kitchen.moveObject(alice, "left");
+}</code></pre>
+                </div>
+                <p>The three class methods are exactly as printed in sections 3 and 4.</p>
+                <div class="code">
+                  <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">   0 1 2 3 4 5 6
+0  . . . . . . .
+1  . . . . . . .
+2  . A . . . . .
+3  . . . . . . .
+4  . . . . . . .
+
+   0 1 2 3 4 5 6
+0  . . . . . . .
+1  . . . . . . .
+2  . . . . . . .
+3  . . A . . . .
+4  . . . . . . .
+
+Alice cannot move left, that is a wall</code></pre>
+                </div>
+                <p>Alice moved right then down, landing at row 3 column 2. The three lefts then take her to
+                  column 1, column 0, and finally into the wall, which is refused.</p>
+              </div>
+            </details>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="text"
+             data-win="Correct. Row 2 column 1 is the third line down and the second position across."
+             data-lose="It is row 2, column 1. The first index is the row and both count from 0.">
+          <div class="challenge-head"><span class="ch-kind">Predict the output</span><span class="ch-title">Reading the grid</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Alice prints at the position marked <code>A</code> below. What row
+              is she in? Type a number.</p>
+            <pre class="fib">   0 1 2 3 4 5 6
+0  . . . . . . .
+1  . . . . . . .
+2  . A . . . . .
+3  . . . . . . .
+4  . . . . . . .</pre>
+            <div class="answer-row">
+              <input class="answer-input" type="text" placeholder="Type a number…" data-answer="2" aria-label="Your answer" />
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check answer</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">Order of operations</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Why must <code>moveObject</code> clear the old cell
+              <strong>before</strong> calling <code>setPosition</code>?</p>
+            <div class="options">
+              <label class="option" data-correct data-explain="Correct. Clearing uses getRow and getCol, so updating first would clear the destination instead of the origin."><input type="radio" name="q-ord" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Because clearing uses the item's current position, which the update would overwrite</span></label>
+              <label class="option" data-explain="Both orders run at the same speed. One of them is simply wrong."><input type="radio" name="q-ord" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Because it is faster</span></label>
+              <label class="option" data-explain="Java has no rule about this. The order matters because of what the code reads."><input type="radio" name="q-ord" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Because Java requires assignments in that order</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="fib"
+             data-win="Correct. Compare text with equals, and read the sizes from the array itself."
+             data-lose="Use .equals to compare the direction text, and floor.length for the number of rows.">
+          <div class="challenge-head"><span class="ch-kind">Fill in the blanks</span><span class="ch-title">Two details that matter</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Complete the direction test and the bounds check.</p>
+<pre class="fib">if (direction.<span class="blank" data-answer="equals"></span>("up")) r--;
+
+if (r &lt; 0 || r &gt;= floor.<span class="blank" data-answer="length"></span>) {
+    System.out.println("that is a wall");
+}</pre>
+            <div class="challenge-actions">
+              <button class="btn btn--sm check-btn" type="button">Check</button>
+              <button class="btn btn--sm btn--ghost reset-btn" type="button">Reset</button>
+            </div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="checkpoint" id="checkpoint">
+          <div class="checkpoint-head">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            <h3>Checkpoint</h3>
+            <span class="cp-score">0 / 3</span>
+          </div>
+          <div class="checkpoint-body">
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q1.</span> What is in every cell of <code>new Item[5][7]</code> before anything is placed?</div>
+              <div class="options">
+                <label class="option" data-correct data-explain="Correct. An array of objects starts every cell at null, which is why printKitchen tests for it."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>null</code></span></label>
+                <label class="option" data-explain="Zero is the default for number arrays, not for arrays of objects."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>0</code></span></label>
+                <label class="option" data-explain="The cells exist immediately. They just hold nothing."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The cells do not exist yet</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q2.</span> Why does resizing the kitchen to 5 by 7 need only one line changed?</div>
+              <div class="options">
+                <label class="option" data-correct data-explain="Correct. Nothing else mentions a size, so the constructor argument is the only place it is written."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Because every loop reads <code>length</code> instead of a typed number</span></label>
+                <label class="option" data-explain="Java does not resize arrays. The code simply reads whatever size was created."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Because Java resizes arrays automatically</span></label>
+                <label class="option" data-explain="A 2D array can be any dimensions. Nothing forces it to be square."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Because the grid must always be square</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q3.</span> Why does <code>placeObject</code> call <code>setPosition</code> as well as filling the cell?</div>
+              <div class="options">
+                <label class="option" data-correct data-explain="Correct. moveObject reads the item's own position, so an item that does not know where it is cannot be moved."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">So the item knows where it is, which <code>moveObject</code> needs</span></label>
+                <label class="option" data-explain="The grid holds the reference already. The second call is about the item's own record."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Because otherwise the grid would be empty</span></label>
+                <label class="option" data-explain="printKitchen reads the grid, not the item's position. Moving is what breaks."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Because <code>printKitchen</code> would not work</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check my answers</button></div>
+          </div>
+        </div>
+
+        <div class="mark-complete">
+          <div class="mc-text"><b>Stage 2 complete.</b><span>Keep your code. Stage 3 fills the kitchen with appliances and gives Alice an inventory.</span></div>
+          <button class="complete-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>Mark as complete</span></button>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="/assets/js/course.js"></script>
+  <script src="/assets/js/site.js"></script>
+  <script src="/assets/js/widgets.js"></script>
+</body>
+</html>

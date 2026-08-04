@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Parameters &amp; Return Values · Penguin Empire 2551</title>
+  <meta name="description" content="Pass values into a method and get an answer back. Parameters, arguments, return types, and why a returned value must be caught." />
+  <link rel="icon" href="/assets/img/logo-2551.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Aldrich&family=Russo+One&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/brand.css" />
+  <link rel="stylesheet" href="/assets/css/layout.css" />
+  <link rel="stylesheet" href="/assets/css/lesson.css" />
+</head>
+<body data-page="lesson" data-lesson="j-params-return">
+  <main id="main" class="content">
+    <div class="content-inner">
+
+      <header class="lesson-hero">
+        <nav class="crumbs" aria-label="Breadcrumb">
+          <a href="/">Home</a><span class="sep">/</span>
+          <a href="/syllabus.html">Phase 1 · Java &amp; OOP</a><span class="sep">/</span>
+          <span>Unit J3 · Methods</span>
+        </nav>
+        <span class="badge badge--ocean">Lesson 13</span>
+        <h1 class="lesson-title">Parameters &amp; Return Values</h1>
+        <p class="lesson-lede">A method becomes useful when it can work on values you give it and hand an
+          answer back. That is what parameters and return values do.</p>
+        <div class="lesson-meta">
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg> 25 min</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h2v-4H3zM9 20h2V10H9zM15 20h2V4h-2z"/></svg> Beginner</span>
+        </div>
+      </header>
+
+      <div class="goal">
+        <div class="goal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div>
+        <div>
+          <h2>Your goal</h2>
+          <p>Write a method that takes values, computes an answer, and returns it.</p>
+        </div>
+      </div>
+
+      <nav class="toc" aria-label="On this page">
+        <strong>On this page</strong>
+        <ol>
+          <li><a href="#params">Parameters</a></li>
+          <li><a href="#many">More than one parameter</a></li>
+          <li><a href="#return">Returning a value</a></li>
+          <li><a href="#catch">Catching what comes back</a></li>
+          <li><a href="#endsit">return ends the method</a></li>
+          <li><a href="#run">Run it yourself</a></li>
+          <li><a href="#challenges">Practice challenges</a></li>
+          <li><a href="#mistakes">Common mistakes</a></li>
+          <li><a href="#exercise">Exercise</a></li>
+          <li><a href="#checkpoint">Checkpoint</a></li>
+        </ol>
+      </nav>
+
+      <div class="prose">
+
+        <h2 id="params"><span class="section-h"><span class="num">1</span> Parameters</span></h2>
+        <p>A parameter is a variable declared in the parentheses of a method. It receives a value each time
+          the method is called.</p>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">static void reportSubsystem(String name, int canId) {
+    System.out.println(name + " on CAN " + canId);
+}
+
+public static void main(String[] args) {
+    reportSubsystem("Intake", 2);
+    reportSubsystem("Shooter", 5);
+}</code></pre>
+        </div>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">Intake on CAN 2
+Shooter on CAN 5</code></pre>
+        </div>
+
+        <p>One method, two different results. The values in the call are the
+          <strong>arguments</strong>. The variables in the declaration are the
+          <strong>parameters</strong>. The names get used loosely in conversation and the distinction
+          rarely matters.</p>
+
+        <h2 id="many"><span class="section-h"><span class="num">2</span> More than one parameter</span></h2>
+        <p>Separate them with commas. Each one needs its own type, even when two parameters share a type.</p>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">static void setSpeeds(double left, double right) { }   // correct
+static void setSpeeds(double left, right) { }          // does not compile</code></pre>
+        </div>
+
+        <p>Arguments are matched by position, not by name. The first argument fills the first parameter.
+          Swapping two arguments of the same type compiles fine and produces the wrong answer.</p>
+
+        <h2 id="return"><span class="section-h"><span class="num">3</span> Returning a value</span></h2>
+        <p>Replace <code>void</code> with a type, then use <code>return</code> to hand a value back.</p>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">static double clamp(double value) {
+    return Math.min(0.8, Math.max(-0.8, value));
+}
+
+public static void main(String[] args) {
+    System.out.println(clamp(0.95));
+    System.out.println(clamp(-1.0));
+    System.out.println(clamp(0.5));
+}</code></pre>
+        </div>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">0.8
+-0.8
+0.5</code></pre>
+        </div>
+
+        <p>The declared type and the returned value must match. A method declared
+          <code>double</code> must return a <code>double</code> on every path out of the method, or it will
+          not compile.</p>
+
+        <div class="callout callout--note">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16v-4M12 8h.01"/><circle cx="12" cy="12" r="9"/></svg></div>
+          <div class="c-title">The clamp is now a name</div>
+          <div class="c-body"><p>In lesson 4 that expression was written out in full. Now it has a name and
+            lives in one place. In Phase 2 you will call a method exactly like this on the output of a PID
+            controller.</p></div>
+        </div>
+
+        <h2 id="catch"><span class="section-h"><span class="num">4</span> Catching what comes back</span></h2>
+        <p>A returned value is thrown away unless you store it, print it, or use it in a larger
+          expression.</p>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">clamp(0.95);                        // the answer is discarded
+double safe = clamp(0.95);          // stored
+System.out.println(clamp(0.95));    // printed
+motorSet(clamp(0.95));              // passed straight on</code></pre>
+        </div>
+
+        <p>This is the same rule as <code>toUpperCase()</code> in lesson 5. A method that returns a value
+          and is called on its own line usually means a bug.</p>
+
+        <h2 id="endsit"><span class="section-h"><span class="num">5</span> return ends the method</span></h2>
+        <p><code>return</code> hands the value back and leaves immediately. Any code after it in that path
+          does not run.</p>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">static boolean isSafe(double speed) {
+    if (speed &gt; 0.8) {
+        return false;
+    }
+    if (speed &lt; -0.8) {
+        return false;
+    }
+    return true;
+}</code></pre>
+        </div>
+
+        <p>Three exits, one value each. As soon as one <code>return</code> runs the method is finished, so
+          the last line only happens when both checks passed.</p>
+
+        <h2 id="run"><span class="section-h"><span class="num">6</span> Run it yourself</span></h2>
+        <p>Change the arguments and run again.</p>
+
+        <div class="sandbox" data-compiler data-title="Live Java Sandbox" data-lang="java">
+          <script type="text/x-java" class="sb-src">
+public class Main {
+
+    static double clamp(double value) {
+        return Math.min(0.8, Math.max(-0.8, value));
+    }
+
+    static double ticksToDegrees(int ticks, int ticksPerRotation) {
+        return (double) ticks / ticksPerRotation * 360;
+    }
+
+    public static void main(String[] args) {
+        System.out.println("clamp(0.95)           = " + clamp(0.95));
+        System.out.println("clamp(-1.0)           = " + clamp(-1.0));
+        System.out.println("ticksToDegrees(90,20) = " + ticksToDegrees(90, 20));
+
+        // Try it: call clamp with 0.5 and with 2.0.
+        // Then write a method addOne that takes an int and returns it plus one.
+    }
+}
+          </script>
+        </div>
+
+        <h2 id="challenges"><span class="section-h"><span class="num">7</span> Practice challenges</span></h2>
+
+        <div class="challenge" data-kind="text"
+             data-win="Correct. 90 divided by 20 is 4.5 rotations, and 4.5 times 360 is 1620."
+             data-lose="It is 1620.0. The cast to double happens before the division, so the .5 survives.">
+          <div class="challenge-head"><span class="ch-kind">Predict the output</span><span class="ch-title">Follow the return</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">What is printed?</p>
+            <pre class="fib">static double ticksToDegrees(int ticks, int perRotation) {
+    return (double) ticks / perRotation * 360;
+}
+
+System.out.println(ticksToDegrees(90, 20));</pre>
+            <div class="answer-row">
+              <input class="answer-input" type="text" placeholder="Type the output…" data-answer="1620.0|1620" aria-label="Your answer" />
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check answer</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="fib"
+             data-win="Correct. The return type replaces void, and return hands the value back."
+             data-lose="A method that gives back a decimal is declared double, and the value is handed back with return.">
+          <div class="challenge-head"><span class="ch-kind">Fill in the blanks</span><span class="ch-title">Write a returning method</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Complete a method that doubles a speed and gives it back.</p>
+<pre class="fib">static <span class="blank" data-answer="double"></span> doubled(double speed) {
+    <span class="blank" data-answer="return"></span> speed * 2;
+}</pre>
+            <div class="challenge-actions">
+              <button class="btn btn--sm check-btn" type="button">Check</button>
+              <button class="btn btn--sm btn--ghost reset-btn" type="button">Reset</button>
+            </div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">The discarded answer</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">A method returns a <code>double</code> and is called as
+              <code>clamp(0.95);</code> on its own line. What happens to the value?</p>
+            <div class="options">
+              <label class="option" data-explain="Nothing is stored. Java does not guess a destination for a returned value."><input type="radio" name="q-disc" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It is stored back into the argument</span></label>
+              <label class="option" data-correct data-explain="Correct. The method runs, the value is produced, and with nothing to catch it the value is discarded."><input type="radio" name="q-disc" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It is discarded</span></label>
+              <label class="option" data-explain="A returned value never prints on its own. Only System.out.println prints."><input type="radio" name="q-disc" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It is printed automatically</span></label>
+              <label class="option" data-explain="This is legal Java and compiles without complaint, which is exactly why it is easy to miss."><input type="radio" name="q-disc" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A compiler error</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">Argument order</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">A method is declared
+              <code>setSpeeds(double left, double right)</code> and called as
+              <code>setSpeeds(right, left)</code>. What happens?</p>
+            <div class="options">
+              <label class="option" data-explain="Java matches by position only. It has no way to know the caller meant something else."><input type="radio" name="q-order" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Java matches the names and fixes it</span></label>
+              <label class="option" data-correct data-explain="Correct. Both are doubles so it compiles, and the values arrive swapped. This is a logic error with no message."><input type="radio" name="q-order" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It compiles and the two values arrive the wrong way round</span></label>
+              <label class="option" data-explain="The types match, so there is nothing for the compiler to object to."><input type="radio" name="q-order" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A compiler error</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <h2 id="mistakes"><span class="section-h"><span class="num">8</span> Common mistakes</span></h2>
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">Watch out for these</div>
+          <div class="c-body">
+            <ul>
+              <li>Calling a returning method on its own line, so the answer is discarded.</li>
+              <li>Declaring a return type and forgetting to return on some path, which gives
+                <code>missing return statement</code>.</li>
+              <li>Returning a value from a <code>void</code> method.</li>
+              <li>Leaving out the type on the second parameter.</li>
+              <li>Passing arguments in the wrong order when they share a type. Nothing is reported.</li>
+              <li>Writing code after <code>return</code> in the same branch, which never runs.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="exercise" id="exercise">
+          <div class="exercise-head">
+            <div class="ex-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4L12 17l-6.3 4.4L8 14 2 9.4h7.6z"/></svg></div>
+            <div>
+              <div class="ex-kicker">Exercise</div>
+              <h3>A Small Robot Maths Library</h3>
+            </div>
+          </div>
+          <div class="exercise-body">
+            <p>Write four methods that each take values and return an answer.</p>
+            <ol class="task-list">
+              <li><code>clamp(double value)</code> returns the value held between −0.8 and 0.8.</li>
+              <li><code>ticksToDegrees(int ticks, int perRotation)</code> returns the angle.</li>
+              <li><code>isSafe(double speed)</code> returns a boolean.</li>
+              <li><code>batteryPercent(double volts)</code> returns the percentage of 12.6 volts.</li>
+              <li>Bonus: call <code>clamp</code> inside another method rather than in
+                <code>main</code>.</li>
+            </ol>
+            <div class="sandbox" data-compiler data-title="Project Sandbox" data-lang="java">
+              <script type="text/x-java" class="sb-src">
+public class Main {
+
+    // TODO: clamp, ticksToDegrees, isSafe, batteryPercent
+
+    public static void main(String[] args) {
+        // TODO: print the result of each method
+    }
+}
+              </script>
+            </div>
+            <details class="reveal">
+              <summary><svg class="rv-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg> Show one possible solution</summary>
+              <div class="reveal-body">
+                <div class="code">
+                  <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">solution · Main.java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">public class Main {
+
+    static double clamp(double value) {
+        return Math.min(0.8, Math.max(-0.8, value));
+    }
+
+    static double ticksToDegrees(int ticks, int perRotation) {
+        return (double) ticks / perRotation * 360;
+    }
+
+    static boolean isSafe(double speed) {
+        return speed &gt;= -0.8 &amp;&amp; speed &lt;= 0.8;
+    }
+
+    static double batteryPercent(double volts) {
+        return volts / 12.6 * 100;
+    }
+
+    public static void main(String[] args) {
+        System.out.println("clamp(0.95)     = " + clamp(0.95));
+        System.out.println("degrees(90,20)  = " + ticksToDegrees(90, 20));
+        System.out.println("isSafe(0.9)     = " + isSafe(0.9));
+        System.out.printf("battery(11.4)   = %.1f%%%n", batteryPercent(11.4));
+    }
+}</code></pre>
+                </div>
+                <div class="code">
+                  <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">clamp(0.95)     = 0.8
+degrees(90,20)  = 1620.0
+isSafe(0.9)     = false
+battery(11.4)   = 90.5%</code></pre>
+                </div>
+                <p>Every one of these is a single line of logic with a name attached. That is what most of
+                  a robot codebase looks like.</p>
+              </div>
+            </details>
+          </div>
+        </div>
+
+        <div class="checkpoint" id="checkpoint">
+          <div class="checkpoint-head">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            <h3>Checkpoint</h3>
+            <span class="cp-score">0 / 4</span>
+          </div>
+          <div class="checkpoint-body">
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q1.</span> What does the type before a method name mean?</div>
+              <div class="options">
+                <label class="option" data-explain="Parameter types are listed inside the parentheses, not before the name."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The type it accepts</span></label>
+                <label class="option" data-correct data-explain="Correct. It is the return type, and void means nothing comes back."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The type it gives back</span></label>
+                <label class="option" data-explain="Methods do not have a type of their own in that sense. The type describes what is returned."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The type of the method itself</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q2.</span> What happens immediately after <code>return</code> runs?</div>
+              <div class="options">
+                <label class="option" data-correct data-explain="Correct. The method ends there and control goes back to whatever called it."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The method ends</span></label>
+                <label class="option" data-explain="Lines after a return in the same path never run."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The rest of the method still runs</span></label>
+                <label class="option" data-explain="Only the method ends. The program carries on from the calling line."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The whole program stops</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q3.</span> How are arguments matched to parameters?</div>
+              <div class="options">
+                <label class="option" data-explain="Names are irrelevant. The parameter can have a completely different name from the variable passed in."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">By matching names</span></label>
+                <label class="option" data-correct data-explain="Correct. First argument to first parameter, and so on. Swapping two of the same type is a silent bug."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">By position</span></label>
+                <label class="option" data-explain="Alphabetical order plays no part in how a call works."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Alphabetically</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q4.</span> A method declared <code>double</code> has an <code>if</code> that returns, and nothing after it. What does the compiler say?</div>
+              <div class="options">
+                <label class="option" data-correct data-explain="Correct. Every path out of the method has to return a value, and the false path has none."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>missing return statement</code></span></label>
+                <label class="option" data-explain="Java does not invent a value. It refuses to compile instead."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Nothing, it returns 0</span></label>
+                <label class="option" data-explain="This is caught before the program ever runs, which is the cheapest kind of error to fix."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Nothing, it crashes at runtime</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check my answers</button></div>
+          </div>
+        </div>
+
+        <div class="mark-complete">
+          <div class="mc-text"><b>Lesson complete.</b><span>Next: where a variable exists, and how Java tracks which method called which.</span></div>
+          <button class="complete-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>Mark as complete</span></button>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="/assets/js/course.js"></script>
+  <script src="/assets/js/site.js"></script>
+  <script src="/assets/js/widgets.js"></script>
+</body>
+</html>

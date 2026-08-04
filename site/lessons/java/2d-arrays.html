@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>2D Arrays (Grids) · Penguin Empire 2551</title>
+  <meta name="description" content="An array of arrays gives you a grid. Declaring one, reading a cell with two indexes, filling it with nested loops, and printing it as rows and columns." />
+  <link rel="icon" href="/assets/img/logo-2551.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Aldrich&family=Russo+One&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/brand.css" />
+  <link rel="stylesheet" href="/assets/css/layout.css" />
+  <link rel="stylesheet" href="/assets/css/lesson.css" />
+</head>
+<body data-page="lesson" data-lesson="j-2d-arrays">
+  <main id="main" class="content">
+    <div class="content-inner">
+
+      <header class="lesson-hero">
+        <nav class="crumbs" aria-label="Breadcrumb">
+          <a href="/">Home</a><span class="sep">/</span>
+          <a href="/syllabus.html">Phase 1 · Java &amp; OOP</a><span class="sep">/</span>
+          <span>Unit J4 · Data Structures</span>
+        </nav>
+        <span class="badge badge--ocean">Lesson 17</span>
+        <h1 class="lesson-title">2D Arrays (Grids)</h1>
+        <p class="lesson-lede">A 2D array is an array whose slots are themselves arrays. That gives you
+          rows and columns. The capstone project is built on one.</p>
+        <div class="lesson-meta">
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg> 25 min</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h2v-4H3zM9 20h2V10H9zM15 20h2V4h-2z"/></svg> Beginner</span>
+        </div>
+      </header>
+
+      <div class="goal">
+        <div class="goal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div>
+        <div>
+          <h2>Your goal</h2>
+          <p>Create a grid, put a value at a chosen row and column, and print the whole thing.</p>
+        </div>
+      </div>
+
+      <nav class="toc" aria-label="On this page">
+        <strong>On this page</strong>
+        <ol>
+          <li><a href="#make">Making a grid</a></li>
+          <li><a href="#cell">Reading and writing a cell</a></li>
+          <li><a href="#size">Rows and columns</a></li>
+          <li><a href="#fill">Filling it with nested loops</a></li>
+          <li><a href="#print">Printing it</a></li>
+          <li><a href="#run">Run it yourself</a></li>
+          <li><a href="#challenges">Practice challenges</a></li>
+          <li><a href="#mistakes">Common mistakes</a></li>
+          <li><a href="#exercise">Exercise</a></li>
+          <li><a href="#checkpoint">Checkpoint</a></li>
+        </ol>
+      </nav>
+
+      <div class="prose">
+
+        <h2 id="make"><span class="section-h"><span class="num">1</span> Making a grid</span></h2>
+        <p>Add a second pair of square brackets. The first number is the number of rows and the second is
+          the number of columns.</p>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">String[][] kitchen = new String[3][5];   // 3 rows, 5 columns</code></pre>
+        </div>
+
+        <p>That creates 15 cells. Every one starts as <code>null</code>, because this is an array of
+          <code>String</code>. A grid of <code>int</code> would start every cell at 0.</p>
+
+        <h2 id="cell"><span class="section-h"><span class="num">2</span> Reading and writing a cell</span></h2>
+        <p>Use two indexes. Row first, then column. Both count from 0.</p>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">kitchen[2][1] = "A";                     // row 2, column 1
+System.out.println(kitchen[2][1]);       // A</code></pre>
+        </div>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">where that cell is</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">        col 0   1   2   3   4
+row 0     .   .   .   .   .
+row 1     .   .   .   .   .
+row 2     .   A   .   .   .</code></pre>
+        </div>
+
+        <p>Row 2 is the third line down and column 1 is the second position across. Getting the order the
+          wrong way round is the most common mistake with grids.</p>
+
+        <h2 id="size"><span class="section-h"><span class="num">3</span> Rows and columns</span></h2>
+        <p><code>kitchen.length</code> gives the number of rows. <code>kitchen[0].length</code> gives the
+          number of columns in row 0.</p>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">System.out.println(kitchen.length);      // 3 rows
+System.out.println(kitchen[0].length);   // 5 columns</code></pre>
+        </div>
+
+        <p>The reason is that <code>kitchen</code> is an array of rows, and each row is itself an array.
+          Asking a row for its length gives the width of the grid.</p>
+
+        <div class="callout callout--note">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16v-4M12 8h.01"/><circle cx="12" cy="12" r="9"/></svg></div>
+          <div class="c-title">Write the loops against length</div>
+          <div class="c-body"><p>Using <code>kitchen.length</code> and <code>kitchen[r].length</code>
+            instead of typing 3 and 5 means the grid can be resized by changing one line. The capstone
+            project asks you to grow a grid to 5 by 7, and code written this way needs no other edits.</p></div>
+        </div>
+
+        <h2 id="fill"><span class="section-h"><span class="num">4</span> Filling it with nested loops</span></h2>
+        <p>The nested loop from lesson 11 is exactly the shape needed to visit every cell.</p>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">String[][] kitchen = new String[3][5];
+
+for (int r = 0; r &lt; kitchen.length; r++) {
+    for (int c = 0; c &lt; kitchen[r].length; c++) {
+        kitchen[r][c] = ".";
+    }
+}</code></pre>
+        </div>
+
+        <p>The outer counter names the row and the inner counter names the column, which is the same
+          convention as printing a grid.</p>
+
+        <h2 id="print"><span class="section-h"><span class="num">5</span> Printing it</span></h2>
+        <p>Build each row with <code>print</code>, then end the line with <code>println()</code> after the
+          inner loop.</p>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">kitchen[2][1] = "A";
+
+for (int r = 0; r &lt; kitchen.length; r++) {
+    for (int c = 0; c &lt; kitchen[r].length; c++) {
+        System.out.print(kitchen[r][c] + " ");
+    }
+    System.out.println();
+}</code></pre>
+        </div>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">. . . . .
+. . . . .
+. A . . . </code></pre>
+        </div>
+
+        <p>Filling first and printing second matters. Printing a grid of <code>String</code> before filling
+          it prints <code>null</code> in every cell.</p>
+
+        <h2 id="run"><span class="section-h"><span class="num">6</span> Run it yourself</span></h2>
+        <p>Move the marker, then resize the grid by changing only the two numbers on the first line.</p>
+
+        <div class="sandbox" data-compiler data-title="Live Java Sandbox" data-lang="java">
+          <script type="text/x-java" class="sb-src">
+public class Main {
+    public static void main(String[] args) {
+        String[][] kitchen = new String[3][5];
+
+        for (int r = 0; r < kitchen.length; r++) {
+            for (int c = 0; c < kitchen[r].length; c++) {
+                kitchen[r][c] = ".";
+            }
+        }
+
+        kitchen[2][1] = "A";
+
+        for (int r = 0; r < kitchen.length; r++) {
+            for (int c = 0; c < kitchen[r].length; c++) {
+                System.out.print(kitchen[r][c] + " ");
+            }
+            System.out.println();
+        }
+
+        // Try it: move the A to row 0, column 4.
+        // Then change new String[3][5] to new String[5][7] and run again.
+    }
+}
+          </script>
+        </div>
+
+        <h2 id="challenges"><span class="section-h"><span class="num">7</span> Practice challenges</span></h2>
+
+        <div class="challenge" data-kind="text"
+             data-win="Correct. The first index is the row and the second is the column."
+             data-lose="It is row 2, column 1. The first number is always the row.">
+          <div class="challenge-head"><span class="ch-kind">Predict the output</span><span class="ch-title">Which cell?</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">In <code>kitchen[2][1]</code>, which number is the row? Type
+              <code>2</code> or <code>1</code>.</p>
+            <pre class="fib">kitchen[2][1] = "A";</pre>
+            <div class="answer-row">
+              <input class="answer-input" type="text" placeholder="Type a number…" data-answer="2" aria-label="Your answer" />
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check answer</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="text"
+             data-win="Correct. A String grid starts every cell at null until you fill it."
+             data-lose="It prints null. new String[3][5] creates the cells but puts nothing in them.">
+          <div class="challenge-head"><span class="ch-kind">Predict the output</span><span class="ch-title">Before filling</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">What is printed?</p>
+            <pre class="fib">String[][] kitchen = new String[3][5];
+System.out.println(kitchen[0][0]);</pre>
+            <div class="answer-row">
+              <input class="answer-input" type="text" placeholder="Type the output…" data-answer="null" aria-label="Your answer" />
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check answer</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="fib"
+             data-win="Correct. The grid length gives the rows and a row's length gives the columns."
+             data-lose="Use kitchen.length for the number of rows and kitchen[r].length for the number of columns.">
+          <div class="challenge-head"><span class="ch-kind">Fill in the blanks</span><span class="ch-title">Loop over every cell</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Complete the traversal so it works at any grid size.</p>
+<pre class="fib">for (int r = 0; r &lt; kitchen.<span class="blank" data-answer="length"></span>; r++) {
+    for (int c = 0; c &lt; kitchen[<span class="blank" data-answer="r"></span>].length; c++) {
+        System.out.print(kitchen[r][<span class="blank" data-answer="c"></span>]);
+    }
+}</pre>
+            <div class="challenge-actions">
+              <button class="btn btn--sm check-btn" type="button">Check</button>
+              <button class="btn btn--sm btn--ghost reset-btn" type="button">Reset</button>
+            </div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">Counting the columns</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">How do you get the number of columns in
+              <code>String[][] grid = new String[4][6];</code>?</p>
+            <div class="options">
+              <label class="option" data-explain="That gives 4, the number of rows."><input type="radio" name="q-cols" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>grid.length</code></span></label>
+              <label class="option" data-correct data-explain="Correct. Each row is itself an array, so asking a row for its length gives the width."><input type="radio" name="q-cols" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>grid[0].length</code></span></label>
+              <label class="option" data-explain="There is no width field on an array. The compiler reports cannot find symbol."><input type="radio" name="q-cols" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>grid.width</code></span></label>
+              <label class="option" data-explain="length takes no parentheses on an array, and this form does not exist for the column count either."><input type="radio" name="q-cols" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>grid.length(1)</code></span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <h2 id="mistakes"><span class="section-h"><span class="num">8</span> Common mistakes</span></h2>
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">Watch out for these</div>
+          <div class="c-body">
+            <ul>
+              <li>Swapping the two indexes. Row comes first.</li>
+              <li>Using <code>grid.length</code> for the column count.</li>
+              <li>Printing a <code>String</code> grid before filling it, which prints <code>null</code>
+                everywhere.</li>
+              <li>Typing the sizes into the loops instead of using <code>length</code>, so resizing the
+                grid breaks the traversal.</li>
+              <li>Writing <code>grid[r, c]</code>. Java needs two separate pairs of brackets.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="exercise" id="exercise">
+          <div class="exercise-head">
+            <div class="ex-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4L12 17l-6.3 4.4L8 14 2 9.4h7.6z"/></svg></div>
+            <div>
+              <div class="ex-kicker">Exercise</div>
+              <h3>The Kitchen Grid</h3>
+            </div>
+          </div>
+          <div class="exercise-body">
+            <p>Build the grid the capstone project uses. In Unit J6 this becomes a real class.</p>
+            <ol class="task-list">
+              <li>Create a 5 by 7 grid of <code>String</code> and fill every cell with a dot.</li>
+              <li>Place <code>A</code> at row 3 column 2, <code>F</code> at row 0 column 6, and
+                <code>S</code> at row 4 column 0.</li>
+              <li>Print the grid with row and column numbers along the edges.</li>
+              <li>Bonus: write the whole thing so that changing only the two size numbers still works.</li>
+            </ol>
+            <div class="sandbox" data-compiler data-title="Project Sandbox" data-lang="java">
+              <script type="text/x-java" class="sb-src">
+public class Main {
+    public static void main(String[] args) {
+        String[][] kitchen = new String[5][7];
+
+        // TODO: fill every cell with "."
+
+        // TODO: place A, F and S
+
+        // TODO: print with row and column numbers
+    }
+}
+              </script>
+            </div>
+            <details class="reveal">
+              <summary><svg class="rv-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg> Show one possible solution</summary>
+              <div class="reveal-body">
+                <div class="code">
+                  <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">solution · Main.java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">public class Main {
+    public static void main(String[] args) {
+        String[][] kitchen = new String[5][7];
+
+        for (int r = 0; r &lt; kitchen.length; r++) {
+            for (int c = 0; c &lt; kitchen[r].length; c++) {
+                kitchen[r][c] = ".";
+            }
+        }
+
+        kitchen[3][2] = "A";
+        kitchen[0][6] = "F";
+        kitchen[4][0] = "S";
+
+        System.out.print("  ");
+        for (int c = 0; c &lt; kitchen[0].length; c++) {
+            System.out.print(c + " ");
+        }
+        System.out.println();
+
+        for (int r = 0; r &lt; kitchen.length; r++) {
+            System.out.print(r + " ");
+            for (int c = 0; c &lt; kitchen[r].length; c++) {
+                System.out.print(kitchen[r][c] + " ");
+            }
+            System.out.println();
+        }
+    }
+}</code></pre>
+                </div>
+                <div class="code">
+                  <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">  0 1 2 3 4 5 6
+0 . . . . . . F
+1 . . . . . . .
+2 . . . . . . .
+3 . . A . . . .
+4 S . . . . . . </code></pre>
+                </div>
+                <p>Nothing in the loops mentions 5 or 7. Change the first line to
+                  <code>new String[8][10]</code> and everything still works.</p>
+              </div>
+            </details>
+          </div>
+        </div>
+
+        <div class="checkpoint" id="checkpoint">
+          <div class="checkpoint-head">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            <h3>Checkpoint</h3>
+            <span class="cp-score">0 / 4</span>
+          </div>
+          <div class="checkpoint-body">
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q1.</span> In <code>grid[r][c]</code>, what is <code>r</code>?</div>
+              <div class="options">
+                <label class="option" data-correct data-explain="Correct. The first index selects the row."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The row</span></label>
+                <label class="option" data-explain="The second index is the column."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The column</span></label>
+                <label class="option" data-explain="Order matters. Swapping the two indexes reads a different cell, or crashes if the grid is not square."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Either, the order does not matter</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q2.</span> <code>new int[4][6]</code> creates how many cells?</div>
+              <div class="options">
+                <label class="option" data-explain="That is the two numbers added. A grid holds rows times columns."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">10</span></label>
+                <label class="option" data-correct data-explain="Correct. 4 rows of 6 columns each is 24 cells."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">24</span></label>
+                <label class="option" data-explain="4 is the number of rows, not the total number of cells."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">4</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q3.</span> Why write the loops against <code>length</code> instead of typing the sizes?</div>
+              <div class="options">
+                <label class="option" data-correct data-explain="Correct. The traversal keeps working when the grid is resized, which the capstone project requires."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">So resizing the grid does not break the loops</span></label>
+                <label class="option" data-explain="Both run at the same speed. The benefit is that the code survives a change of size."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Because it is faster</span></label>
+                <label class="option" data-explain="Java accepts a typed number perfectly well. It is simply fragile."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Because Java requires it</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q4.</span> A <code>String</code> grid prints <code>null</code> in every cell. What went wrong?</div>
+              <div class="options">
+                <label class="option" data-correct data-explain="Correct. The cells exist but nothing was put in them yet."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It was printed before it was filled</span></label>
+                <label class="option" data-explain="The size is fine. The cells simply hold their default value."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The grid was created with the wrong size</span></label>
+                <label class="option" data-explain="Java grids can hold text. The default value for an uninitialised String cell is simply null."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Grids cannot hold text</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check my answers</button></div>
+          </div>
+        </div>
+
+        <div class="mark-complete">
+          <div class="mc-text"><b>Lesson complete.</b><span>Next: a list that can grow and shrink while the program runs.</span></div>
+          <button class="complete-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>Mark as complete</span></button>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="/assets/js/course.js"></script>
+  <script src="/assets/js/site.js"></script>
+  <script src="/assets/js/widgets.js"></script>
+</body>
+</html>

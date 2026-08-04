@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The src Tree · Penguin Empire 2551</title>
+  <meta name="description" content="Open a brand new command-based project and say, for any file, what belongs in it and whether you should be editing it. The six things you actually touch." />
+  <link rel="icon" href="/assets/img/logo-2551.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Aldrich&family=Russo+One&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/brand.css" />
+  <link rel="stylesheet" href="/assets/css/layout.css" />
+  <link rel="stylesheet" href="/assets/css/lesson.css" />
+</head>
+<body data-page="lesson" data-lesson="frc-src-tree">
+  <main id="main" class="content">
+    <div class="content-inner">
+
+      <!-- ===================== HEADER ===================== -->
+      <header class="lesson-hero">
+        <nav class="crumbs" aria-label="Breadcrumb">
+          <a href="/">Home</a><span class="sep">/</span>
+          <a href="/syllabus.html">Phase 2 · FRC</a><span class="sep">/</span>
+          <span>Unit 3 · Project Anatomy</span>
+        </nav>
+        <span class="badge badge--ocean">Unit 3</span>
+        <h1 class="lesson-title">The src Tree</h1>
+        <p class="lesson-lede">A new robot project has dozens of files. You will touch six of them. This lesson names
+          which six, and what belongs in each.</p>
+        <div class="lesson-meta">
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg> 20 min</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h2v-4H3zM9 20h2V10H9zM15 20h2V4h-2z"/></svg> Beginner</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2zM18 3v16"/></svg> Needs: Unit 2</span>
+        </div>
+      </header>
+
+      <!-- ===================== GOAL ===================== -->
+      <div class="goal">
+        <div class="goal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div>
+        <div>
+          <h2>Your goal</h2>
+          <p>Open a brand new command based project and say, for any file, what belongs in it and whether you should
+            be editing it.</p>
+        </div>
+      </div>
+
+      <nav class="toc" aria-label="On this page">
+        <strong>On this page</strong>
+        <ol>
+          <li><a href="#why">Why this matters</a></li>
+          <li><a href="#tree">The tree, file by file</a></li>
+          <li><a href="#six">The six things you touch</a></li>
+          <li><a href="#ignore">What to ignore</a></li>
+          <li><a href="#naming">Class names and file names</a></li>
+          <li><a href="#challenges">Practice challenges</a></li>
+          <li><a href="#mistakes">Common mistakes</a></li>
+          <li><a href="#exercise">Project: Map PenguinBot's project</a></li>
+          <li><a href="#checkpoint">Checkpoint</a></li>
+        </ol>
+      </nav>
+
+      <div class="prose">
+
+        <!-- ===================== WHY ===================== -->
+        <h2 id="why"><span class="section-h"><span class="num">1</span> Why this matters</span></h2>
+        <p>The source curriculum calls Unit 3 the single most important conceptual unit, because everything after it
+          hangs on knowing where things go.</p>
+
+        <div class="callout callout--why">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></div>
+          <div class="c-title">The duplicated ExampleSubsystem</div>
+          <div class="c-body">
+            <p>The normal way to make your first subsystem is to copy the <code>ExampleSubsystem</code> the template
+              gave you and rename it. The team did exactly that on the ChairBot. They renamed the <em>file</em> to
+              <code>DrivetrainSubsystem.java</code>, and the editor filled with red squiggles, because the
+              <strong>class inside</strong> still said <code>ExampleSubsystem</code>. Java requires a public class to
+              match its file name.</p>
+            <p>Here is the part worth knowing. On some laptops in the room, the editor's rename tool fixed the class
+              declaration automatically. On the older laptops it did not. The same instructions produced two
+              different experiences three feet apart, and the fix took thirty seconds once somebody said it out
+              loud.</p>
+          </div>
+        </div>
+
+        <div class="callout callout--tip">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12c.7.7 1 1.4 1 2h6c0-.6.3-1.3 1-2a7 7 0 0 0-4-12z"/></svg></div>
+          <div class="c-title">Red and yellow are not the same</div>
+          <div class="c-body"><p>Red means it will not compile. Yellow is a warning, usually something declared and
+            not used yet, and the project still builds. New members treat both as catastrophes and lose time to the
+            yellow ones.</p></div>
+        </div>
+
+        <!-- ===================== TREE ===================== -->
+        <h2 id="tree"><span class="section-h"><span class="num">2</span> The tree, file by file</span></h2>
+        <p>This is what a fresh command based project gives you. Click any row.</p>
+
+        <div class="ftree" data-hint="Click any file to see what belongs in it and whether you should be editing it.">
+          <button class="ft-row" data-depth="0" data-name="src/main/java/frc/robot/" data-edit="folder"
+            data-info="The only folder you usually touch. Everything above it is Gradle and build machinery."></button>
+          <button class="ft-row" data-depth="1" data-name="Main.java" data-edit="never"
+            data-info="Starts the robot program. WPILib's own documentation says new users should not touch this class. There is nothing in it you can usefully change."></button>
+          <button class="ft-row" data-depth="1" data-name="Robot.java" data-edit="rarely"
+            data-info="Responsible for the main control flow of the robot code. It holds the mode handlers, and in a command based project it is nearly empty by design. Unit 8 covers the one case where the team edited it."></button>
+          <button class="ft-row" data-depth="1" data-name="RobotContainer.java" data-edit="often"
+            data-info="Holds the subsystems and commands, and is where most of the declarative setup happens. Button bindings and the autonomous command live here. The source calls this the most important file in the project."></button>
+          <button class="ft-row" data-depth="1" data-name="Constants.java" data-edit="often"
+            data-info="Every tunable number in one place: CAN IDs, speeds, setpoints, and later your PID gains. Unit 7 explains why this saves whole evenings."></button>
+          <button class="ft-row" data-depth="1" data-name="subsystems/" data-edit="folder"
+            data-info="One file per mechanism. This is the only place in the whole project where motors get touched."></button>
+          <button class="ft-row" data-depth="2" data-name="ExampleSubsystem.java" data-edit="copy"
+            data-info="The template subsystem. You copy this to make your own, then rename both the file and the class inside it."></button>
+          <button class="ft-row" data-depth="1" data-name="commands/" data-edit="folder"
+            data-info="One file per behaviour. A command tells subsystems what to do and has a defined end, which is what lets you sequence behaviours."></button>
+          <button class="ft-row" data-depth="2" data-name="ExampleCommand.java" data-edit="copy"
+            data-info="The template command. Same copy and rename routine as the subsystem."></button>
+          <button class="ft-row" data-depth="0" data-name="vendordeps/" data-edit="rarely"
+            data-info="The JSON records of your installed vendor libraries, written by the vendor dependency manager in Unit 2. You read these, you do not usually write them."></button>
+          <button class="ft-row" data-depth="0" data-name="build.gradle" data-edit="never"
+            data-info="Build machinery. Leave it alone unless you know exactly why you are in there. Almost nothing a beginner needs lives in this file."></button>
+        </div>
+
+        <!-- ===================== SIX ===================== -->
+        <h2 id="six"><span class="section-h"><span class="num">3</span> The six things you touch</span></h2>
+        <p>Compressed to one table you can hold in your head:</p>
+
+        <div class="tablewrap">
+          <table class="data">
+            <thead><tr><th>You are writing…</th><th>It goes in…</th><th>First done in</th></tr></thead>
+            <tbody>
+              <tr><td>A number somebody will want to change later</td><td><code>Constants.java</code></td><td>Unit 7</td></tr>
+              <tr><td>Code that touches a motor or reads a sensor</td><td>A file in <code>subsystems/</code></td><td>Unit 7</td></tr>
+              <tr><td>A behaviour with a beginning and an end</td><td>A file in <code>commands/</code></td><td>Unit 7</td></tr>
+              <tr><td>A button binding</td><td><code>RobotContainer.java</code></td><td>Unit 8</td></tr>
+              <tr><td>The autonomous selection</td><td><code>RobotContainer.java</code></td><td>Unit 11</td></tr>
+              <tr><td>Something that has to happen when a mode starts</td><td><code>Robot.java</code></td><td>Unit 8</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>Notice that Unit 4 is not in that table. In the next unit you write a plain class that spins a motor,
+          before subsystems exist, so there is one lesson where the answer is simply "a new file." Unit 7 moves it
+          into <code>subsystems/</code> where it belongs.</p>
+
+        <!-- ===================== IGNORE ===================== -->
+        <h2 id="ignore"><span class="section-h"><span class="num">4</span> What to ignore</span></h2>
+        <p>The project contains Gradle files, a wrapper, build output, and test scaffolding. None of it needs to make
+          sense to you this season. Ignoring build machinery is not a gap in your knowledge. It is the entire point
+          of having a framework.</p>
+        <p>Two rules that keep this true:</p>
+        <ul>
+          <li>Do not edit files you did not create and were not told to edit. If a fix requires touching
+            <code>build.gradle</code>, that is a conversation with a mentor, not a solo experiment.</li>
+          <li>Do not delete anything to make an error go away. Errors are information.</li>
+        </ul>
+
+        <!-- ===================== NAMING ===================== -->
+        <h2 id="naming"><span class="section-h"><span class="num">5</span> Class names and file names</span></h2>
+        <p>This is the rule the war story is about, and it comes straight from Java rather than from WPILib.</p>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">ArmSubsystem.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">// the file is called ArmSubsystem.java, so the public class must be too
+public class ArmSubsystem extends SubsystemBase {
+
+}</code></pre>
+        </div>
+
+        <p>If the file says <code>ArmSubsystem.java</code> and the class says <code>ExampleSubsystem</code>, nothing
+          compiles and the error message points at the class declaration. The routine for making a new subsystem is
+          therefore five steps, and the third one is the one people skip:</p>
+        <ol>
+          <li>Copy <code>ExampleSubsystem.java</code>.</li>
+          <li>Rename the file to <code>ArmSubsystem.java</code>.</li>
+          <li>Rename the class inside it to <code>ArmSubsystem</code>.</li>
+          <li>Fix any remaining red references to the old name.</li>
+          <li>Build and confirm it compiles before writing anything new.</li>
+        </ol>
+
+        <div class="vocab">
+          <div class="vocab-term"><dt>src tree</dt><dd>The source folder, and the only part of the project you normally edit.</dd></div>
+          <div class="vocab-term"><dt>subsystem</dt><dd>A file representing one mechanism. The only place motors are touched. Unit 7.</dd></div>
+          <div class="vocab-term"><dt>command</dt><dd>A file representing one behaviour with a defined end. Unit 7.</dd></div>
+          <div class="vocab-term"><dt>RobotContainer</dt><dd>Where subsystems and commands are declared and buttons are bound to behaviours.</dd></div>
+        </div>
+
+        <!-- ===================== CHALLENGES ===================== -->
+        <h2 id="challenges"><span class="section-h"><span class="num">6</span> Practice challenges</span></h2>
+
+        <!-- fib -->
+        <div class="challenge" data-kind="fib"
+             data-win="That is the whole map. Everything you write this season goes in one of those four places."
+             data-lose="Numbers go in Constants. Motors go in a subsystem. Button bindings go in RobotContainer. A behaviour with an end is a command.">
+          <div class="challenge-head"><span class="ch-kind">Fill in the blanks</span><span class="ch-title">Where does it go?</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Name the file or folder each of these belongs in.</p>
+<pre class="fib">The CAN ID of the intake roller       <span class="blank" data-answer="Constants.java|Constants|constants|constants.java"></span>
+The code that calls roller.set(0.7)   <span class="blank" data-answer="subsystems|subsystems/|IntakeSubsystem.java|a subsystem"></span>
+Binding the cross button to a command <span class="blank" data-answer="RobotContainer.java|RobotContainer|robotcontainer|robotcontainer.java"></span>
+A behaviour that ends at a setpoint   <span class="blank" data-answer="commands|commands/|a command|command"></span></pre>
+            <div class="challenge-actions">
+              <button class="btn btn--sm check-btn" type="button">Check</button>
+              <button class="btn btn--sm btn--ghost reset-btn" type="button">Reset</button>
+            </div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <!-- order -->
+        <div class="challenge" data-kind="order">
+          <div class="challenge-head"><span class="ch-kind">Put them in order</span><span class="ch-title">Make a new subsystem</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Drag these into the order you would do them.</p>
+            <ul class="order-list">
+              <li class="order-item" data-pos="3"><span class="grip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h16M4 16h16"/></svg></span><span>Rename the class inside to <code>ArmSubsystem</code></span></li>
+              <li class="order-item" data-pos="1"><span class="grip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h16M4 16h16"/></svg></span><span>Copy <code>ExampleSubsystem.java</code></span></li>
+              <li class="order-item" data-pos="5"><span class="grip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h16M4 16h16"/></svg></span><span>Build and confirm it compiles</span></li>
+              <li class="order-item" data-pos="2"><span class="grip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h16M4 16h16"/></svg></span><span>Rename the file to <code>ArmSubsystem.java</code></span></li>
+              <li class="order-item" data-pos="4"><span class="grip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h16M4 16h16"/></svg></span><span>Fix any remaining red references to the old name</span></li>
+            </ul>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <!-- mcq edit -->
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">Which file do you live in?</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Which file do you edit most as a new programmer?</p>
+            <div class="options">
+              <label class="option" data-explain="Never. It only starts the program, and WPILib says new users should not touch it."><input type="radio" name="q-edit" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>Main.java</code></span></label>
+              <label class="option" data-explain="Rarely. The team edited it once in a whole season, to run a test routine."><input type="radio" name="q-edit" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>Robot.java</code></span></label>
+              <label class="option" data-correct data-explain="Yes. Controller bindings and autonomous both live here, and the source calls it the most important file."><input type="radio" name="q-edit" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>RobotContainer.java</code></span></label>
+              <label class="option" data-explain="Build machinery. Leave it alone unless you know exactly why you are in there."><input type="radio" name="q-edit" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>build.gradle</code></span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <!-- mcq red -->
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">A screen full of red</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">You copied <code>ExampleSubsystem.java</code>, renamed the file to
+              <code>ArmSubsystem.java</code>, and the file is now full of red. Why?</p>
+            <div class="options">
+              <label class="option" data-explain="The library has nothing to do with a rename. Every REV class would fail, not this one file."><input type="radio" name="q-red" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">You need to reinstall REVLib</span></label>
+              <label class="option" data-correct data-explain="Exactly, and on some machines the editor fixes this for you, which is why the same instructions confuse different people differently."><input type="radio" name="q-red" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The class inside is still called <code>ExampleSubsystem</code></span></label>
+              <label class="option" data-explain="Order does not matter here. The name mismatch is the problem."><input type="radio" name="q-red" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">You have to rebuild before renaming</span></label>
+              <label class="option" data-explain="Copying is the normal way to make one. That part was right."><input type="radio" name="q-red" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Subsystems cannot be copied</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <!-- ===================== MISTAKES ===================== -->
+        <h2 id="mistakes"><span class="section-h"><span class="num">7</span> Common mistakes</span></h2>
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">Watch out for these</div>
+          <div class="c-body">
+            <ul>
+              <li><strong>Trying to understand every file before starting.</strong> You will touch six things.
+                Everything else is build machinery you can ignore for a year.</li>
+              <li><strong>Assuming <code>Robot.java</code> is where your code goes.</strong> It is named after the
+                robot and it holds the mode lifecycle. Your code goes in subsystems, commands, and
+                <code>RobotContainer</code>.</li>
+              <li><strong>Panicking at yellow squiggles.</strong> Yellow is a warning. Red stops the build.</li>
+              <li><strong>Assuming renaming a file renames the class.</strong> Only if your editor does it for you,
+                and not every setup does. Check the class declaration by hand.</li>
+              <li><strong>Treating <code>Constants.java</code> as optional tidiness.</strong> It is for the day a
+                port number changes and it is referenced in four files. Unit 7 has that story.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- ===================== EXERCISE ===================== -->
+        <div class="exercise" id="exercise">
+          <div class="exercise-head">
+            <div class="ex-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4L12 17l-6.3 4.4L8 14 2 9.4h7.6z"/></svg></div>
+            <div>
+              <div class="ex-kicker">Build it · PenguinBot</div>
+              <h3>Map PenguinBot's project</h3>
+            </div>
+          </div>
+          <div class="exercise-body">
+            <p>You generated the <code>PenguinBot</code> project in Unit 2 and installed REVLib into it. You have
+              never opened its folders. Do that now, and write the map you will build against.</p>
+            <ol class="task-list">
+              <li><b>Navigate</b> to <code>src</code>, then <code>main</code>, <code>java</code>, <code>frc</code>,
+                <code>robot</code>. List what is actually there.</li>
+              <li><b>Write one sentence per file:</b> what it is for, and whether you will be editing it.</li>
+              <li><b>Write the target tree,</b> the files that will exist when PenguinBot is finished. PenguinBot has
+                an intake, an arm, a swerve drivetrain, and a Limelight.</li>
+              <li><b>Name one file</b> you are confident you will never open all season, and say why that is fine.</li>
+            </ol>
+            <details class="reveal">
+              <summary><svg class="rv-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg> Reveal the reference map</summary>
+              <div class="reveal-body">
+                <p><strong>What is there now:</strong> <code>Main.java</code> which you never touch,
+                  <code>Robot.java</code> for the mode lifecycle which you rarely touch,
+                  <code>RobotContainer.java</code> for bindings and autonomous which you edit constantly,
+                  <code>Constants.java</code> for numbers which you edit constantly, and the two example files in
+                  <code>subsystems/</code> and <code>commands/</code> which exist to be copied.</p>
+                <p><strong>The target tree:</strong></p>
+                <div class="code">
+                  <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">PenguinBot, finished</span><span class="code-spacer"></span></div>
+<pre><code>src/main/java/frc/robot/
+├── Robot.java                  Unit 8, mostly untouched
+├── RobotContainer.java         Unit 8, bindings and the auto chooser
+├── Constants.java              Unit 7, IDs, speeds, setpoints, PID gains
+├── subsystems/
+│   ├── IntakeSubsystem.java    Unit 7
+│   ├── ArmSubsystem.java       Unit 7
+│   ├── DriveSubsystem.java     Unit 9
+│   └── LimelightSubsystem.java Unit 10
+└── commands/
+    ├── ArmToScoreCommand.java  Unit 7
+    ├── AimAtTagCommand.java    Unit 10
+    └── ScoreSequence.java      Unit 8</code></pre>
+                </div>
+                <p><strong>Never opening:</strong> <code>Main.java</code>. It exists to start the robot program and
+                  there is nothing in it you can usefully change. Not understanding it costs you nothing, which is
+                  what a good framework is for.</p>
+              </div>
+            </details>
+            <p>Next: the four layers of a command based robot, and why motors only ever get touched in one of them.</p>
+          </div>
+        </div>
+
+        <!-- ===================== CHECKPOINT ===================== -->
+        <div class="checkpoint" id="checkpoint">
+          <div class="checkpoint-head">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            <h3>Checkpoint</h3>
+            <span class="cp-score">0 / 4</span>
+          </div>
+          <div class="checkpoint-body">
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q1.</span> Where does a motor object get created?</div>
+              <div class="options">
+                <label class="option" data-explain="RobotContainer declares subsystems and binds buttons. It does not touch motors directly."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">In <code>RobotContainer.java</code></span></label>
+                <label class="option" data-correct data-explain="Right. A subsystem owns its hardware, and it is the only place motors get touched."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">In a file in <code>subsystems/</code></span></label>
+                <label class="option" data-explain="Constants stores the CAN ID as a number. It does not create the object."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">In <code>Constants.java</code></span></label>
+                <label class="option" data-explain="Main.java only starts the program."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">In <code>Main.java</code></span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q2.</span> What is <code>Constants.java</code> for?</div>
+              <div class="options">
+                <label class="option" data-explain="Values that never change in Java are just final fields. This file is about where the numbers live, not whether they are final."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Values Java will not let you change</span></label>
+                <label class="option" data-correct data-explain="Yes. When a port changes, you edit one line instead of hunting through four files."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Every tunable number in one place, so a change happens once</span></label>
+                <label class="option" data-explain="Nothing about the robot's identity lives there. It is your numbers."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Settings WPILib reads automatically</span></label>
+                <label class="option" data-explain="Tidiness is a side effect. The reason is the day a number changes."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Nothing important. It is for tidiness</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q3.</span> A file shows yellow squiggles and no red. Can you deploy?</div>
+              <div class="options">
+                <label class="option" data-correct data-explain="Yes. Yellow is a warning, usually something declared and not used yet. It compiles and deploys."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Yes</span></label>
+                <label class="option" data-explain="Red is what stops a build. Yellow does not."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">No, warnings block the build</span></label>
+                <label class="option" data-explain="Nothing about warnings depends on the robot being connected."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Only if the robot is connected</span></label>
+                <label class="option" data-explain="Warnings do not need suppressing to deploy, and suppressing them hides real information."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Only after you suppress them</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q4.</span> Which file does the source call the most important one in a command based project?</div>
+              <div class="options">
+                <label class="option" data-explain="It runs the mode lifecycle and is nearly empty in a command based project."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>Robot.java</code></span></label>
+                <label class="option" data-correct data-explain="Correct. Subsystems and commands are declared there and buttons are bound to behaviours there."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>RobotContainer.java</code></span></label>
+                <label class="option" data-explain="Important, and it holds numbers rather than behaviour."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>Constants.java</code></span></label>
+                <label class="option" data-explain="It only starts the program, and you should not touch it."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>Main.java</code></span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check my answers</button></div>
+          </div>
+        </div>
+
+        <!-- ===================== COMPLETE ===================== -->
+        <div class="mark-complete">
+          <div class="mc-text"><b>You know where everything belongs.</b><span>Next: the chain that connects a button press to a spinning motor.</span></div>
+          <button class="complete-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>Mark as complete</span></button>
+        </div>
+
+      </div><!-- /prose -->
+    </div><!-- /content-inner -->
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="/assets/js/course.js"></script>
+  <script src="/assets/js/site.js"></script>
+  <script src="/assets/js/widgets.js"></script>
+</body>
+</html>

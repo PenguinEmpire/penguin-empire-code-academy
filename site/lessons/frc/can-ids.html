@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CAN IDs · Penguin Empire 2551</title>
+  <meta name="description" content="Assign conflict-free CAN IDs to every device on a robot, and read a CAN ID timed out error to the right cause. Includes PenguinBot's full ID map." />
+  <link rel="icon" href="/assets/img/logo-2551.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Aldrich&family=Russo+One&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/brand.css" />
+  <link rel="stylesheet" href="/assets/css/layout.css" />
+  <link rel="stylesheet" href="/assets/css/lesson.css" />
+</head>
+<body data-page="lesson" data-lesson="frc-can-ids">
+  <main id="main" class="content">
+    <div class="content-inner">
+
+      <!-- ===================== HEADER ===================== -->
+      <header class="lesson-hero">
+        <nav class="crumbs" aria-label="Breadcrumb">
+          <a href="/">Home</a><span class="sep">/</span>
+          <a href="/syllabus.html">Phase 2 · FRC</a><span class="sep">/</span>
+          <span>Unit 2 · The Toolchain</span>
+        </nav>
+        <span class="badge badge--ocean">Unit 2</span>
+        <h1 class="lesson-title">CAN IDs</h1>
+        <p class="lesson-lede">Every device shares one bus, so every device needs a number. Get one wrong and nothing
+          complains until a motor sits still in front of a crowd.</p>
+        <div class="lesson-meta">
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg> 15 min</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h2v-4H3zM9 20h2V10H9zM15 20h2V4h-2z"/></svg> Beginner</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2zM18 3v16"/></svg> Needs: Hardware Clients</span>
+        </div>
+      </header>
+
+      <!-- ===================== GOAL ===================== -->
+      <div class="goal">
+        <div class="goal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div>
+        <div>
+          <h2>Your goal</h2>
+          <p>Assign conflict free CAN IDs to every device on a robot, and read a <code>CAN ID n timed out</code>
+            error to the right cause.</p>
+        </div>
+      </div>
+
+      <nav class="toc" aria-label="On this page">
+        <strong>On this page</strong>
+        <ol>
+          <li><a href="#why">Why this matters</a></li>
+          <li><a href="#need">Why an address is needed at all</a></li>
+          <li><a href="#two">Two places, one number</a></li>
+          <li><a href="#scheme">A numbering scheme that pays off</a></li>
+          <li><a href="#assign">Assign the map yourself</a></li>
+          <li><a href="#error">Reading the timeout error</a></li>
+          <li><a href="#challenges">Practice challenges</a></li>
+          <li><a href="#mistakes">Common mistakes</a></li>
+          <li><a href="#exercise">Project: PenguinBot's CAN ID map</a></li>
+          <li><a href="#checkpoint">Checkpoint</a></li>
+        </ol>
+      </nav>
+
+      <div class="prose">
+
+        <!-- ===================== WHY ===================== -->
+        <h2 id="why"><span class="section-h"><span class="num">1</span> Why this matters</span></h2>
+
+        <div class="callout callout--why">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></div>
+          <div class="c-title">CAN ID 16 timed out</div>
+          <div class="c-body">
+            <p>At competition, the programmer's job during a match is to watch the Driver Station console. The line
+              that appears most often is this one:</p>
+            <div class="code">
+              <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Driver Station console</span><span class="code-spacer"></span></div>
+<pre><code>ERROR  CAN ID 16 timed out</code></pre>
+            </div>
+            <p>It means a device stopped answering. Two things cause it: a wrong ID, or a wiring break. The team's
+              experience is that a wiring break is the more common of the two. You get about ninety seconds between
+              matches to work out which one you are looking at.</p>
+            <p>On PenguinBot, CAN ID 16 is the back left swerve steering motor. By Unit 9 you will have written code
+              for it. The number is not trivia. It is a location.</p>
+          </div>
+        </div>
+
+        <!-- ===================== NEED ===================== -->
+        <h2 id="need"><span class="section-h"><span class="num">2</span> Why an address is needed at all</span></h2>
+        <p>From Unit 1: CAN is one shared loop and every device sits on the same pair of wires. When the roboRIO
+          sends "run at 70 percent," that message physically reaches every device on the bus. Only one of them should
+          act on it.</p>
+        <p>The <strong>CAN ID</strong> is what makes that possible. Each message carries a device number, and each
+          device ignores everything not addressed to it.</p>
+        <p>WPILib's addressing scheme gives the device number six bits, so the valid range is <strong>0 to 63</strong>.
+          Devices ship with a default ID, which means two brand new controllers on the same bus are guaranteed to
+          collide until you change one.</p>
+
+        <!-- ===================== TWO ===================== -->
+        <h2 id="two"><span class="section-h"><span class="num">3</span> Two places, one number</span></h2>
+        <p>This is where people lose hours. A CAN ID exists in two separate places and nothing checks that they
+          agree.</p>
+
+        <div class="diagram">
+<span class="hl">IN THE CLIENT</span>                    <span class="hl">IN YOUR CODE</span>
+<span class="dim">the device is TOLD               your program ASKS
+its ID, over USB-C               to talk to that ID
+
+REV Hardware Client              new SparkMax(2, ...)
+CAN ID: 2</span>
+
+           <span class="dim">these two must match, and nothing enforces it</span>
+        </div>
+
+        <p>If the device is set to 5 and your code says 2, the project builds and deploys with no complaint at all.
+          The compiler has no idea what is bolted to the robot. The only symptom is a motor that does nothing,
+          possibly with a timeout in the console.</p>
+
+        <!-- ===================== SCHEME ===================== -->
+        <h2 id="scheme"><span class="section-h"><span class="num">4</span> A numbering scheme that pays off</span></h2>
+        <p>Any set of unique numbers works. A <em>grouped</em> set of unique numbers turns an error message into a
+          location, which is worth a lot at 11pm before a competition.</p>
+        <p>Team 2551's convention:</p>
+        <ul>
+          <li><strong>0 is the roboRIO and 1 is the PDH.</strong> Motors start at 2. This is a practical convention
+            rather than a rule in any manual, so confirm the reserved IDs for your own setup.</li>
+          <li><strong>Group by mechanism.</strong> Mechanism motors in the low numbers, drivetrain motors in blocks
+            of four.</li>
+          <li><strong>Leave gaps.</strong> Room for the motor you will add in Unit 7 is cheaper than renumbering
+            everything.</li>
+        </ul>
+
+        <div class="tablewrap">
+          <table class="data">
+            <thead><tr><th>CAN ID</th><th>Device</th><th>Hardware</th><th>Set with</th></tr></thead>
+            <tbody>
+              <tr><td>0</td><td>RoboRIO</td><td>Controller</td><td>Reserved by convention</td></tr>
+              <tr><td>1</td><td>PDH</td><td>REV power hub</td><td>Reserved by convention</td></tr>
+              <tr><td>2</td><td>Intake roller</td><td>SparkMax and Neo</td><td>REV Hardware Client</td></tr>
+              <tr><td>3</td><td>Arm pivot</td><td>SparkMax and Neo</td><td>REV Hardware Client</td></tr>
+              <tr><td>4</td><td>Arm follower, added in Unit 7</td><td>SparkMax and Neo</td><td>REV Hardware Client</td></tr>
+              <tr><td>10, 11, 12, 13</td><td>Swerve drive, front left through back right</td><td>Kraken</td><td>Phoenix Tuner</td></tr>
+              <tr><td>14, 15, 16, 17</td><td>Swerve steer, front left through back right</td><td>Kraken</td><td>Phoenix Tuner</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>Read the story at the top of the page again with this table in front of you. <code>CAN ID 16</code> is the
+          third steering motor, which is back left. That took two seconds instead of a conversation.</p>
+
+        <!-- ===================== ASSIGN ===================== -->
+        <h2 id="assign"><span class="section-h"><span class="num">5</span> Assign the map yourself</span></h2>
+        <p>Give every device below an ID. The checker enforces the rules rather than one answer: unique numbers,
+          nothing on a reserved ID, and everything inside 0 to 63.</p>
+
+        <div class="canid" data-reserved="0,1"
+             data-win="Every device has a unique, non-reserved ID. That map will work on a real bus.">
+          <div class="ci-row" data-device="Intake roller" data-hint="SparkMax and Neo"></div>
+          <div class="ci-row" data-device="Arm pivot" data-hint="SparkMax and Neo"></div>
+          <div class="ci-row" data-device="Arm follower" data-hint="added in Unit 7"></div>
+          <div class="ci-row" data-device="Swerve drive, front left" data-hint="Kraken"></div>
+          <div class="ci-row" data-device="Swerve steer, back left" data-hint="Kraken"></div>
+          <div class="challenge-actions">
+            <button class="btn btn--sm check-btn" type="button">Check the map</button>
+            <button class="btn btn--sm btn--ghost reset-btn" type="button">Reset</button>
+          </div>
+          <div class="feedback"></div>
+        </div>
+
+        <p>Try deliberately breaking it. Put two devices on the same number, or put something on ID 1, and read what
+          comes back. Those two mistakes account for most CAN problems a rookie team has.</p>
+
+        <!-- ===================== ERROR ===================== -->
+        <h2 id="error"><span class="section-h"><span class="num">6</span> Reading the timeout error</span></h2>
+        <p>Now the diagnosis. The message names a device that stopped answering, and the context around it tells you
+          which cause you have.</p>
+
+        <div class="tablewrap">
+          <table class="data">
+            <thead><tr><th>What else is true</th><th>Most likely cause</th><th>What to do</th></tr></thead>
+            <tbody>
+              <tr><td>This code worked yesterday and nobody changed the ID</td><td>A wiring break at or before that device</td><td>Check the CAN chain from the last working device onward</td></tr>
+              <tr><td>You just changed the code or replaced a controller</td><td>An ID mismatch</td><td>Open the vendor client and read the device's actual ID</td></tr>
+              <tr><td>Several consecutive IDs time out together</td><td>One break upstream of all of them</td><td>Find the first device in the chain that still answers</td></tr>
+              <tr><td>Every device times out</td><td>The start of the loop, or the roboRIO</td><td>Unit 1's narrowing by scope</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="vocab">
+          <div class="vocab-term"><dt>CAN ID</dt><dd>The unique number identifying one device on the shared bus. Valid values are 0 to 63.</dd></div>
+          <div class="vocab-term"><dt>reserved ID</dt><dd>A number the team keeps for a specific device. On this team, 0 for the roboRIO and 1 for the PDH.</dd></div>
+          <div class="vocab-term"><dt>ID collision</dt><dd>Two devices sharing a number. Produces intermittent and confusing behaviour rather than a clean error.</dd></div>
+          <div class="vocab-term"><dt>timeout</dt><dd>The roboRIO stopped hearing from a device. Usually wiring, sometimes an ID.</dd></div>
+        </div>
+
+        <!-- ===================== CHALLENGES ===================== -->
+        <h2 id="challenges"><span class="section-h"><span class="num">7</span> Practice challenges</span></h2>
+
+        <!-- fib -->
+        <div class="challenge" data-kind="fib"
+             data-win="That is PenguinBot's map, and you will use these exact numbers for the rest of the course."
+             data-lose="0 and 1 are reserved by convention for the roboRIO and the PDH. Mechanisms start at 2. Steering motors are 14 through 17, and back left is the third of those.">
+          <div class="challenge-head"><span class="ch-kind">Fill in the blanks</span><span class="ch-title">PenguinBot's numbers</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">From the scheme above, fill in the IDs.</p>
+<pre class="fib">RoboRIO         <span class="blank" data-answer="0"></span>
+PDH             <span class="blank" data-answer="1"></span>
+Intake roller   <span class="blank" data-answer="2"></span>
+Arm pivot       <span class="blank" data-answer="3"></span>
+Back-left steer <span class="blank" data-answer="16"></span></pre>
+            <div class="challenge-actions">
+              <button class="btn btn--sm check-btn" type="button">Check</button>
+              <button class="btn btn--sm btn--ghost reset-btn" type="button">Reset</button>
+            </div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <!-- mcq error -->
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">Mid match</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Mid match the console prints <code>CAN ID 16 timed out</code>. This code has
+              worked all week. Most likely cause?</p>
+            <div class="options">
+              <label class="option" data-explain="It worked all week with this code, so the number in it is almost certainly right."><input type="radio" name="q-err" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The ID in the code is wrong</span></label>
+              <label class="option" data-correct data-explain="Correct. Wiring is the more common cause, and it worked yesterday rules the ID out."><input type="radio" name="q-err" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A CAN wiring break at or before that device</span></label>
+              <label class="option" data-explain="A fried motor stops moving. Its controller still answers the bus, so you would not get a timeout."><input type="radio" name="q-err" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The motor is fried</span></label>
+              <label class="option" data-explain="Low voltage causes brownouts and resets across the whole robot, not one device timing out."><input type="radio" name="q-err" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The battery is low</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <!-- mcq duplicate -->
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">The replacement controller</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">You swap in a replacement SparkMax and now the arm behaves erratically and
+              intermittently. What did you forget?</p>
+            <div class="options">
+              <label class="option" data-explain="The code did not change, so rebuilding changes nothing."><input type="radio" name="q-dup" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">To rebuild the code</span></label>
+              <label class="option" data-correct data-explain="Exactly. It is still on its factory default, which may now collide with another device. Intermittent weirdness is the classic signature of an ID collision."><input type="radio" name="q-dup" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">To set the new controller's CAN ID</span></label>
+              <label class="option" data-explain="Worth doing, and it does not cause erratic motion."><input type="radio" name="q-dup" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">To clear sticky faults</span></label>
+              <label class="option" data-explain="Unrelated. The Driver Station is not involved in device configuration."><input type="radio" name="q-dup" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">To update the Driver Station</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <!-- short answer -->
+        <div class="challenge" data-kind="text"
+             data-win="It builds and deploys perfectly and the motor never moves. Nothing checks that these two numbers agree, which is why the map matters."
+             data-lose="It compiles and deploys with no complaint at all. The mismatch only shows up as a motor that does nothing, possibly with a timeout in the console.">
+          <div class="challenge-head"><span class="ch-kind">Predict</span><span class="ch-title">Mismatched numbers</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Your code says <code>new SparkMax(2, MotorType.kBrushless)</code> but the
+              device is set to ID 5 in the REV client. What happens when you build and deploy?</p>
+            <div class="answer-row">
+              <input class="answer-input" type="text" placeholder="what does the build do?" data-answer="nothing|it builds fine|builds fine|compiles|no error|it deploys|nothing happens|it works|builds and deploys" aria-label="Your answer" />
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <!-- ===================== MISTAKES ===================== -->
+        <h2 id="mistakes"><span class="section-h"><span class="num">8</span> Common mistakes</span></h2>
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">Watch out for these</div>
+          <div class="c-body">
+            <ul>
+              <li><strong>Expecting IDs to be assigned automatically.</strong> You assign them in the vendor client.
+                Devices ship on a default, and defaults collide.</li>
+              <li><strong>Thinking the ID is set in the code.</strong> The code requests an ID. The device is told
+                its ID in the client. Two places, and they can disagree silently.</li>
+              <li><strong>Reading a timeout as a broken motor.</strong> It means the device stopped answering the
+                bus. More often than not that is a wire.</li>
+              <li><strong>Using ID 0.</strong> On this team 0 is the roboRIO and 1 is the PDH. Start at 2 and confirm
+                the reserved IDs for your own setup.</li>
+              <li><strong>Thinking any unique numbers are as good as any others.</strong> Unique is the requirement.
+                Grouped by mechanism is what turns an error message into a location.</li>
+              <li><strong>Not writing the map down.</strong> A map that lives in one person's head is a map that
+                stops existing when they are at lunch.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- ===================== EXERCISE ===================== -->
+        <div class="exercise" id="exercise">
+          <div class="exercise-head">
+            <div class="ex-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4L12 17l-6.3 4.4L8 14 2 9.4h7.6z"/></svg></div>
+            <div>
+              <div class="ex-kicker">Build it · PenguinBot</div>
+              <h3>PenguinBot's CAN ID map</h3>
+            </div>
+          </div>
+          <div class="exercise-body">
+            <p>You have a project with REVLib installed and you know which tool sets a device ID. Time to commit to
+              the numbers the rest of this course uses.</p>
+            <ol class="task-list">
+              <li><b>Write the definitive map.</b> Honour the reserved IDs and give every device a number.</li>
+              <li><b>Group by mechanism</b> so a number identifies a location on the robot.</li>
+              <li><b>Leave room</b> for the arm follower motor you will add in Unit 7.</li>
+              <li><b>Finish with one sentence</b> stating what to do whenever a controller gets replaced.</li>
+            </ol>
+            <details class="reveal">
+              <summary><svg class="rv-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg> Reveal the reference map</summary>
+              <div class="reveal-body">
+                <div class="tablewrap">
+                  <table class="data">
+                    <thead><tr><th>CAN ID</th><th>Device</th><th>Vendor</th><th>Set with</th></tr></thead>
+                    <tbody>
+                      <tr><td>0</td><td>RoboRIO</td><td>NI</td><td>Reserved by convention</td></tr>
+                      <tr><td>1</td><td>PDH</td><td>REV</td><td>Reserved by convention</td></tr>
+                      <tr><td>2</td><td>Intake roller</td><td>REV</td><td>REV Hardware Client</td></tr>
+                      <tr><td>3</td><td>Arm pivot</td><td>REV</td><td>REV Hardware Client</td></tr>
+                      <tr><td>4</td><td>Arm follower, Unit 7</td><td>REV</td><td>REV Hardware Client</td></tr>
+                      <tr><td>10 / 11 / 12 / 13</td><td>Swerve drive FL / FR / BL / BR</td><td>CTRE</td><td>Phoenix Tuner</td></tr>
+                      <tr><td>14 / 15 / 16 / 17</td><td>Swerve steer FL / FR / BL / BR</td><td>CTRE</td><td>Phoenix Tuner</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+                <p><strong>The rule:</strong> any time a motor controller is replaced, set its CAN ID before it goes
+                  back on the robot. A factory default device on a live bus is an intermittent bug that will cost you
+                  a day.</p>
+                <p>Tape this map inside the electronics bay and keep a copy in the repository. When the console says
+                  <code>CAN ID 16 timed out</code> you want to read "back left steering" off it in two seconds,
+                  rather than asking who remembers.</p>
+              </div>
+            </details>
+            <p>One more tool before you start writing robot code: the dashboards that show you what those motors are
+              actually doing.</p>
+          </div>
+        </div>
+
+        <!-- ===================== CHECKPOINT ===================== -->
+        <div class="checkpoint" id="checkpoint">
+          <div class="checkpoint-head">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            <h3>Checkpoint</h3>
+            <span class="cp-score">0 / 4</span>
+          </div>
+          <div class="checkpoint-body">
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q1.</span> Why does every device on the CAN bus need a unique ID?</div>
+              <div class="options">
+                <label class="option" data-explain="IDs are just numbers to the compiler. It never checks them against anything."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">So the code compiles</span></label>
+                <label class="option" data-correct data-explain="Right. One loop, many devices, addressed by number."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">They share one bus, and the ID is how a device knows a message is for it</span></label>
+                <label class="option" data-explain="Power comes from the PDH and has nothing to do with CAN addressing."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">So they can be powered separately</span></label>
+                <label class="option" data-explain="Convenient, and not the reason. The bus needs addressing to work at all."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">To fill in the device list in a tool</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q2.</span> Where do you set a SparkMax's CAN ID?</div>
+              <div class="options">
+                <label class="option" data-explain="That stores the number your code uses. The device still has to be told its own."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">In <code>Constants.java</code></span></label>
+                <label class="option" data-explain="The Driver Station does not configure devices."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">In the Driver Station</span></label>
+                <label class="option" data-correct data-explain="Yes, over USB-C. Phoenix Tuner does the same job for CTRE devices."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">In the REV Hardware Client</span></label>
+                <label class="option" data-explain="Physical position on the chain does not determine a device's ID."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It is decided by where it sits on the CAN chain</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q3.</span> Two devices end up on the same CAN ID. What do you see?</div>
+              <div class="options">
+                <label class="option" data-explain="Nothing checks IDs at build time. The compiler has no idea what is on the robot."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A compile error naming the duplicate</span></label>
+                <label class="option" data-correct data-explain="Right. Two devices answering to one address gives you behaviour that changes run to run, which is much harder to chase than a clean failure."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Erratic and intermittent behaviour</span></label>
+                <label class="option" data-explain="It would be convenient if the robot refused to enable. It does not."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The robot refuses to enable</span></label>
+                <label class="option" data-explain="Sharing an address is never harmless. The devices cannot tell whose message is whose."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Nothing. Duplicate IDs are fine</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q4.</span> On PenguinBot, what is CAN ID 16?</div>
+              <div class="options">
+                <label class="option" data-explain="The intake roller is ID 2. Mechanism motors live in the low numbers."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The intake roller</span></label>
+                <label class="option" data-explain="Drive motors are 10 through 13. Steering motors are the block above them."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A swerve drive motor</span></label>
+                <label class="option" data-correct data-explain="Correct. Steering motors are 14 through 17 in the order front left, front right, back left, back right. You will meet this number again in Unit 12."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The back left swerve steering motor</span></label>
+                <label class="option" data-explain="The PDH is ID 1, reserved by convention."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The PDH</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check my answers</button></div>
+          </div>
+        </div>
+
+        <!-- ===================== COMPLETE ===================== -->
+        <div class="mark-complete">
+          <div class="mc-text"><b>Every device has an address now.</b><span>Last tool in Unit 2: seeing what those devices are actually doing.</span></div>
+          <button class="complete-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>Mark as complete</span></button>
+        </div>
+
+      </div><!-- /prose -->
+    </div><!-- /content-inner -->
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="/assets/js/course.js"></script>
+  <script src="/assets/js/site.js"></script>
+  <script src="/assets/js/widgets.js"></script>
+</body>
+</html>

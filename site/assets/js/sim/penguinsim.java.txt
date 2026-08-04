@@ -1,0 +1,377 @@
+
+/* ===========================================================================
+ * PenguinSim  ·  Penguin Empire Robotics 2551 — Code Academy
+ * ---------------------------------------------------------------------------
+ * THIS IS A TEACHING SIMULATION. NONE OF THIS IS REAL WPILib CODE.
+ *
+ * On a real robot these classes come from WPILib and the vendor libraries:
+ *     SparkMax, MotorType ...... com.revrobotics.spark.*           (REVLib)
+ *     RelativeEncoder .......... com.revrobotics.RelativeEncoder   (REVLib)
+ *     PIDController ............ edu.wpi.first.math.controller.PIDController
+ *     SubsystemBase, Command,
+ *     InstantCommand,
+ *     CommandScheduler ......... edu.wpi.first.wpilibj2.command.*
+ *     Timer .................... edu.wpi.first.wpilibj.Timer
+ *
+ * This sandbox runs plain, single-file Java, so none of those libraries exist
+ * here. PenguinSim gives you stand-ins with the SAME NAMES and the SAME METHOD
+ * SHAPES, backed by a small physics model, so robot-shaped code actually runs
+ * and prints numbers you can reason about.
+ *
+ * WHAT IS FAKED (full list: site/assets/js/sim/README.md)
+ *   1. UNITS.   The encoder reports DEGREES and degrees/second. A real REV
+ *               RelativeEncoder reports ROTATIONS and RPM.
+ *   2. PHYSICS. Every motor drives one generic geared mechanism: 600 deg/s^2
+ *               of acceleration at 100% output, viscous damping of 10/s (so
+ *               about 60 deg/s free speed) and 3.5% stiction. No gravity, no
+ *               battery sag, no current limits, no gear backlash.
+ *   3. TIME.    The clock only moves when you move it — PenguinSim.step(),
+ *               CommandScheduler.run() or Timer.delay(). Nothing runs in the
+ *               background, and Timer.delay() fast-forwards instead of waiting.
+ *   4. SAFETY.  The ">80% output" warning is a 2551 house rule baked into the
+ *               sim. A real SparkMax will cook itself in silence.
+ *   5. MISSING. CAN, the RoboRIO, the Driver Station, brownouts, sticky faults
+ *               and every other real failure mode simply do not exist here.
+ *
+ * Write the real imports in your real robot project. Learn the shape here.
+ * ========================================================================= */
+
+/** The simulated robot: one 20 ms loop, one clock, and every motor on it. */
+final class PenguinSim {
+    /** The robot loop period. Real WPILib uses the same 20 ms. */
+    static final double DT = 0.020;
+
+    static final java.util.ArrayList<SparkMax> MOTORS = new java.util.ArrayList<>();
+    private static double clock = 0.0;
+
+    private PenguinSim() {}
+
+    /** Seconds of simulated robot time since the program started. */
+    static double time() { return clock; }
+
+    /** Advance the robot by one 20 ms loop: every motor moves, the clock ticks. */
+    static void step() {
+        for (int i = 0; i < MOTORS.size(); i++) MOTORS.get(i).tick(DT);
+        clock += DT;
+    }
+
+    /** Advance the robot by <code>loops</code> 20 ms loops. */
+    static void step(int loops) { for (int i = 0; i < loops; i++) step(); }
+
+    // ---- a tiny aligned-table printer, so your output stays readable -------
+    /** Print a column header row, e.g. table("time", "position", "output"). */
+    static void table(String... headers) {
+        StringBuilder head = new StringBuilder("  ");
+        StringBuilder rule = new StringBuilder("  ");
+        for (int i = 0; i < headers.length; i++) {
+            head.append(String.format("%10s ", headers[i]));
+            rule.append("---------- ");
+        }
+        System.out.println(head);
+        System.out.println(rule);
+    }
+
+    /** Print one row under the last table(...) header. Numbers get 2 decimals. */
+    static void row(Object... cells) {
+        StringBuilder b = new StringBuilder("  ");
+        for (int i = 0; i < cells.length; i++) {
+            Object c = cells[i];
+            b.append(String.format("%10s ", (c instanceof Number)
+                    ? String.format("%.2f", ((Number) c).doubleValue()) : String.valueOf(c)));
+        }
+        System.out.println(b);
+    }
+}
+
+/** Stand-in for com.revrobotics.spark.SparkLowLevel.MotorType. */
+enum MotorType { kBrushless, kBrushed }
+
+/** Stand-in for com.revrobotics.spark.SparkMax (REVLib). */
+class SparkMax {
+    // --- the mechanism this motor drives, as the simplest honest model ------
+    // These three numbers are tuned for TEACHING, not for realism. DAMP in
+    // particular is low enough that too much kP visibly rings instead of just
+    // settling -- with heavier damping the motor saturates, the approach turns
+    // into bang-bang, and raising kP changes nothing a student can see. The
+    // whole point of Unit 6 is that bad gains look bad, so the sim has to ring.
+    private static final double ACCEL    = 600.0;  // deg/s^2 at 100% output
+    private static final double DAMP     = 6.0;    // 1/s -> ~100 deg/s free speed
+    private static final double STICTION = 0.035;  // under this, nothing breaks loose
+
+    private final int canId;
+    private final MotorType type;
+    private final RelativeEncoder encoder = new RelativeEncoder(this);
+
+    private double output = 0.0;   // already clamped to -1.0 .. 1.0
+    private double posDeg = 0.0;
+    private double velDps = 0.0;
+    private int clampWarnings = 0, hotWarnings = 0;
+
+    SparkMax(int canId, MotorType type) {
+        this.canId = canId;
+        this.type = type;
+        PenguinSim.MOTORS.add(this);
+        System.out.println("[sim] SparkMax on CAN ID " + canId + " (" + type + ") is alive.");
+    }
+
+    /** Percent output, -1.0 .. 1.0. The one method you will use all season. */
+    void set(double speed) {
+        if (Double.isNaN(speed)) speed = 0.0;
+        if (speed > 1.0 || speed < -1.0) {
+            double clamped = speed > 0.0 ? 1.0 : -1.0;
+            if (clampWarnings++ < 2) {
+                System.out.printf("[sim] !! set(%.2f) is outside -1.0..1.0 on CAN %d — clamped to %.1f. "
+                                + "Asking for more than 100%% does not give you more than 100%%.%n",
+                                  speed, canId, clamped);
+            }
+            speed = clamped;
+        }
+        if (Math.abs(speed) > 0.8 && Math.abs(output) <= 0.8 && hotWarnings++ < 3) {
+            System.out.printf("[sim] !! %.0f%% output on CAN %d. 2551 fried a motor at ~90%% — afterwards it "
+                            + "ran about 5 seconds and quit. Stay under 80%%, or add a second motor.%n",
+                              Math.abs(speed) * 100.0, canId);
+        }
+        output = speed;
+    }
+
+    /** The output actually being applied (already clamped). */
+    double get() { return output; }
+    void stopMotor() { set(0.0); }
+    void setInverted(boolean inverted) { /* shape only — the sim has no wiring */ }
+    int getDeviceId() { return canId; }
+    MotorType getMotorType() { return type; }
+    RelativeEncoder getEncoder() { return encoder; }
+
+    /** One 20 ms slice of physics. PenguinSim.step() calls this for you. */
+    void tick(double dt) {
+        if (Math.abs(output) < STICTION && Math.abs(velDps) < 1.0) { velDps = 0.0; return; }
+        velDps += (ACCEL * output - DAMP * velDps) * dt;
+        posDeg += velDps * dt;
+    }
+
+    double rawPosition() { return posDeg; }
+    double rawVelocity() { return velDps; }
+}
+
+/** Stand-in for com.revrobotics.RelativeEncoder.
+ *  FAKE UNITS: degrees and degrees/second. The real one is rotations and RPM. */
+class RelativeEncoder {
+    private final SparkMax motor;
+    private double zero = 0.0;
+
+    RelativeEncoder(SparkMax motor) { this.motor = motor; }
+
+    /** Where the mechanism is, in degrees. Relative: 0 is wherever you started. */
+    double getPosition() { return motor.rawPosition() - zero; }
+    /** How fast it is moving, in degrees/second. */
+    double getVelocity() { return motor.rawVelocity(); }
+    /** Re-home the encoder — "call this spot <code>position</code>". */
+    void setPosition(double position) { zero = motor.rawPosition() - position; }
+}
+
+/** Stand-in for edu.wpi.first.math.controller.PIDController.
+ *  Deliberately has NO output clamp and NO anti-windup — so bad gains
+ *  misbehave here exactly the way they misbehave on the robot. */
+class PIDController {
+    private double kP, kI, kD;
+    private double setpoint = 0.0;
+    private double sumError = 0.0;
+    private double lastError = Double.NaN;
+    private double tolerance = 1.0;
+
+    PIDController(double kP, double kI, double kD) { this.kP = kP; this.kI = kI; this.kD = kD; }
+
+    /** Give it where you are and where you want to be; it returns motor output. */
+    double calculate(double measurement, double setpoint) {
+        this.setpoint = setpoint;
+        return calculate(measurement);
+    }
+
+    double calculate(double measurement) {
+        double error = setpoint - measurement;
+        sumError += error * PenguinSim.DT;
+        double slope = Double.isNaN(lastError) ? 0.0 : (error - lastError) / PenguinSim.DT;
+        lastError = error;
+        return kP * error + kI * sumError + kD * slope;
+    }
+
+    void setPID(double kP, double kI, double kD) { this.kP = kP; this.kI = kI; this.kD = kD; }
+    void setSetpoint(double setpoint) { this.setpoint = setpoint; }
+    double getSetpoint() { return setpoint; }
+    double getPositionError() { return Double.isNaN(lastError) ? 0.0 : lastError; }
+    void setTolerance(double tolerance) { this.tolerance = tolerance; }
+    boolean atSetpoint() { return !Double.isNaN(lastError) && Math.abs(lastError) < tolerance; }
+    void reset() { sumError = 0.0; lastError = Double.NaN; }
+}
+
+/** Stand-in for edu.wpi.first.wpilibj.Timer. */
+class Timer {
+    private double startedAt = 0.0, accumulated = 0.0;
+    private boolean running = false;
+
+    static double getFPGATimestamp() { return PenguinSim.time(); }
+
+    /** Real WPILib blocks the thread here. PenguinSim fast-forwards the
+     *  simulated clock instead, running the 20 ms loop the whole way. */
+    static void delay(double seconds) { PenguinSim.step((int) Math.round(seconds / PenguinSim.DT)); }
+
+    void start() { if (!running) { startedAt = PenguinSim.time(); running = true; } }
+    void stop()  { if (running) { accumulated += PenguinSim.time() - startedAt; running = false; } }
+    void reset() { accumulated = 0.0; startedAt = PenguinSim.time(); }
+    double get() { return accumulated + (running ? PenguinSim.time() - startedAt : 0.0); }
+    boolean hasElapsed(double seconds) { return get() >= seconds; }
+}
+
+/** Stand-in for edu.wpi.first.wpilibj2.command.SubsystemBase.
+ *  Creating one registers it, so its periodic() runs every 20 ms. */
+abstract class SubsystemBase {
+    SubsystemBase() { CommandScheduler.getInstance().registerSubsystem(this); }
+    public void periodic() {}
+    public String getName() { return getClass().getSimpleName(); }
+}
+
+/** Stand-in for edu.wpi.first.wpilibj2.command.Command. */
+abstract class Command {
+    public void initialize() {}
+    public void execute() {}
+    public boolean isFinished() { return false; }
+    public void end(boolean interrupted) {}
+    public String getName() { return getClass().getSimpleName(); }
+    public void schedule() { CommandScheduler.getInstance().schedule(this); }
+    public void cancel() { CommandScheduler.getInstance().cancel(this); }
+}
+
+/** Stand-in for edu.wpi.first.wpilibj2.command.InstantCommand — runs once, ends. */
+class InstantCommand extends Command {
+    private final Runnable action;
+    InstantCommand(Runnable action) { this.action = action; }
+    @Override public void initialize() { if (action != null) action.run(); }
+    @Override public boolean isFinished() { return true; }
+    @Override public String getName() { return "InstantCommand"; }
+}
+
+/** Stand-in for edu.wpi.first.wpilibj2.command.CommandScheduler.
+ *  Prints one row per 20 ms loop so you can watch the lifecycle happen. */
+class CommandScheduler {
+    private static CommandScheduler instance;
+    static CommandScheduler getInstance() {
+        if (instance == null) instance = new CommandScheduler();
+        return instance;
+    }
+
+    private final java.util.ArrayList<SubsystemBase> subsystems = new java.util.ArrayList<>();
+    private final java.util.ArrayList<Command> running = new java.util.ArrayList<>();
+    private int cycle = 0, every = 1, printed = 0, skipped = 0;
+    private boolean trace = true, headerDone = false;
+
+    void registerSubsystem(SubsystemBase s) { if (!subsystems.contains(s)) subsystems.add(s); }
+    /** Turn the per-cycle table off if your command prints its own numbers. */
+    void setTraceEnabled(boolean on) { trace = on; }
+    /** Print only every n-th cycle. */
+    void setTraceEvery(int n) { every = Math.max(1, n); }
+    boolean isScheduled(Command c) { return running.contains(c); }
+
+    /** Start a command: initialize() runs immediately, right here. */
+    void schedule(Command c) {
+        if (c == null || running.contains(c)) return;
+        header();
+        running.add(c);
+        mark(">> " + c.getName() + ".initialize()");
+        c.initialize();
+    }
+
+    void cancel(Command c) {
+        if (!running.remove(c)) return;
+        mark("<< " + c.getName() + ".end(interrupted = true)");
+        c.end(true);
+    }
+
+    /** ONE 20 ms cycle: subsystem periodic(), then execute() + isFinished()
+     *  for every running command, then 20 ms of physics. */
+    void run() {
+        header();
+        cycle++;
+        String per = "", exe = "", fin = "";
+        for (int i = 0; i < subsystems.size(); i++) {
+            subsystems.get(i).periodic();
+            per = join(per, subsystems.get(i).getName());
+        }
+        java.util.ArrayList<Command> done = new java.util.ArrayList<>();
+        for (int i = 0; i < running.size(); i++) {
+            Command c = running.get(i);
+            c.execute();
+            boolean finished = c.isFinished();
+            exe = join(exe, c.getName());
+            fin = join(fin, finished ? "TRUE" : "false");
+            if (finished) done.add(c);
+        }
+        if (per.isEmpty()) per = "-";
+        if (exe.isEmpty()) { exe = "-"; fin = "-"; }
+        row(per, exe, fin);
+        for (int i = 0; i < done.size(); i++) {
+            Command c = done.get(i);
+            running.remove(c);
+            mark("<< " + c.getName() + ".end(interrupted = false)");
+            c.end(false);
+        }
+        PenguinSim.step();
+    }
+
+    /** Run the loop until every scheduled command finishes. Hard-capped so the
+     *  sandbox always terminates — a real robot would just keep going. */
+    void runUntilDone() { runUntilDone(200); }
+
+    void runUntilDone(int maxCycles) {
+        int guard = 0;
+        while (!running.isEmpty() && guard++ < maxCycles) run();
+        if (!trace) return;
+        if (running.isEmpty()) {
+            System.out.printf("  [sim] all commands finished after %d cycles (%.2f s of robot time).%n",
+                              cycle, PenguinSim.time());
+        } else {
+            System.out.printf("  [sim] stopped after %d cycles — %d command(s) still running.%n"
+                            + "  [sim] isFinished() never returned true, so on a real robot this runs forever.%n",
+                              maxCycles, running.size());
+        }
+    }
+
+    /** Run the loop for a fixed number of seconds of robot time. */
+    void runFor(double seconds) {
+        int loops = (int) Math.round(seconds / PenguinSim.DT);
+        for (int i = 0; i < loops; i++) run();
+    }
+
+    // ---- trace plumbing ----------------------------------------------------
+    private static String join(String acc, String next) { return acc.isEmpty() ? next : acc + ", " + next; }
+
+    private void header() {
+        if (headerDone || !trace) return;
+        headerDone = true;
+        System.out.println();
+        System.out.println("  [sim] CommandScheduler — one row per 20 ms robot loop.");
+        System.out.printf("  %5s  %3s  %-22s %-22s %s%n", "t(s)", "cyc", "subsystem periodic()", "command execute()", "isFinished()");
+        System.out.println("  -----  ---  ---------------------- ---------------------- ------------");
+    }
+
+    private void flushSkipped() {
+        if (skipped <= 0) return;
+        System.out.printf("    ...    ...  ( %d cycles not shown )%n", skipped);
+        skipped = 0;
+    }
+
+    private void row(String per, String exe, String fin) {
+        if (!trace) return;
+        if (cycle != 1 && cycle % every != 0) { skipped++; return; }
+        flushSkipped();
+        System.out.printf("  %5.2f  %3d  %-22s %-22s %s%n", PenguinSim.time(), cycle, per, exe, fin);
+        printed++;
+        if (every == 1 && printed == 25) { every = 5; System.out.println("  [sim] trace thinning to every 5th cycle."); }
+        else if (every == 5 && printed == 40) { every = 25; System.out.println("  [sim] trace thinning to every 25th cycle."); }
+    }
+
+    private void mark(String text) {
+        if (!trace) return;
+        flushSkipped();
+        System.out.printf("  %5.2f    -  %s%n", PenguinSim.time(), text);
+    }
+}

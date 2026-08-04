@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reading Position &amp; Velocity · Penguin Empire 2551</title>
+  <meta name="description" content="Encoders turn what you pushed into what actually happened. getEncoder(), getPosition() and getVelocity(), their real units, and a live sandbox where you watch a mechanism ramp up." />
+  <link rel="icon" href="/assets/img/logo-2551.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Aldrich&family=Russo+One&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/brand.css" />
+  <link rel="stylesheet" href="/assets/css/layout.css" />
+  <link rel="stylesheet" href="/assets/css/lesson.css" />
+</head>
+<body data-page="lesson" data-lesson="frc-encoders">
+  <main id="main" class="content">
+    <div class="content-inner">
+
+      <!-- ===================== HEADER ===================== -->
+      <header class="lesson-hero">
+        <nav class="crumbs" aria-label="Breadcrumb">
+          <a href="/">Home</a><span class="sep">/</span>
+          <a href="/syllabus.html">Phase 2 · FRC</a><span class="sep">/</span>
+          <span>Unit 5 · Sensing</span>
+        </nav>
+        <span class="badge badge--ocean">Unit 5</span>
+        <h1 class="lesson-title">Reading Position &amp; Velocity</h1>
+        <p class="lesson-lede">Unit 4 taught you to push. This lesson teaches you to look. Every closed loop, every
+          vision alignment, and every autonomous routine in this course depends on it.</p>
+        <div class="lesson-meta">
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg> 25 min</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h2v-4H3zM9 20h2V10H9zM15 20h2V4h-2z"/></svg> Intermediate</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2zM18 3v16"/></svg> Needs: Moving a Motor</span>
+        </div>
+      </header>
+
+      <!-- ===================== GOAL ===================== -->
+      <div class="goal">
+        <div class="goal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div>
+        <div>
+          <h2>Your goal</h2>
+          <p>Read a mechanism's position and velocity in code, and say what the numbers mean and what they do not.</p>
+        </div>
+      </div>
+
+      <nav class="toc" aria-label="On this page">
+        <strong>On this page</strong>
+        <ol>
+          <li><a href="#why">Why this matters</a></li>
+          <li><a href="#what">What an encoder is</a></li>
+          <li><a href="#syntax">Reading it in code</a></li>
+          <li><a href="#units">What the numbers mean</a></li>
+          <li><a href="#run">Watch a mechanism spin up</a></li>
+          <li><a href="#lag">Why velocity ramps</a></li>
+          <li><a href="#challenges">Practice challenges</a></li>
+          <li><a href="#mistakes">Common mistakes</a></li>
+          <li><a href="#exercise">Project: An arm that knows where it is</a></li>
+          <li><a href="#checkpoint">Checkpoint</a></li>
+        </ol>
+      </nav>
+
+      <div class="prose">
+
+        <!-- ===================== WHY ===================== -->
+        <h2 id="why"><span class="section-h"><span class="num">1</span> Why this matters</span></h2>
+
+        <div class="callout callout--why">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></div>
+          <div class="c-title">Two ordinary jobs you cannot do yet</div>
+          <div class="c-body">
+            <p>After Unit 4 you can spin a motor. Now try to write these:</p>
+            <ul>
+              <li>Shoot once the flywheel reaches 4000 RPM.</li>
+              <li>Raise the arm to the scoring position and stop there.</li>
+            </ul>
+            <p>Neither is possible. <code>motor.set(0.7)</code> is you pushing. It tells you nothing about what
+              happened. The motor could be spinning at 3000 RPM, or stalled against a game piece, or spinning freely
+              because the belt snapped. <code>set(0.7)</code> looks identical in all three cases.</p>
+            <p>An encoder turns "I pushed" into "here is what happened." Everything in Units 6, 10 and 11 sits on
+              top of it.</p>
+          </div>
+        </div>
+
+        <!-- ===================== WHAT ===================== -->
+        <h2 id="what"><span class="section-h"><span class="num">2</span> What an encoder is</span></h2>
+        <p>An <strong>encoder</strong> is a sensor that reports how far a shaft has turned and how fast it is
+          turning. Two readings, and the whole rest of this course uses one or the other.</p>
+        <p>You almost certainly already have one. A SparkMax driving a Neo reads that Neo's built in encoder, and a
+          Kraken has one inside it. You can also clamp a separate encoder onto a shaft, which the next lesson gets
+          into.</p>
+
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">The Neo's encoder is not optional</div>
+          <div class="c-body"><p>REV's documentation is direct about this: running a brushless motor like a Neo
+            without its integrated encoder plugged into the SparkMax's encoder port can damage the motor. The
+            controller uses that feedback to know how to switch the motor. This is an electrical detail rather than a
+            software one, and it is worth knowing when a mechanism behaves strangely.</p></div>
+        </div>
+
+        <!-- ===================== SYNTAX ===================== -->
+        <h2 id="syntax"><span class="section-h"><span class="num">3</span> Reading it in code</span></h2>
+        <p>Two calls. One to reach the encoder, one to ask it a question.</p>
+
+        <div class="callout callout--verified">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4 12 14.01l-3-3"/></svg></div>
+          <div class="c-title">Verified syntax · REVLib</div>
+          <div class="c-body">
+            <div class="code with-lines">
+              <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Arm.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+
+SparkMax armPivot = new SparkMax(3, MotorType.kBrushless);
+
+double pos = armPivot.getEncoder().getPosition();   // rotations
+double vel = armPivot.getEncoder().getVelocity();   // RPM</code></pre>
+            </div>
+            <p style="margin-top:12px"><code>getEncoder()</code> hands you a <code>RelativeEncoder</code>, which is
+              the built in one. Then <code>getPosition()</code> and <code>getVelocity()</code> ask it for numbers.
+              You can hold onto the encoder in a field instead of calling <code>getEncoder()</code> twice, and both
+              styles are common.</p>
+          </div>
+        </div>
+
+        <!-- ===================== UNITS ===================== -->
+        <h2 id="units"><span class="section-h"><span class="num">4</span> What the numbers mean</span></h2>
+        <p>This is where people get burned, so read the table rather than guessing.</p>
+
+        <div class="tablewrap">
+          <table class="data">
+            <thead><tr><th>Call</th><th>Default unit</th><th>Means</th></tr></thead>
+            <tbody>
+              <tr><td><code>getPosition()</code></td><td>Rotations</td><td>How far the motor shaft has turned, counted from wherever the encoder was last zeroed</td></tr>
+              <tr><td><code>getVelocity()</code></td><td>RPM</td><td>How fast the motor shaft is turning right now</td></tr>
+              <tr><td><code>motor.get()</code></td><td>Percent output</td><td>What you <em>asked for</em>. Not a measurement at all</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>Three consequences worth stating plainly:</p>
+        <ul>
+          <li><strong>It is the motor shaft, not the mechanism.</strong> If a 10 to 1 gearbox sits between the motor
+            and the arm, ten motor rotations move the arm through one output rotation.</li>
+          <li><strong>It is signed.</strong> Run the motor the other way and position goes negative. Position is a
+            count, not a distance.</li>
+          <li><strong>Zero is wherever it was last zeroed.</strong> Position 9.0 does not mean the arm is up. It
+            means the shaft is 9 rotations from a reference you have to know about, and that reference is the next
+            lesson.</li>
+        </ul>
+
+        <p>REVLib can convert the units for you. A configuration object carries a
+          <code>positionConversionFactor</code> and a <code>velocityConversionFactor</code>, which multiply the raw
+          reading. Setting the position factor to 360 gives degrees, and setting it to 0.1 gives output rotations
+          through a 10 to 1 gearbox. The two factors are independent, so changing one does not change the other.
+          This course leaves both at their defaults and works in rotations and RPM throughout.</p>
+
+        <div class="callout callout--season">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
+          <div class="c-title">Verify for current season</div>
+          <div class="c-body"><p>How you apply configuration to a SPARK has changed across REVLib versions. Current
+            REVLib uses a configuration object applied with <code>configure()</code>, and older code sets parameters
+            directly on the motor. The default units above have been rotations and RPM throughout, and the way you
+            change them has not. Check REV's current documentation before writing a conversion factor.</p></div>
+        </div>
+
+        <!-- ===================== RUN ===================== -->
+        <h2 id="run"><span class="section-h"><span class="num">5</span> Watch a mechanism spin up</span></h2>
+        <p>Run this. It creates PenguinBot's arm motor on CAN ID 3, pushes at 30 percent, and prints the encoder
+          every fifth cycle of the robot's 20 ms loop.</p>
+
+        <div class="sandbox" data-compiler data-sim data-title="Reading an encoder">
+          <script type="text/x-java" class="sb-src">
+// On a real robot this file would start with:
+//   import com.revrobotics.spark.SparkMax;
+//   import com.revrobotics.spark.SparkLowLevel.MotorType;
+// PenguinSim provides stand-ins with the same names and the same method shapes.
+
+public class Main {
+    public static void main(String[] args) {
+        SparkMax armPivot = new SparkMax(3, MotorType.kBrushless);
+
+        double speed = 0.3;              // <-- CHANGE ME: try 0.6, then -0.3, then 0.9
+        armPivot.set(speed);
+
+        for (int tick = 1; tick <= 25; tick++) {
+            PenguinSim.step();           // one 20 ms robot loop. Unit 7 explains the real one.
+
+            if (tick % 5 == 0) {
+                double pos = armPivot.getEncoder().getPosition();
+                double vel = armPivot.getEncoder().getVelocity();
+                System.out.printf("tick %2d   position = %8.2f   velocity = %8.2f%n",
+                                  tick, pos, vel);
+            }
+        }
+    }
+}
+          </script>
+        </div>
+
+        <p>At <code>speed = 0.3</code> you get this:</p>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code>[sim] SparkMax on CAN ID 3 (kBrushless) is alive.
+tick  5   position =     0.92   velocity =    14.17
+tick 10   position =     2.83   velocity =    21.64
+tick 15   position =     5.25   velocity =    25.59
+tick 20   position =     7.94   velocity =    27.67
+tick 25   position =    10.78   velocity =    28.77</code></pre>
+        </div>
+
+        <div class="callout callout--note">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg></div>
+          <div class="c-title">The sandbox's units are not the real ones</div>
+          <div class="c-body"><p>PenguinSim reports degrees and degrees per second, because it drives one generic
+            simulated mechanism. A real REVLib encoder reports <strong>rotations</strong> and <strong>RPM</strong>,
+            as in the verified syntax box above. The numbers below are the sim's. What transfers to the robot is the
+            <em>shape</em> of them, and every conclusion in this section is about shape.</p></div>
+        </div>
+
+        <p>Now change <code>speed</code> and run it again. Four experiments, and what each one proves:</p>
+
+        <div class="tablewrap">
+          <table class="data">
+            <thead><tr><th>Set speed to</th><th>What you see</th><th>What it proves</th></tr></thead>
+            <tbody>
+              <tr><td><code>0.6</code></td><td>Position 21.56 and velocity 57.54 at tick 25, both exactly double</td><td>Position and velocity both scale with how hard you push</td></tr>
+              <tr><td><code>-0.3</code></td><td>The same numbers with minus signs</td><td>Position is signed. It counts backwards, it does not stop at zero</td></tr>
+              <tr><td><code>0.9</code></td><td>The over 80 percent warning prints before any data</td><td>The team's rule from Unit 4, enforced by the simulator</td></tr>
+              <tr><td>anything</td><td>Position grows faster and faster while velocity flattens</td><td>Position accumulates velocity, and velocity has a ceiling</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- ===================== LAG ===================== -->
+        <h2 id="lag"><span class="section-h"><span class="num">6</span> Why velocity ramps</span></h2>
+        <p>Look at the velocity column again. It climbs fast at first, then flattens: 14.17, then 21.64, then 25.59,
+          then 27.67, then 28.77. It is approaching a ceiling and never quite arriving.</p>
+        <p>This is not the encoder being slow. The encoder reports faithfully. It is the mechanism taking time to get
+          up to speed, because it has mass.</p>
+        <p>That single fact is why the flywheel from Unit 3 needs a command with an end. If you check the velocity on
+          the first cycle after commanding full power, you get a number near zero, and a naive check would conclude
+          the flywheel is broken. Something has to keep asking until the answer is yes. That something is
+          <code>isFinished()</code>.</p>
+
+        <div class="vocab">
+          <div class="vocab-term"><dt>encoder</dt><dd>A sensor reporting how far a shaft has turned and how fast it is turning.</dd></div>
+          <div class="vocab-term"><dt>getEncoder()</dt><dd>The call that hands you the SparkMax's built in encoder.</dd></div>
+          <div class="vocab-term"><dt>position</dt><dd>Rotations of the motor shaft, counted from the last zero. Signed.</dd></div>
+          <div class="vocab-term"><dt>velocity</dt><dd>Motor shaft speed in RPM. What you check when readiness matters.</dd></div>
+          <div class="vocab-term"><dt>conversion factor</dt><dd>A multiplier that turns raw rotations or RPM into the units you would rather work in.</dd></div>
+        </div>
+
+        <!-- ===================== CHALLENGES ===================== -->
+        <h2 id="challenges"><span class="section-h"><span class="num">7</span> Practice challenges</span></h2>
+
+        <!-- predict -->
+        <div class="challenge" data-kind="text"
+             data-win="21.56. Double the push, double the result, because nothing else in the model changed."
+             data-lose="At 0.3 the arm reached 10.78 by tick 25. Doubling the output doubles it to 21.56. Run it and check.">
+          <div class="challenge-head"><span class="ch-kind">Predict the output</span><span class="ch-title">Before you run it</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">In the sandbox, set <code>speed = 0.6</code>. What is the position at tick 25?
+              Work it out from the 0.3 run before you press Run.</p>
+            <div class="answer-row">
+              <input class="answer-input" type="text" placeholder="a number" data-answer="21.56|21.6|21.56 |21" aria-label="Your answer" />
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+            <details class="reveal">
+              <summary><svg class="rv-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg> Hint</summary>
+              <div class="reveal-body"><p>Nothing in the model is nonlinear here. Twice the output means twice the
+                velocity at every instant, which means twice the position at every tick.</p></div>
+            </details>
+          </div>
+        </div>
+
+        <!-- fib -->
+        <div class="challenge" data-kind="fib"
+             data-win="That is the verified syntax. One call to reach the encoder, one to read it."
+             data-lose="getEncoder() hands you the built in encoder. Then getPosition() or getVelocity() asks it for a number.">
+          <div class="challenge-head"><span class="ch-kind">Fill in the blanks</span><span class="ch-title">Read both values</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Complete the two readings.</p>
+<pre class="fib">double pos = armPivot.<span class="blank" data-answer="getEncoder"></span>().<span class="blank" data-answer="getPosition"></span>();   // rotations
+double vel = armPivot.<span class="blank" data-answer="getEncoder"></span>().<span class="blank" data-answer="getVelocity"></span>();   // RPM</pre>
+            <div class="challenge-actions">
+              <button class="btn btn--sm check-btn" type="button">Check</button>
+              <button class="btn btn--sm btn--ghost reset-btn" type="button">Reset</button>
+            </div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <!-- mcq which reading -->
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">Which reading?</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">You want to shoot only once the flywheel is up to speed. Which reading do you
+              check?</p>
+            <div class="options">
+              <label class="option" data-explain="That tells you how far it has turned in total, which for a flywheel is a meaningless ever growing number."><input type="radio" name="q-read" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>getPosition()</code></span></label>
+              <label class="option" data-correct data-explain="Right. RPM is the flywheel's readiness. Position would just keep counting up forever."><input type="radio" name="q-read" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>getVelocity()</code></span></label>
+              <label class="option" data-explain="That returns what you commanded, not what is happening. It reads 0.7 whether the wheel is spinning or jammed."><input type="radio" name="q-read" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>motor.get()</code></span></label>
+              <label class="option" data-explain="That is what teams do before they have encoders, and it fails the moment the battery sags."><input type="radio" name="q-read" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Neither. Time it with a stopwatch</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <!-- mcq meaning -->
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">What is 9.0?</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt"><code>getPosition()</code> on the arm returns <code>9.0</code>. What is that?</p>
+            <div class="options">
+              <label class="option" data-explain="Not unless somebody set a conversion factor. By default it is motor rotations."><input type="radio" name="q-mean" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">9 degrees of arm travel</span></label>
+              <label class="option" data-explain="Encoders count rotation, not distance, unless you convert."><input type="radio" name="q-mean" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">9 centimetres of travel</span></label>
+              <label class="option" data-correct data-explain="Yes, and both halves matter. Motor rotations, and relative to a zero you need to know about."><input type="radio" name="q-mean" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">9 rotations of the motor shaft, from wherever zero currently is</span></label>
+              <label class="option" data-explain="Nothing in the reading knows the mechanism's range of travel."><input type="radio" name="q-mean" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">90 percent of full travel</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <!-- predict 2 -->
+        <div class="challenge" data-kind="text"
+             data-win="No. It has barely started. Velocity ramps up over many cycles, which is exactly why the flywheel needs a command that waits."
+             data-lose="No. The mechanism takes time to reach speed, so on the first cycle the velocity is near zero. Watch the velocity column climb in the sandbox.">
+          <div class="challenge-head"><span class="ch-kind">Predict</span><span class="ch-title">First cycle</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">You call <code>getVelocity()</code> on the very first cycle after
+              <code>set(0.8)</code>. Is it already at full speed?</p>
+            <div class="answer-row">
+              <input class="answer-input" type="text" placeholder="yes or no" data-answer="no|nope|no its lower|lower|not yet|no it's lower|no it is lower" aria-label="Your answer" />
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <!-- ===================== MISTAKES ===================== -->
+        <h2 id="mistakes"><span class="section-h"><span class="num">8</span> Common mistakes</span></h2>
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">Watch out for these</div>
+          <div class="c-body">
+            <ul>
+              <li><strong>Using <code>motor.get()</code> as a speed reading.</strong> It returns what you asked for.
+                Only the encoder tells you what actually happened, and that difference is the entire point of a
+                sensor.</li>
+              <li><strong>Assuming position is in degrees.</strong> Motor rotations by default, through whatever
+                gearbox sits between the motor and the mechanism.</li>
+              <li><strong>Thinking you need to buy an encoder.</strong> Your SparkMax and your Kraken already have
+                one. It is a method call away.</li>
+              <li><strong>Expecting velocity to hit its target immediately.</strong> It ramps, because a real
+                mechanism has mass. This is why "wait until up to speed" has to be a behaviour with an end.</li>
+              <li><strong>Reading position 0 as "the arm is down."</strong> Position 0 means wherever the encoder was
+                last zeroed. The next lesson is entirely about that.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- ===================== EXERCISE ===================== -->
+        <div class="exercise" id="exercise">
+          <div class="exercise-head">
+            <div class="ex-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4L12 17l-6.3 4.4L8 14 2 9.4h7.6z"/></svg></div>
+            <div>
+              <div class="ex-kicker">Build it · PenguinBot</div>
+              <h3>An arm that knows where it is</h3>
+            </div>
+          </div>
+          <div class="exercise-body">
+            <p>PenguinBot has an <code>Intake</code> class from Unit 4 with <code>intake()</code>,
+              <code>stop()</code> and <code>outtake()</code>, and no idea what any mechanism is doing. Give it an arm
+              that can answer questions.</p>
+            <p>Write an <code>Arm</code> class. It is a plain class for now and becomes a real Subsystem in Unit 7.</p>
+            <ol class="task-list">
+              <li><b>A <code>SparkMax</code> on CAN ID 3</b>, brushless, from the map you wrote in Unit 2.</li>
+              <li><b><code>setSpeed(double speed)</code></b> to move the arm, and <b><code>stop()</code></b>.</li>
+              <li><b><code>getPosition()</code></b> returning the arm's position in rotations.</li>
+              <li><b><code>getVelocity()</code></b> returning the arm's velocity in RPM.</li>
+              <li><b><code>printStatus()</code></b> printing one formatted line with both readings.</li>
+              <li><b>Bonus.</b> Make <code>setSpeed</code> refuse anything above 0.8 in magnitude, so the arm can
+                never be commanded past the team's limit no matter who calls it.</li>
+            </ol>
+
+            <p>Write it in the sandbox below. The <code>main</code> method is already there to exercise your class.</p>
+
+            <div class="sandbox" data-compiler data-sim data-title="Your turn: the Arm class">
+              <script type="text/x-java" class="sb-src">
+// On a real robot:
+//   import com.revrobotics.spark.SparkMax;
+//   import com.revrobotics.spark.SparkLowLevel.MotorType;
+
+public class Main {
+
+    static class Arm {
+        // 1) the motor: CAN ID 3, brushless
+
+
+        // 2) setSpeed(double speed) and stop()
+
+
+        // 3) getPosition() in rotations
+
+
+        // 4) getVelocity() in RPM
+
+
+        // 5) printStatus() prints one line with both
+
+
+    }
+
+    public static void main(String[] args) {
+        Arm arm = new Arm();
+
+        arm.setSpeed(0.4);
+        for (int tick = 1; tick <= 20; tick++) {
+            PenguinSim.step();
+            if (tick % 5 == 0) arm.printStatus();
+        }
+        arm.stop();
+
+        // the bonus, if you did it: this should be clamped to 0.8
+        arm.setSpeed(1.5);
+        PenguinSim.step();
+        arm.printStatus();
+    }
+}
+              </script>
+            </div>
+
+            <details class="reveal">
+              <summary><svg class="rv-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg> Reveal the solution</summary>
+              <div class="reveal-body">
+                <div class="code with-lines">
+                  <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Arm.java · solution</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+
+public class Arm {
+    // CAN ID 3, PenguinBot's arm pivot, from the map in Unit 2
+    private final SparkMax pivot = new SparkMax(3, MotorType.kBrushless);
+
+    public void setSpeed(double speed) {
+        // Bonus: never exceed the team's 80% rule, whatever the caller asks for
+        double safe = Math.max(-0.8, Math.min(0.8, speed));
+        pivot.set(safe);
+    }
+
+    public void stop() {
+        pivot.set(0);
+    }
+
+    public double getPosition() {
+        return pivot.getEncoder().getPosition();   // rotations
+    }
+
+    public double getVelocity() {
+        return pivot.getEncoder().getVelocity();   // RPM
+    }
+
+    public void printStatus() {
+        System.out.printf("arm: %8.2f pos   %8.2f vel%n", getPosition(), getVelocity());
+    }
+}</code></pre>
+                </div>
+                <p>Three things in that solution are worth more than the syntax:</p>
+                <ul>
+                  <li>The motor is <code>private final</code>. Nothing outside <code>Arm</code> can reach it. That is
+                    the ownership rule from Unit 3, enforced by Java's own access modifiers rather than by everyone
+                    remembering.</li>
+                  <li>The clamp in <code>setSpeed</code> turns the 80 percent rule from something you remember into
+                    something the code guarantees. You will use this exact clamp again in Unit 6, where a PID
+                    controller will cheerfully ask for 1.8.</li>
+                  <li><code>getPosition()</code> returns raw rotations on purpose. PenguinBot's setpoints are in
+                    rotations all the way through this course.</li>
+                </ul>
+              </div>
+            </details>
+            <p>The arm can now tell you it is at 9.00 rotations. But 9.00 rotations from where? Restart the robot and
+              find out. That is the next lesson.</p>
+          </div>
+        </div>
+
+        <!-- ===================== CHECKPOINT ===================== -->
+        <div class="checkpoint" id="checkpoint">
+          <div class="checkpoint-head">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            <h3>Checkpoint</h3>
+            <span class="cp-score">0 / 5</span>
+          </div>
+          <div class="checkpoint-body">
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q1.</span> What does <code>motor.getEncoder().getVelocity()</code> return?</div>
+              <div class="options">
+                <label class="option" data-explain="That is what you commanded, and you read it with get()."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Percent output</span></label>
+                <label class="option" data-correct data-explain="Yes, RPM by default, and it is what you would tune a flywheel against."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The motor's speed in RPM</span></label>
+                <label class="option" data-explain="That is getPosition()."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Rotations turned so far</span></label>
+                <label class="option" data-explain="Not from the encoder. Voltage is a different reading entirely."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Voltage</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q2.</span> Where does the encoder on PenguinBot's arm come from?</div>
+              <div class="options">
+                <label class="option" data-explain="You can add one, and you do not have to. The next lesson covers when you would."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A separate sensor the team wired up</span></label>
+                <label class="option" data-correct data-explain="Right. It reads the Neo's built in encoder, and it is one method call away on the motor object you already made."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The SparkMax, which reads the motor's built in encoder</span></label>
+                <label class="option" data-explain="The roboRIO reads the value over CAN. It does not contain the sensor."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The roboRIO</span></label>
+                <label class="option" data-explain="The Driver Station displays. It does not sense anything."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The Driver Station</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q3.</span> Why does the sandbox's velocity climb gradually instead of jumping to its ceiling?</div>
+              <div class="options">
+                <label class="option" data-explain="The encoder reports faithfully. The mechanism is what takes time."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The encoder is slow to update</span></label>
+                <label class="option" data-correct data-explain="Correct, and it is why is the flywheel ready has to be checked repeatedly rather than once."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A real mechanism has mass and takes time to reach speed</span></label>
+                <label class="option" data-explain="Bus traffic is not what you are seeing, and the sandbox has no bus at all."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The CAN bus is congested</span></label>
+                <label class="option" data-explain="Printing does not change values. Remove the print and the ramp is still there."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The print statement delays it</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q4.</span> Position reads <code>9.0</code> on the arm. Which statement is safe?</div>
+              <div class="options">
+                <label class="option" data-explain="Only if a conversion factor and a known zero say so, and neither is true by default."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The arm is 9 degrees from horizontal</span></label>
+                <label class="option" data-correct data-explain="Yes, and wherever it was last zeroed is the next lesson's entire subject."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The motor shaft is 9 rotations from wherever the encoder was last zeroed</span></label>
+                <label class="option" data-explain="Rotation, not distance. Converting to distance needs a wheel size or a gear ratio."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The arm has moved 9 centimetres</span></label>
+                <label class="option" data-explain="Nothing in the number knows the mechanism's range of travel."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The arm is 90 percent of the way up</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q5.</span> Why is this lesson a prerequisite for PID in Unit 6?</div>
+              <div class="options">
+                <label class="option" data-explain="It needs a measurement. Position is the common one for an arm, and velocity for a flywheel."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">PID specifically needs a velocity</span></label>
+                <label class="option" data-correct data-explain="Exactly. No sensor, no closed loop. You would just be pushing and hoping."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A closed loop controller needs a measured current value to compare against its target</span></label>
+                <label class="option" data-explain="Unrelated. CAN IDs are set in a vendor client."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">PID sets the CAN ID</span></label>
+                <label class="option" data-explain="Then it would not be closed loop control at all. Closed loop means the measurement closes the loop."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It is not. PID works without a sensor</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check my answers</button></div>
+          </div>
+        </div>
+
+        <!-- ===================== COMPLETE ===================== -->
+        <div class="mark-complete">
+          <div class="mc-text"><b>Your robot can measure itself now.</b><span>Next: what position zero actually means, and how to make it mean something.</span></div>
+          <button class="complete-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>Mark as complete</span></button>
+        </div>
+
+      </div><!-- /prose -->
+    </div><!-- /content-inner -->
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="/assets/js/course.js"></script>
+  <script src="/assets/js/site.js"></script>
+  <script src="/assets/js/widgets.js"></script>
+</body>
+</html>

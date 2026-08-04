@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Curriculum · Penguin Empire 2551 Code Academy</title>
+  <meta name="description" content="The complete Penguin Empire 2551 programming curriculum: Phase 1 teaches Java & OOP from zero, Phase 2 applies it to a real FRC robot — both phases required." />
+  <link rel="icon" href="/assets/img/logo-2551.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Aldrich&family=Russo+One&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/brand.css" />
+  <link rel="stylesheet" href="/assets/css/layout.css" />
+  <link rel="stylesheet" href="/assets/css/pages.css" />
+</head>
+<body data-page="syllabus">
+  <main id="main">
+    <div class="page-head">
+      <div class="container">
+        <span class="badge badge--dot">The full map</span>
+        <h1 style="margin-top:12px">The Curriculum</h1>
+        <p>Everything you'll learn, in order. Both phases are required to program a robot.
+           Phase 1 builds the Java foundation and Phase 2 puts it on the machine. Lessons marked
+           <b>”Locked”</b> are written and on the way.</p>
+      </div>
+    </div>
+
+    <div class="syllabus" id="syllabus-root"></div>
+  </main>
+
+  <script src="/assets/js/course.js"></script>
+  <script src="/assets/js/site.js" defer></script>
+  <script>
+    (function () {
+      const C = window.COURSE;
+      const P = null; // progress read after site.js loads; we re-sync via data attrs
+      const chev = '<svg class="syl-unit-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>';
+      const check = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+      const root = document.getElementById("syllabus-root");
+      let html = "";
+      C.tracks.forEach((tr) => {
+        const total = tr.units.reduce((n, u) => n + u.lessons.length, 0);
+        html += `<section class="syl-track">
+          <div class="syl-track-head ${tr.id}">
+            <span class="st-badge">${tr.tag}</span>
+            <div><h2>${tr.label}</h2><p>${total} lessons · ${tr.units.length} units</p></div>
+          </div>`;
+        tr.units.forEach((u, ui) => {
+          const open = ui === 0;
+          html += `<div class="syl-unit" aria-expanded="${open}">
+            <div class="syl-unit-head" role="button" tabindex="0">
+              <span class="syl-unit-num">${u.num}</span>
+              <div class="syl-unit-info"><h3>${u.title}</h3><p>${u.sub}</p></div>
+              <span class="syl-unit-count">${u.lessons.length} lesson${u.lessons.length > 1 ? "s" : ""}</span>
+              ${chev}
+            </div>
+            <ul class="syl-lessons">`;
+          u.lessons.forEach((l) => {
+            const tag = l.ready ? `<span class="sl-tag">${l.dur || "Ready"}</span>` : `<span class="sl-tag">Locked</span>`;
+            const cls = l.ready ? "" : "is-soon";
+            const href = l.ready ? l.href + ".html" : "#";
+            html += `<li><a class="${cls}" href="${href}" data-syl-link="${l.id}">
+              <span class="sl-dot">${check}</span>
+              <span class="sl-title">${l.t}</span>${tag}</a></li>`;
+          });
+          html += `</ul></div>`;
+        });
+        html += `</section>`;
+      });
+      root.innerHTML = html;
+      root.querySelectorAll(".syl-unit-head").forEach((head) => {
+        const toggle = () => { const u = head.closest(".syl-unit"); u.setAttribute("aria-expanded", u.getAttribute("aria-expanded") === "true" ? "false" : "true"); };
+        head.addEventListener("click", toggle);
+        head.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(); } });
+      });
+      // sync completed state once Progress exists
+      const sync = () => { if (window.Progress) root.querySelectorAll("[data-syl-link]").forEach((a) => a.classList.toggle("is-done", window.Progress.isDone(a.dataset.sylLink))); };
+      setTimeout(sync, 0); window.addEventListener("load", sync);
+    })();
+  </script>
+</body>
+</html>

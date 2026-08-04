@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>What an FRC Programmer Does · Penguin Empire 2551</title>
+  <meta name="description" content="What the software sub-team is responsible for across an FRC season, the three workstreams (mechanics, vision, autonomous), and why autonomous is always built last." />
+  <link rel="icon" href="/assets/img/logo-2551.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Aldrich&family=Russo+One&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/brand.css" />
+  <link rel="stylesheet" href="/assets/css/layout.css" />
+  <link rel="stylesheet" href="/assets/css/lesson.css" />
+</head>
+<body data-page="lesson" data-lesson="frc-what-programmers-do">
+  <main id="main" class="content">
+    <div class="content-inner">
+
+      <!-- ===================== HEADER ===================== -->
+      <header class="lesson-hero">
+        <nav class="crumbs" aria-label="Breadcrumb">
+          <a href="/">Home</a><span class="sep">/</span>
+          <a href="/syllabus.html">Phase 2 · FRC</a><span class="sep">/</span>
+          <span>Unit 0 · Orientation</span>
+        </nav>
+        <span class="badge badge--ocean">Unit 0</span>
+        <h1 class="lesson-title">What an FRC Programmer Does</h1>
+        <p class="lesson-lede">Phase 1 taught you Java. This phase teaches you to point Java at a 120 pound machine.
+          Before any of that, here is what the job actually is and what order the work has to happen in.</p>
+        <div class="lesson-meta">
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg> 15 min</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h2v-4H3zM9 20h2V10H9zM15 20h2V4h-2z"/></svg> Beginner</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2zM18 3v16"/></svg> Needs: Phase 1 Java</span>
+        </div>
+      </header>
+
+      <!-- ===================== GOAL ===================== -->
+      <div class="goal">
+        <div class="goal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div>
+        <div>
+          <h2>Your goal</h2>
+          <p>Describe what an FRC programmer is responsible for across a season, and explain why autonomous
+            is always built last.</p>
+        </div>
+      </div>
+
+      <nav class="toc" aria-label="On this page">
+        <strong>On this page</strong>
+        <ol>
+          <li><a href="#why">Why this matters</a></li>
+          <li><a href="#job">You are not the person who types</a></li>
+          <li><a href="#streams">Three workstreams, in order</a></li>
+          <li><a href="#hardware">Programmers touch hardware</a></li>
+          <li><a href="#loop">Write, deploy, watch, adjust</a></li>
+          <li><a href="#season">The shape of a season</a></li>
+          <li><a href="#challenges">Practice challenges</a></li>
+          <li><a href="#mistakes">Common mistakes</a></li>
+          <li><a href="#exercise">Project: Map your season</a></li>
+          <li><a href="#checkpoint">Checkpoint</a></li>
+        </ol>
+      </nav>
+
+      <div class="prose">
+
+        <!-- ===================== WHY ===================== -->
+        <h2 id="why"><span class="section-h"><span class="num">1</span> Why this matters</span></h2>
+        <p>The most senior skill on this page is not writing code. It is knowing when code is not ready to ship.</p>
+
+        <div class="callout callout--why">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></div>
+          <div class="c-title">The voice controlled ChairBot</div>
+          <div class="c-body">
+            <p>A team member built voice control for the team's ChairBot. It ran a small offline speech model,
+              so it needed no internet and no paid service, and it sent recognized commands to the robot over the
+              network. It worked.</p>
+            <p>It never made it onto a competition robot. One drive motor pulled to the right and needed constant
+              correction, and the only way to stop a command once it started was to keep holding something down.
+              A prototype that works most of the time, on a machine that weighs more than you do, is not a feature.
+              It is a hazard.</p>
+            <p>The team shelved it. That decision, not the speech model, is the thing worth copying.</p>
+          </div>
+        </div>
+
+        <p>A second thing to expect early: your tools will fail you. One season the team tried to run robot code in
+          simulation so software could make progress before the robot existed. They never got it stable and went
+          back to waiting for real hardware. Working around broken tooling is a normal part of this job, not a sign
+          you are doing it wrong.</p>
+
+        <!-- ===================== JOB ===================== -->
+        <h2 id="job"><span class="section-h"><span class="num">2</span> You are not the person who types</span></h2>
+        <p>The mechanical sub-team builds an arm out of aluminum. That arm has no idea where it is, when to stop,
+          or how hard to push. Your work is what turns a moving assembly into a mechanism that can be aimed,
+          repeated, and trusted.</p>
+        <p>Concretely, across a season you will:</p>
+        <ul>
+          <li>Make each mechanism move on command.</li>
+          <li>Read sensors so the robot knows the position and speed of every mechanism.</li>
+          <li>Hold a mechanism at a target instead of slamming past it.</li>
+          <li>Bind behaviors to controller buttons so a driver can use them.</li>
+          <li>Make the robot see where it is on the field.</li>
+          <li>Chain all of it into a routine that runs with nobody driving.</li>
+        </ul>
+        <p>Those six bullets are Units 4 through 11 of this phase, in order.</p>
+
+        <!-- ===================== STREAMS ===================== -->
+        <h2 id="streams"><span class="section-h"><span class="num">3</span> Three workstreams, in order</span></h2>
+        <p>Software work on an FRC robot splits into three streams. They have a strict dependency order, and the
+          order is the single most useful thing on this page.</p>
+
+        <div class="diagram">
+<span class="hl">MECHANICS</span>   →   <span class="hl">VISION</span>   →   <span class="hl">AUTONOMOUS</span>
+<span class="dim">(Units 4-8)      (Units 9-10)    (Unit 11)
+ make it          know where      do it with
+ move             you are         nobody driving</span>
+        </div>
+
+        <p><strong>Mechanics</strong> is making an intake spin and an arm lift to a position. <strong>Vision</strong>
+          is making the robot report how far off target it is. <strong>Autonomous</strong> is the opening seconds of
+          a match, when no human is driving.</p>
+        <p>Autonomous comes last because of what it is made of. An autonomous routine is a list of the commands you
+          already wrote for your mechanisms, pointed at the field by your vision readings. If the arm command does
+          not exist yet, there is nothing to put in the list. This is why Unit 11 is the last unit in this course.</p>
+
+        <div class="callout callout--season">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
+          <div class="c-title">Verify for current season</div>
+          <div class="c-body"><p>The autonomous period is short, on the order of the first fifteen to twenty seconds
+            of a match, but its exact length and what it scores change with every year's game. Read this season's
+            game manual for the real numbers.</p></div>
+        </div>
+
+        <!-- ===================== HARDWARE ===================== -->
+        <h2 id="hardware"><span class="section-h"><span class="num">4</span> Programmers touch hardware</span></h2>
+        <p>This surprises most new members. Software owns several physical jobs that nobody else on the team does:</p>
+        <ul>
+          <li><strong>Imaging the roboRIO.</strong> The robot's controller has to be flashed with the current
+            season's image before it will accept your code.</li>
+          <li><strong>Configuring the radio.</strong> The robot's radio has to be set up with your team number
+            before a laptop can reach the robot.</li>
+          <li><strong>Pushing motor controller firmware.</strong> Out of date firmware on a motor controller
+            produces failures that look exactly like code bugs.</li>
+          <li><strong>Assigning CAN IDs.</strong> Every motor controller needs a unique number, set over USB with
+            a vendor tool, before your code can address it.</li>
+        </ul>
+        <p>You cannot debug a signal path you cannot picture. That is the reason Unit 1 is wiring and Unit 2 is
+          tools, and neither of them asks you to write a line of Java.</p>
+
+        <!-- ===================== LOOP ===================== -->
+        <h2 id="loop"><span class="section-h"><span class="num">5</span> Write, deploy, watch, adjust</span></h2>
+        <p>In Phase 1 you wrote code, ran it, and read the output. Robot code has the same loop with a longer
+          middle step:</p>
+
+        <div class="diagram">
+<span class="hl">WRITE</span> → <span class="hl">DEPLOY</span> → <span class="hl">WATCH</span> → <span class="hl">ADJUST</span>
+<span class="dim">edit    push to    enable and    change one
+code    the RIO    look at the   number and
+                   real robot    go again</span>
+        </div>
+
+        <p>Nothing about a mechanism is verified by reading the code. Here is the standard example, and you will
+          meet it for real in Unit 4: when you tell a motor to run at positive speed, you do not know which physical
+          direction that is until you run it slowly and watch. Not because the documentation is bad, but because it
+          depends on how the motor was mounted and how the gearbox was assembled.</p>
+
+        <div class="callout callout--tip">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12c.7.7 1 1.4 1 2h6c0-.6.3-1.3 1-2a7 7 0 0 0-4-12z"/></svg></div>
+          <div class="c-title">The one rule for the next 29 lessons</div>
+          <div class="c-body"><p>Say out loud when something does not make sense, and keep poking at it until it
+            does. Nodding along costs the team more than asking does. This applies to your teammates, to this
+            website, and to the official documentation.</p></div>
+        </div>
+
+        <!-- ===================== SEASON ===================== -->
+        <h2 id="season"><span class="section-h"><span class="num">6</span> The shape of a season</span></h2>
+        <p>Three phases repeat every year.</p>
+        <div class="vocab">
+          <div class="vocab-term"><dt>Build season</dt><dd>Weeks of nightly iteration. Mechanisms appear one at a time and you program each one as it becomes real. Most of your code is written here.</dd></div>
+          <div class="vocab-term"><dt>Competition</dt><dd>You go to the field with the drive team, bring the driver station laptop, and watch the console for errors during matches. Unit 12 covers this day in detail.</dd></div>
+          <div class="vocab-term"><dt>Offseason</dt><dd>Learning and side projects. The ChairBot voice control was an offseason build. So was this website.</dd></div>
+        </div>
+
+        <!-- ===================== CHALLENGES ===================== -->
+        <h2 id="challenges"><span class="section-h"><span class="num">7</span> Practice challenges</span></h2>
+        <p>No compiler on this page. There is no code in Unit 0 on purpose.</p>
+
+        <!-- order -->
+        <div class="challenge" data-kind="order">
+          <div class="challenge-head"><span class="ch-kind">Put them in order</span><span class="ch-title">What has to happen first?</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Your team wants a robot that drives itself to the goal and scores during
+              autonomous. Drag these four jobs into the order you have to do them, first at the top.</p>
+            <ul class="order-list">
+              <li class="order-item" data-pos="4"><span class="grip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h16M4 16h16"/></svg></span><span>Write the auto routine</span></li>
+              <li class="order-item" data-pos="2"><span class="grip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h16M4 16h16"/></svg></span><span>Make the arm lift to a setpoint</span></li>
+              <li class="order-item" data-pos="3"><span class="grip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h16M4 16h16"/></svg></span><span>Make the Limelight report the angle to the tag</span></li>
+              <li class="order-item" data-pos="1"><span class="grip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h16M4 16h16"/></svg></span><span>Make the intake motor spin</span></li>
+            </ul>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+            <details class="reveal">
+              <summary><svg class="rv-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg> Hint</summary>
+              <div class="reveal-body"><p>Ask what each job needs in order to exist. The auto routine needs commands
+                to sequence. Aiming needs something that can move. Start from the simplest single motor.</p></div>
+            </details>
+          </div>
+        </div>
+
+        <!-- mcq -->
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">Not your job</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Which of these is <em>not</em> an FRC programmer's job?</p>
+            <div class="options">
+              <label class="option" data-explain="This one is yours. Programmers flash the roboRIO with the season's image before any code will run on it."><input type="radio" name="q-job" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Imaging the roboRIO at the start of the season</span></label>
+              <label class="option" data-explain="Also yours. You set CAN IDs in the vendor client so your code can address one specific motor."><input type="radio" name="q-job" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Assigning CAN IDs to motor controllers</span></label>
+              <label class="option" data-correct data-explain="Correct. Coaching is the drive coach's job. Your job at the field is watching the console for errors, which you will see again in Unit 12."><input type="radio" name="q-job" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Coaching the driver during a match</span></label>
+              <label class="option" data-explain="Yours, and it is the main one on game day. Errors show up there long before anyone notices them on the field."><input type="radio" name="q-job" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Watching the Driver Station console for errors</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <!-- short answer -->
+        <div class="challenge" data-kind="text"
+             data-win="Shelve it. This is a real call the team made about a working voice control prototype, for exactly this reason."
+             data-lose="Shelve it. Reliability and a way to stop are not extras on a 120 pound machine. Works nine times out of ten means fails one time in ten, in front of a crowd.">
+          <div class="challenge-head"><span class="ch-kind">Judgement call</span><span class="ch-title">Ship it or shelve it?</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">A teammate has a working voice control prototype for the robot. It responds
+              correctly about nine times out of ten, and there is no way to stop a command once it starts.
+              In one word: ship it, or shelve it?</p>
+            <div class="answer-row">
+              <input class="answer-input" type="text" placeholder="one word" data-answer="shelve|shelve it|no|don't ship|dont ship|shelf" aria-label="Your answer" />
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <!-- ===================== MISTAKES ===================== -->
+        <h2 id="mistakes"><span class="section-h"><span class="num">8</span> Common mistakes</span></h2>
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">Ideas new members arrive with</div>
+          <div class="c-body">
+            <ul>
+              <li><strong>"Programming is the last step. Mechanical builds it, then we code it."</strong>
+                Software runs alongside the build. You will be assigning CAN IDs and spinning motors on a half
+                built robot, which is why Units 1 and 2 are hardware and tools.</li>
+              <li><strong>"Autonomous is the impressive part, so we should start there."</strong>
+                Autonomous is the easy part once everything else works, because it is a list of commands you
+                already wrote. Before then it is impossible, not hard.</li>
+              <li><strong>"If I break something, I have failed."</strong>
+                Every season this team has broken something, including a fried motor and a mechanism that fell
+                off from bad tuning. What separates a good programmer is starting low, raising slowly, and saying
+                out loud when something does not make sense.</li>
+              <li><strong>"I need a powerful laptop for this."</strong>
+                One captain's computer died mid season and he wrote code on the driver station laptop for the rest
+                of the year. You will meet that story properly in Unit 2.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- ===================== EXERCISE ===================== -->
+        <div class="exercise" id="exercise">
+          <div class="exercise-head">
+            <div class="ex-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4L12 17l-6.3 4.4L8 14 2 9.4h7.6z"/></svg></div>
+            <div>
+              <div class="ex-kicker">Plan it · PenguinBot</div>
+              <h3>Map your season</h3>
+            </div>
+          </div>
+          <div class="exercise-body">
+            <p>Every exercise in this phase adds one capability to the same robot. Meet it now.</p>
+            <div class="callout callout--note">
+              <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg></div>
+              <div class="c-title">PenguinBot</div>
+              <div class="c-body"><p>PenguinBot is a teaching robot: a roller <strong>intake</strong>, a pivoting
+                <strong>arm</strong> that lifts a game piece to a scoring setpoint, a <strong>swerve
+                drivetrain</strong>, and a <strong>Limelight</strong> that finds the scoring tag.</p></div>
+            </div>
+            <ol class="task-list">
+              <li><b>Write the order.</b> In your own words, list the order you would work in to make PenguinBot
+                score a game piece by itself.</li>
+              <li><b>Then answer this.</b> In one sentence: what breaks if you build the vision code before the
+                arm works?</li>
+            </ol>
+            <details class="reveal">
+              <summary><svg class="rv-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg> Reveal a reference answer</summary>
+              <div class="reveal-body">
+                <ol>
+                  <li>Spin the intake motor (Unit 4).</li>
+                  <li>Read the arm's encoder so the code knows where the arm is (Unit 5).</li>
+                  <li>Use PID so the arm stops at the scoring position instead of slamming past it (Unit 6).</li>
+                  <li>Turn that into a Command with a clear end, owned by a Subsystem that holds the motors (Unit 7).</li>
+                  <li>Bind it to a controller button, then chain arm up, outtake, arm down (Unit 8).</li>
+                  <li>Make the robot drive (Unit 9).</li>
+                  <li>Use the Limelight's horizontal angle reading to aim (Unit 10).</li>
+                  <li>Only now: draw a path and sequence those commands into an auto routine (Unit 11).</li>
+                </ol>
+                <p>If you build vision first you get a robot that can tell you it is 12 degrees off target and can
+                  do nothing about it. Vision only produces an error number. Something else has to act on it.</p>
+                <p>That list is this entire phase. By Unit 11 you will have written every step of it.</p>
+              </div>
+            </details>
+          </div>
+        </div>
+
+        <!-- ===================== CHECKPOINT ===================== -->
+        <div class="checkpoint" id="checkpoint">
+          <div class="checkpoint-head">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            <h3>Checkpoint</h3>
+            <span class="cp-score">0 / 4</span>
+          </div>
+          <div class="checkpoint-body">
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q1.</span> Why is autonomous built last?</div>
+              <div class="options">
+                <label class="option" data-explain="Not really. Path generation tools do most of that math for you. The reason is dependency, not difficulty."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It involves the hardest math</span></label>
+                <label class="option" data-correct data-explain="Right. Auto is a sequence of the mechanism and vision commands you already wrote, so there is nothing to sequence until those exist."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It is a sequence of commands you have to write first</span></label>
+                <label class="option" data-explain="Auto is worth real match points. It is built last for dependency reasons, not because it matters less."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It only matters at competition</span></label>
+                <label class="option" data-explain="The game does change every year, which is a real reason to re-check the rules. It is not the reason auto comes last."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The rules change every year</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q2.</span> Which best describes a programmer's relationship to hardware?</div>
+              <div class="options">
+                <label class="option" data-explain="Not true on this team. You image the roboRIO, push motor controller firmware, and set CAN IDs."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">None. You only write code</span></label>
+                <label class="option" data-correct data-explain="Yes. That is the whole reason Units 1 and 2 come before any Java in this phase."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">You push firmware and images, set device IDs, and have to understand how signals travel</span></label>
+                <label class="option" data-explain="Building mechanisms is the mechanical sub-team's job. You make their mechanisms know things."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">You build the mechanisms</span></label>
+                <label class="option" data-explain="You touch hardware all season. Competition only adds the radio setup and watching the console."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">You only touch hardware at competition</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q3.</span> A prototype works 90% of the time and cannot be stopped mid action. What does a good programmer do?</div>
+              <div class="options">
+                <label class="option" data-explain="On a machine this heavy, the 10% is the entire problem."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Ship it. 90% is good enough</span></label>
+                <label class="option" data-correct data-explain="Correct, and this is a real call the team made about a working voice control prototype."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Shelve it until it is reliable and stoppable</span></label>
+                <label class="option" data-explain="A verbal warning is not a safety feature. The driver cannot react faster than a motor."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Ship it, but tell the driver to be careful</span></label>
+                <label class="option" data-explain="The language was never the issue. Reliability and a stop condition were."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Rewrite it in a different language</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q4.</span> What is the write, deploy, watch, adjust loop for?</div>
+              <div class="options">
+                <label class="option" data-explain="Compile time is not the bottleneck. Reality is."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Making the code compile faster</span></label>
+                <label class="option" data-explain="Inspectors check the robot against the rules, not your workflow."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Satisfying the inspectors</span></label>
+                <label class="option" data-correct data-explain="Exactly. You will not even know which direction positive spins a motor until you run it slowly and look."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">You cannot tell what a mechanism will do by reading code. You have to run it and watch</span></label>
+                <label class="option" data-explain="It is a working habit, not a rule in any manual."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It is a rule in the game manual</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check my answers</button></div>
+          </div>
+        </div>
+
+        <!-- ===================== COMPLETE ===================== -->
+        <div class="mark-complete">
+          <div class="mc-text"><b>You know what the job is.</b><span>Next: the parts of the robot your code talks to, and the wire that connects them.</span></div>
+          <button class="complete-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>Mark as complete</span></button>
+        </div>
+
+      </div><!-- /prose -->
+    </div><!-- /content-inner -->
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="/assets/js/course.js"></script>
+  <script src="/assets/js/site.js"></script>
+  <script src="/assets/js/widgets.js"></script>
+</body>
+</html>

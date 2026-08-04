@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Relative vs. Absolute Encoders · Penguin Empire 2551</title>
+  <meta name="description" content="Why a relative encoder reads zero after a reboot no matter where the arm is, how to write a homing routine, and when a mechanism needs an absolute encoder instead." />
+  <link rel="icon" href="/assets/img/logo-2551.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Aldrich&family=Russo+One&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/brand.css" />
+  <link rel="stylesheet" href="/assets/css/layout.css" />
+  <link rel="stylesheet" href="/assets/css/lesson.css" />
+</head>
+<body data-page="lesson" data-lesson="frc-relative-absolute">
+  <main id="main" class="content">
+    <div class="content-inner">
+
+      <!-- ===================== HEADER ===================== -->
+      <header class="lesson-hero">
+        <nav class="crumbs" aria-label="Breadcrumb">
+          <a href="/">Home</a><span class="sep">/</span>
+          <a href="/syllabus.html">Phase 2 · FRC</a><span class="sep">/</span>
+          <span>Unit 5 · Sensing</span>
+        </nav>
+        <span class="badge badge--ocean">Unit 5</span>
+        <h1 class="lesson-title">Relative vs. Absolute Encoders</h1>
+        <p class="lesson-lede">Your arm reports 9.00 rotations. Nine rotations from what? Answering that question is
+          the difference between a mechanism that works and one that drives itself into the frame.</p>
+        <div class="lesson-meta">
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg> 20 min</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h2v-4H3zM9 20h2V10H9zM15 20h2V4h-2z"/></svg> Intermediate</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2zM18 3v16"/></svg> Needs: Reading Position &amp; Velocity</span>
+        </div>
+      </header>
+
+      <!-- ===================== GOAL ===================== -->
+      <div class="goal">
+        <div class="goal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div>
+        <div>
+          <h2>Your goal</h2>
+          <p>Choose the right encoder type for a mechanism, and write a homing routine that makes a relative
+            encoder's zero mean something.</p>
+        </div>
+      </div>
+
+      <nav class="toc" aria-label="On this page">
+        <strong>On this page</strong>
+        <ol>
+          <li><a href="#why">Why this matters</a></li>
+          <li><a href="#two">Two kinds of encoder</a></li>
+          <li><a href="#choose">Choosing between them</a></li>
+          <li><a href="#homing">Homing a relative encoder</a></li>
+          <li><a href="#run">Watch a power cycle happen</a></li>
+          <li><a href="#absfail">How an absolute encoder fails</a></li>
+          <li><a href="#challenges">Practice challenges</a></li>
+          <li><a href="#mistakes">Common mistakes</a></li>
+          <li><a href="#exercise">Project: Arm.home()</a></li>
+          <li><a href="#checkpoint">Checkpoint</a></li>
+        </ol>
+      </nav>
+
+      <div class="prose">
+
+        <!-- ===================== WHY ===================== -->
+        <h2 id="why"><span class="section-h"><span class="num">1</span> Why this matters</span></h2>
+
+        <div class="callout callout--why">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></div>
+          <div class="c-title">Nine rotations from where?</div>
+          <div class="c-body">
+            <p>Last lesson ended with the arm reporting 9.00 rotations. Now turn the robot off and turn it back on.
+              The arm has not moved a millimetre. It is still physically holding a game piece in the air.
+              <code>getPosition()</code> now returns 0.00.</p>
+            <p>Nothing broke. That is exactly what a relative encoder does. On startup it calls wherever it happens
+              to be zero. The arm's position did not change. The reference did.</p>
+            <p>Now run code that says "go to 9.0" believing 0 is stowed. The arm drives another nine rotations past
+              the top of its travel and into the frame. This costs nothing to prevent and everything to discover at
+              a competition.</p>
+          </div>
+        </div>
+
+        <!-- ===================== TWO ===================== -->
+        <h2 id="two"><span class="section-h"><span class="num">2</span> Two kinds of encoder</span></h2>
+        <p>REV's own documentation puts the distinction well: incremental encoders measure a change in position as a
+          mechanism rotates, and absolute encoders report an exact position at any time, including at startup.</p>
+
+        <div class="tablewrap">
+          <table class="data">
+            <thead><tr><th></th><th>Relative (incremental)</th><th>Absolute</th></tr></thead>
+            <tbody>
+              <tr><td>On startup</td><td>Reports 0, wherever it physically is</td><td>Reports its real position, for example 50 degrees</td></tr>
+              <tr><td>What it measures</td><td>Change since it started counting</td><td>The actual angle of the shaft it is on</td></tr>
+              <tr><td>Use it when</td><td>There is a known starting position you can drive to</td><td>There is no physical stop to home against</td></tr>
+              <tr><td>The risk</td><td>Its zero is meaningless until you establish one</td><td>If the mechanical link to the mechanism fails, the reading stays plausible and stops being true</td></tr>
+              <tr><td>Where you get one</td><td>Built into every Neo and every Kraken. Free</td><td>A separate sensor, wired and mounted</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>PenguinBot's arm uses the Neo's built in encoder, which is relative. That is the common case, and it is
+          why the rest of this lesson is mostly about homing.</p>
+
+        <!-- ===================== CHOOSE ===================== -->
+        <h2 id="choose"><span class="section-h"><span class="num">3</span> Choosing between them</span></h2>
+        <p>One question decides it: <strong>is there a physical place you can drive the mechanism to and know
+          exactly where it is?</strong></p>
+        <ul>
+          <li><strong>Yes.</strong> An arm that rests against a hard stop, an elevator that bottoms out, an intake
+            that folds against the frame. Use the relative encoder you already have, and home it.</li>
+          <li><strong>No.</strong> A turret that spins continuously, a swerve module's steering that can face any
+            direction with no stop in either. Use an absolute encoder, because there is nowhere to home to.</li>
+        </ul>
+        <p>That second case is not hypothetical. Swerve steering is exactly why absolute encoders show up on this
+          robot at all, and Unit 9 comes back to it.</p>
+
+        <div class="callout callout--note">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg></div>
+          <div class="c-title">Wiring, briefly</div>
+          <div class="c-body"><p>On a SparkMax the two kinds arrive on different ports. The Neo's built in encoder
+            must be connected to the encoder port, and REV documents absolute encoders as connecting through the
+            data port, needing SparkMax firmware 1.6.0 or newer. REV also notes that reading incremental and
+            absolute feedback from a single encoder through the SparkMax is not supported. In code you reach them
+            with different calls: <code>getEncoder()</code> for the built in relative one and
+            <code>getAbsoluteEncoder()</code> for an absolute one on the data port.</p></div>
+        </div>
+
+        <!-- ===================== HOMING ===================== -->
+        <h2 id="homing"><span class="section-h"><span class="num">4</span> Homing a relative encoder</span></h2>
+        <p><strong>Homing</strong> means deliberately moving a mechanism to a place you know, and then declaring
+          that place to be zero. Three steps, and none of them are optional.</p>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Arm.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">// 1. drive SLOWLY toward the known place
+pivot.set(-0.15);
+
+// 2. wait until it gets there and settles
+//    (a timer, a current spike, or a limit switch, depending on the mechanism)
+
+// 3. stop, then declare this spot zero
+pivot.set(0);
+pivot.getEncoder().setPosition(0);</code></pre>
+        </div>
+
+        <p>Two details carry all the weight.</p>
+        <p><strong>Slowly.</strong> You are driving a mechanism into a hard stop on purpose. At 15 percent output
+          that is a gentle press. At 90 percent it is an impact, and homing is how teams break the very stop they
+          are homing against. The 80 percent rule from Unit 4 is a ceiling, not a target, and homing wants to be far
+          below it.</p>
+        <p><strong>Stop before you zero.</strong> If the mechanism is still moving when you call
+          <code>setPosition(0)</code>, you have zeroed a place the arm was passing through rather than the place it
+          rests. Everything downstream is then off by that amount.</p>
+
+        <!-- ===================== RUN ===================== -->
+        <h2 id="run"><span class="section-h"><span class="num">5</span> Watch a power cycle happen</span></h2>
+        <p>This runs the whole story: raise the arm, power cycle the robot, home it, then raise it again. Read the
+          four printed lines carefully.</p>
+
+        <div class="sandbox" data-compiler data-sim data-title="A power cycle, and a homing routine">
+          <script type="text/x-java" class="sb-src">
+// On a real robot:
+//   import com.revrobotics.spark.SparkMax;
+//   import com.revrobotics.spark.SparkLowLevel.MotorType;
+
+public class Main {
+    public static void main(String[] args) {
+        SparkMax armPivot = new SparkMax(3, MotorType.kBrushless);
+
+        // 1) Raise the arm for 20 cycles of the robot loop.
+        armPivot.set(0.4);
+        for (int tick = 1; tick <= 20; tick++) PenguinSim.step();
+        armPivot.set(0);
+        System.out.printf("before power cycle: position = %6.2f%n",
+                          armPivot.getEncoder().getPosition());
+
+        // 2) POWER CYCLE. The arm does not move. Only the code restarts,
+        //    so the robot builds its motor objects again from scratch.
+        SparkMax armAfterReboot = new SparkMax(3, MotorType.kBrushless);
+        System.out.printf("after  power cycle: position = %6.2f%n",
+                          armAfterReboot.getEncoder().getPosition());
+
+        // 3) HOME IT. Creep down to the hard stop, then declare that spot zero.
+        armAfterReboot.set(-0.15);
+        for (int tick = 1; tick <= 30; tick++) PenguinSim.step();
+        armAfterReboot.set(0);
+        armAfterReboot.getEncoder().setPosition(0);      // <-- the important line
+        System.out.printf("after  homing:      position = %6.2f%n",
+                          armAfterReboot.getEncoder().getPosition());
+
+        // 4) Raise it again. This time the number means something.
+        armAfterReboot.set(0.3);
+        for (int tick = 1; tick <= 25; tick++) PenguinSim.step();
+        armAfterReboot.set(0);
+        System.out.printf("raised 25 cycles:   position = %6.2f%n",
+                          armAfterReboot.getEncoder().getPosition());
+    }
+}
+          </script>
+        </div>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code>[sim] SparkMax on CAN ID 3 (kBrushless) is alive.
+before power cycle: position =  10.59
+[sim] SparkMax on CAN ID 3 (kBrushless) is alive.
+after  power cycle: position =   0.00
+after  homing:      position =   0.00
+raised 25 cycles:   position =   8.72</code></pre>
+        </div>
+
+        <p>Line two and line three print the same number. That is the lesson.</p>
+        <ul>
+          <li><strong>Line 2 is zero because the code restarted.</strong> The arm is still up. Nothing measured
+            anything. The reading is a coincidence of when the program started.</li>
+          <li><strong>Line 3 is zero because you put the arm somewhere you know and said so.</strong> Same number,
+            entirely different meaning. Now 8.72 in line four is a real distance from a real place.</li>
+        </ul>
+
+        <div class="callout callout--tip">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12c.7.7 1 1.4 1 2h6c0-.6.3-1.3 1-2a7 7 0 0 0-4-12z"/></svg></div>
+          <div class="c-title">Two experiments worth running</div>
+          <div class="c-body">
+            <ul>
+              <li><strong>Comment out the <code>setPosition(0)</code> line.</strong> Line three now prints
+                <code>-6.85</code>, and every number after it is measured from a place with no meaning. This is what
+                a robot with no homing routine does all match.</li>
+              <li><strong>Change the homing speed to <code>-0.9</code>.</strong> The over 80 percent warning fires,
+                and the final position comes out <em>negative</em>, because the arm was still travelling downward
+                when you declared zero. Homing fast does not just risk the hardware. It gives you a wrong zero.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- ===================== ABSFAIL ===================== -->
+        <h2 id="absfail"><span class="section-h"><span class="num">6</span> How an absolute encoder fails</span></h2>
+        <p>Absolute encoders solve the startup problem and introduce a quieter one.</p>
+        <p>An absolute encoder reports the angle of the shaft it is mounted on. If the coupler slips, the belt
+          snaps, or the motor free spins after a mechanical failure, the sensor keeps reporting its own angle
+          perfectly and that angle no longer describes the mechanism.</p>
+        <p>The symptom is a reading that looks entirely reasonable and is wrong. A relative encoder that has lost its
+          reference usually looks obviously broken. An absolute one that has lost its coupling looks fine. That is
+          worse, because your code believes it.</p>
+
+        <div class="vocab">
+          <div class="vocab-term"><dt>relative encoder</dt><dd>Reports change since startup. Reads zero on boot no matter where the mechanism is.</dd></div>
+          <div class="vocab-term"><dt>absolute encoder</dt><dd>Reports the real angle of its shaft at all times, including on boot.</dd></div>
+          <div class="vocab-term"><dt>homing</dt><dd>Driving a mechanism to a known place and declaring that place zero.</dd></div>
+          <div class="vocab-term"><dt>setPosition(double)</dt><dd>The call that tells a relative encoder what number the current spot should be.</dd></div>
+          <div class="vocab-term"><dt>hard stop</dt><dd>A physical limit a mechanism can rest against. The thing homing homes to.</dd></div>
+        </div>
+
+        <!-- ===================== CHALLENGES ===================== -->
+        <h2 id="challenges"><span class="section-h"><span class="num">7</span> Practice challenges</span></h2>
+
+        <!-- predict -->
+        <div class="challenge" data-kind="text"
+             data-win="Zero. The arm is exactly where it was. The encoder just started counting again."
+             data-lose="Zero. A relative encoder calls whatever position it wakes up in zero, and the mechanism's actual position has nothing to do with it.">
+          <div class="challenge-head"><span class="ch-kind">Predict the output</span><span class="ch-title">Straight after a reboot</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">The arm is physically at the top of its travel. You reboot the robot and
+              immediately call <code>getPosition()</code> on the relative encoder. What does it return?</p>
+            <div class="answer-row">
+              <input class="answer-input" type="text" placeholder="a number" data-answer="0|0.0|0.00|zero" aria-label="Your answer" />
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <!-- mcq pick -->
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">Pick the encoder</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">A turret spins continuously and has no hard stop in either direction. Which
+              encoder does it need?</p>
+            <div class="options">
+              <label class="option" data-explain="Homing needs somewhere to home to. There is no stop, so there is nowhere to drive it."><input type="radio" name="q-pick" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Relative, homed at startup</span></label>
+              <label class="option" data-correct data-explain="Correct. No physical reference means you need an encoder that already knows its angle."><input type="radio" name="q-pick" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Absolute</span></label>
+              <label class="option" data-explain="It makes all the difference on boot, which is the one moment you cannot avoid."><input type="radio" name="q-pick" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Either. It makes no difference</span></label>
+              <label class="option" data-explain="Timing gives you no position at all, and it drifts the moment the battery sags."><input type="radio" name="q-pick" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Neither. Use a timer</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <!-- mcq abs failure -->
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">A plausible wrong number</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">An absolute encoder on an arm reads a steady 42 degrees while the arm is
+              visibly hanging at the bottom. Most likely explanation?</p>
+            <div class="options">
+              <label class="option" data-explain="Absolute encoders do not need zeroing. That is the entire point of them."><input type="radio" name="q-abs" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The encoder needs re-zeroing</span></label>
+              <label class="option" data-explain="Low voltage affects motion, not a steady sensor reading."><input type="radio" name="q-abs" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The battery is low</span></label>
+              <label class="option" data-correct data-explain="Yes. The sensor is reporting its own angle correctly. It is just no longer connected to the thing you care about."><input type="radio" name="q-abs" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The mechanical link between the encoder and the arm has failed</span></label>
+              <label class="option" data-explain="A wrong ID gives you no reading at all, rather than a plausible one."><input type="radio" name="q-abs" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The CAN ID is wrong</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <!-- fib -->
+        <div class="challenge" data-kind="fib"
+             data-win="Slow, then zero. That is the whole routine."
+             data-lose="Drive slowly into the stop with a small negative output, then call setPosition(0). Homing at high power is how you break the stop you are homing against.">
+          <div class="challenge-head"><span class="ch-kind">Fill in the blanks</span><span class="ch-title">The homing routine</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Complete the two missing pieces.</p>
+<pre class="fib">pivot.set(<span class="blank" data-answer="-0.15|-0.1|-0.2|-0.05"></span>);            // slow, downward, into the hard stop
+// ... wait until it reaches the stop and settles ...
+pivot.set(0);
+pivot.getEncoder().<span class="blank" data-answer="setPosition"></span>(0);   // declare THIS to be zero</pre>
+            <div class="challenge-actions">
+              <button class="btn btn--sm check-btn" type="button">Check</button>
+              <button class="btn btn--sm btn--ghost reset-btn" type="button">Reset</button>
+            </div>
+            <div class="feedback"></div>
+            <details class="reveal">
+              <summary><svg class="rv-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg> Hint</summary>
+              <div class="reveal-body"><p>The first blank is a small negative number, well under the team's limit.
+                The second blank is the one encoder method that writes instead of reads.</p></div>
+            </details>
+          </div>
+        </div>
+
+        <!-- predict 2 -->
+        <div class="challenge" data-kind="text"
+             data-win="It drives nine more rotations past the top. The code is not wrong. The zero is."
+             data-lose="The arm goes another nine rotations beyond where it already is, because after the reboot the encoder thinks the top of the travel is zero.">
+          <div class="challenge-head"><span class="ch-kind">Predict</span><span class="ch-title">Skipping the homing routine</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">You skip homing, and after a reboot your code drives the arm to setpoint 9.0
+              while the arm is already at the top. What happens?</p>
+            <div class="answer-row">
+              <input class="answer-input" type="text" placeholder="say it in a few words" data-answer="it keeps going|it drives past|it goes too far|breaks|it overshoots|drives into the frame|9 more rotations|it goes another 9 rotations|nine more rotations" aria-label="Your answer" />
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <!-- ===================== MISTAKES ===================== -->
+        <h2 id="mistakes"><span class="section-h"><span class="num">8</span> Common mistakes</span></h2>
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">Watch out for these</div>
+          <div class="c-body">
+            <ul>
+              <li><strong>"The encoder is broken, it says 0 and the arm is up."</strong> It is working perfectly. A
+                relative encoder reports change from startup, not absolute position. The reference needs
+                establishing, and that is your job.</li>
+              <li><strong>Thinking absolute encoders are strictly better.</strong> They cost money, need mounting and
+                wiring, and fail in a way that looks plausible. A relative encoder with a homing routine is the right
+                answer for most mechanisms.</li>
+              <li><strong>Homing fast.</strong> You are driving a mechanism into a hard stop on purpose. Do it slowly
+                or you break the stop, and you get a wrong zero into the bargain because the mechanism is still
+                moving when you declare it.</li>
+              <li><strong>Zeroing while the mechanism is moving.</strong> Stop first, then call
+                <code>setPosition(0)</code>.</li>
+              <li><strong>Homing once and never again.</strong> Anything that can slip should be re-homed after it
+                slips. If the arm gets hit hard in a match, its zero is a guess again.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- ===================== EXERCISE ===================== -->
+        <div class="exercise" id="exercise">
+          <div class="exercise-head">
+            <div class="ex-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4L12 17l-6.3 4.4L8 14 2 9.4h7.6z"/></svg></div>
+            <div>
+              <div class="ex-kicker">Build it · PenguinBot</div>
+              <h3>Arm.home()</h3>
+            </div>
+          </div>
+          <div class="exercise-body">
+            <p>Last lesson you gave PenguinBot an <code>Arm</code> class that reports position and velocity. Right
+              now those numbers are measured from whenever the robot happened to boot. Fix that.</p>
+            <ol class="task-list">
+              <li><b>Add <code>home()</code></b> to the <code>Arm</code> class. It drives the arm down slowly, waits
+                for it to reach the stop, stops the motor, and zeroes the encoder.</li>
+              <li><b>Use a slow speed.</b> Something around <code>-0.15</code>. Far below the team's limit.</li>
+              <li><b>Stop before you zero.</b> The order of those two lines matters.</li>
+              <li><b>Prove it works.</b> Print the position before and after, and make the difference obvious.</li>
+              <li><b>Bonus.</b> Add <code>isHomed()</code> returning a boolean, set true by <code>home()</code>, so
+                the rest of the robot can refuse to run the arm until it has been homed.</li>
+            </ol>
+
+            <div class="sandbox" data-compiler data-sim data-title="Your turn: Arm.home()">
+              <script type="text/x-java" class="sb-src">
+// On a real robot:
+//   import com.revrobotics.spark.SparkMax;
+//   import com.revrobotics.spark.SparkLowLevel.MotorType;
+
+public class Main {
+
+    static class Arm {
+        private final SparkMax pivot = new SparkMax(3, MotorType.kBrushless);
+
+        public void setSpeed(double speed) {
+            double safe = Math.max(-0.8, Math.min(0.8, speed));
+            pivot.set(safe);
+        }
+        public void stop() { pivot.set(0); }
+        public double getPosition() { return pivot.getEncoder().getPosition(); }
+
+        // TODO: home() drives down slowly, stops, then zeroes the encoder.
+        public void home() {
+
+        }
+
+        // TODO (bonus): isHomed()
+
+    }
+
+    public static void main(String[] args) {
+        Arm arm = new Arm();
+
+        // pretend the robot booted with the arm somewhere random
+        arm.setSpeed(0.5);
+        for (int t = 1; t <= 15; t++) PenguinSim.step();
+        arm.stop();
+        System.out.printf("before home: %6.2f%n", arm.getPosition());
+
+        arm.home();
+        System.out.printf("after  home: %6.2f%n", arm.getPosition());
+    }
+}
+              </script>
+            </div>
+
+            <details class="reveal">
+              <summary><svg class="rv-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg> Reveal the solution</summary>
+              <div class="reveal-body">
+                <div class="code with-lines">
+                  <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Arm.java · home()</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">private boolean homed = false;
+
+public void home() {
+    // 1. creep down toward the hard stop
+    setSpeed(-0.15);
+    for (int t = 1; t <= 40; t++) PenguinSim.step();
+
+    // 2. stop BEFORE zeroing, so the arm is actually at rest
+    stop();
+    PenguinSim.step();
+
+    // 3. declare this spot zero
+    pivot.getEncoder().setPosition(0);
+    homed = true;
+}
+
+public boolean isHomed() {
+    return homed;
+}</code></pre>
+                </div>
+                <p>On a real robot that <code>for</code> loop is wrong, and it is worth knowing why now. Waiting a
+                  fixed number of cycles works in a simulator where nothing varies. On a real arm the right end
+                  condition is a limit switch closing, or the current spiking as the mechanism presses into the
+                  stop, or the velocity dropping to zero while you are still commanding movement. All three are end
+                  conditions, which means all three belong in a command. Unit 7 turns this into
+                  <code>HomeArmCommand</code>.</p>
+                <p>The <code>isHomed()</code> flag matters more than it looks. It lets <code>RobotContainer</code>
+                  refuse to run any arm setpoint until homing has happened, which turns "we forgot to home it" from
+                  a broken mechanism into a command that does nothing.</p>
+              </div>
+            </details>
+            <p>PenguinBot's arm can now report where it is and knows what zero means. Unit 6 uses both of those to
+              make it actually stop at a setpoint instead of slamming past.</p>
+          </div>
+        </div>
+
+        <!-- ===================== CHECKPOINT ===================== -->
+        <div class="checkpoint" id="checkpoint">
+          <div class="checkpoint-head">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            <h3>Checkpoint</h3>
+            <span class="cp-score">0 / 5</span>
+          </div>
+          <div class="checkpoint-body">
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q1.</span> What does a relative encoder report immediately after the robot powers on?</div>
+              <div class="options">
+                <label class="option" data-explain="It has no memory of its last reading. That is what makes it relative."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The position it had before shutdown</span></label>
+                <label class="option" data-correct data-explain="Right, and the mechanism's real position is irrelevant to that number."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Zero, wherever the mechanism physically is</span></label>
+                <label class="option" data-explain="That is an absolute encoder. A relative one has no idea what angle it is at."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Its true angle</span></label>
+                <label class="option" data-explain="It reports a perfectly valid number. Whether that number means anything is the question."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">An error</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q2.</span> What does homing actually do?</div>
+              <div class="options">
+                <label class="option" data-explain="Nothing physical moves to a factory setting. You choose the reference."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Resets the encoder to a factory default</span></label>
+                <label class="option" data-correct data-explain="Yes. Both halves are required. Driving there without declaring it, or declaring it without driving there, both leave you guessing."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Moves the mechanism to a known place, then declares that place zero</span></label>
+                <label class="option" data-explain="Homing does not calibrate the sensor. It establishes what its numbers mean."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Calibrates the encoder's accuracy</span></label>
+                <label class="option" data-explain="Nothing is returned to a start of match state. The robot has no idea where the match started."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Returns the robot to its starting configuration</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q3.</span> Why home slowly?</div>
+              <div class="options">
+                <label class="option" data-explain="Encoders read fine at speed. Reading is not the problem."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The encoder cannot keep up at high speed</span></label>
+                <label class="option" data-correct data-explain="Correct on both counts. The sandbox shows the second one: home at 0.9 and the final position comes out negative."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">You are driving into a hard stop on purpose, and a moving mechanism gives you a wrong zero</span></label>
+                <label class="option" data-explain="Battery draw is not the reason, though a stalled motor at full power does draw a lot."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">To save the battery</span></label>
+                <label class="option" data-explain="There is no rule about homing speed anywhere. It is a consequence of driving into something solid."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The game manual requires it</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q4.</span> Which mechanism most needs an absolute encoder?</div>
+              <div class="options">
+                <label class="option" data-explain="It bottoms out, which is a perfect place to home to."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">An elevator that bottoms out</span></label>
+                <label class="option" data-explain="It rests against a hard stop, so home it and save the money."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">An arm that rests on a hard stop</span></label>
+                <label class="option" data-correct data-explain="Right. It can face any direction with no stop in either, so there is nowhere to home to. Unit 9 comes back to this."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A swerve module's steering</span></label>
+                <label class="option" data-explain="A roller has no position worth knowing. It only matters how fast it spins."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">An intake roller</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q5.</span> In the sandbox, why do "after power cycle" and "after homing" print the same number?</div>
+              <div class="options">
+                <label class="option" data-explain="Homing did work. The proof is the fourth line, which is now measured from a place you chose."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Homing did not do anything</span></label>
+                <label class="option" data-correct data-explain="Exactly. Same number, different meaning. That is the whole lesson, and it is why the number alone can never tell you whether a robot is safe to run."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">One zero is an accident of when the code started, the other is a place you chose</span></label>
+                <label class="option" data-explain="Nothing was printed twice. Comment out setPosition(0) and the third line changes."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The same line got printed twice</span></label>
+                <label class="option" data-explain="The simulator is reporting faithfully. Both zeroes are real, and only one is useful."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The simulator rounds both to zero</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check my answers</button></div>
+          </div>
+        </div>
+
+        <!-- ===================== COMPLETE ===================== -->
+        <div class="mark-complete">
+          <div class="mc-text"><b>Unit 5 complete. Your robot measures itself and knows what zero means.</b><span>Unit 6 next: making a mechanism stop exactly where you want it.</span></div>
+          <button class="complete-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>Mark as complete</span></button>
+        </div>
+
+      </div><!-- /prose -->
+    </div><!-- /content-inner -->
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="/assets/js/course.js"></script>
+  <script src="/assets/js/site.js"></script>
+  <script src="/assets/js/widgets.js"></script>
+</body>
+</html>

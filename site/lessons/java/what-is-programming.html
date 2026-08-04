@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>What Programming Really Is · Penguin Empire 2551</title>
+  <meta name="description" content="The first lesson of the Penguin Empire 2551 programming path. What a program actually is, why computers are literal, and how to write your first ordered list of instructions — no experience needed." />
+  <link rel="icon" href="/assets/img/logo-2551.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Aldrich&family=Russo+One&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/brand.css" />
+  <link rel="stylesheet" href="/assets/css/layout.css" />
+  <link rel="stylesheet" href="/assets/css/lesson.css" />
+</head>
+<body data-page="lesson" data-lesson="j-what-is-programming">
+  <main id="main" class="content">
+    <div class="content-inner">
+
+      <!-- ===================== HEADER ===================== -->
+      <header class="lesson-hero">
+        <nav class="crumbs" aria-label="Breadcrumb">
+          <a href="/">Home</a><span class="sep">/</span>
+          <a href="/syllabus.html">Phase 1 · Java &amp; OOP</a><span class="sep">/</span>
+          <span>Unit J1 · Getting Started</span>
+        </nav>
+        <span class="badge badge--ocean">Lesson 1</span>
+        <h1 class="lesson-title">What Programming Really Is</h1>
+        <p class="lesson-lede">Before you write a single line, one idea has to land: a computer is not smart,
+          and it is not stupid. It is <em>literal</em>. Everything else you learn here is you getting better
+          at saying exactly what you mean.</p>
+        <div class="lesson-meta">
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg> 15 min</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h2v-4H3zM9 20h2V10H9zM15 20h2V4h-2z"/></svg> Beginner — no experience needed</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2zM18 3v16"/></svg> Phase 1 · Foundations</span>
+        </div>
+      </header>
+
+      <!-- ===================== GOAL ===================== -->
+      <div class="goal">
+        <div class="goal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div>
+        <div>
+          <h2>Your goal</h2>
+          <p>Explain in your own words what a program is, put a set of instructions in the right order,
+            and run your first piece of Java in the browser.</p>
+        </div>
+      </div>
+
+      <!-- ===================== TOC ===================== -->
+      <nav class="toc" aria-label="On this page">
+        <strong>On this page</strong>
+        <ol>
+          <li><a href="#why">Why this matters</a></li>
+          <li><a href="#what">What a program actually is</a></li>
+          <li><a href="#language">The language and the compiler</a></li>
+          <li><a href="#io">Input → process → output</a></li>
+          <li><a href="#order">Order <em>is</em> the program</a></li>
+          <li><a href="#run">Run it yourself</a></li>
+          <li><a href="#challenges">Practice challenges</a></li>
+          <li><a href="#mistakes">Common misconceptions</a></li>
+          <li><a href="#exercise">Project: The pit crew checklist</a></li>
+          <li><a href="#checkpoint">Checkpoint</a></li>
+        </ol>
+      </nav>
+
+      <div class="prose">
+
+        <!-- ===================== WHY ===================== -->
+        <h2 id="why"><span class="section-h"><span class="num">1</span> Why this matters</span></h2>
+
+        <div class="callout callout--why" id="warstory">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></div>
+          <div class="c-title">Ramming speed</div>
+          <div class="c-body">
+            <p>The code said <em>drive forward for two seconds</em>. The drivers expected the robot to stop
+              at the line. Instead it drove straight into the wall.</p>
+            <p>Nothing was broken. No motor failed. No wire came loose. The robot did <strong>precisely</strong>
+              what the code said — the code just said the wrong thing. Two seconds of driving was farther
+              than the wall was away.</p>
+          </div>
+        </div>
+
+        <p>That story is the whole lesson. A computer is not smart and it is not stupid — it is
+          <strong>literal</strong>. It has no idea what you meant. It only knows what you wrote.</p>
+        <p>Everything you do for Team 2551 from here on — motors, sensors, autonomous — is you getting
+          better at saying exactly what you mean.</p>
+
+        <!-- ===================== WHAT ===================== -->
+        <h2 id="what"><span class="section-h"><span class="num">2</span> What a program actually is</span></h2>
+        <p>A <strong>program</strong> is an ordered list of instructions. That's it. The computer starts at
+          the top and does one line at a time, all the way down, without skipping and without rearranging.
+          That behaviour has a name: <strong>sequential execution</strong>.</p>
+        <p>Think of a recipe. A recipe is useless as a pile of unordered steps — “bake for 20 minutes”
+          before “mix the batter” produces garbage. Order isn't a detail of the recipe. Order
+          <em>is</em> the recipe.</p>
+
+        <p>You already do this. Before every match, someone on the team reads a checklist out loud:
+          battery in, bumpers on, tether unplugged, robot on the field. That checklist is an
+          <strong>algorithm</strong> — a finite list of clear steps, in order, that gets a job done.
+          Write that same checklist in Java and it's a <strong>program</strong>.</p>
+
+        <div class="callout callout--tip">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12c.7.7 1 1.4 1 2h6c0-.6.3-1.3 1-2a7 7 0 0 0-4-12z"/></svg></div>
+          <div class="c-title">Mental model</div>
+          <div class="c-body"><p>You are writing a recipe for the most obedient, least imaginative chef alive.
+            It will follow every step perfectly — and it will never once notice that a step is missing.</p></div>
+        </div>
+
+        <p>So you already write algorithms constantly. Programming is only the <em>translation</em> step.</p>
+
+        <!-- ===================== LANGUAGE ===================== -->
+        <h2 id="language"><span class="section-h"><span class="num">3</span> The language and the compiler</span></h2>
+        <p>Computers only accept very precise languages. It's like ordering food in a language you barely
+          speak: one wrong word and you get nothing — not a helpful guess. The rules of that language are
+          called its <strong>syntax</strong>.</p>
+        <p>We write in <strong>Java</strong>, because that's what FRC robots are programmed in.</p>
+
+        <p>Here's the pipeline. You write <strong>source code</strong> — text a human can read. A
+          <strong>compiler</strong> checks it for syntax mistakes and translates it into something the
+          machine can actually execute. If the compiler finds a mistake, it refuses to translate and
+          tells you where it choked.</p>
+
+        <div class="callout callout--note">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16v-4M12 8h.01"/><circle cx="12" cy="12" r="9"/></svg></div>
+          <div class="c-title">That refusal is a feature</div>
+          <div class="c-body"><p>An error message is the compiler catching your typo <em>before</em> the robot
+            does something expensive. It is help, not punishment. Lesson 6 of this unit is entirely about
+            reading what the compiler tells you.</p></div>
+        </div>
+
+        <!-- ===================== IO ===================== -->
+        <h2 id="io"><span class="section-h"><span class="num">4</span> Input → process → output</span></h2>
+        <p>Every program, without exception, is three steps: take something in, do something with it,
+          put something out.</p>
+        <p>The intake on the robot is the perfect picture of it. A game piece goes in
+          (<strong>input</strong>), the rollers grab and index it (<strong>process</strong>), the shooter
+          fires it out (<strong>output</strong>).</p>
+        <p>A program that reads a joystick, decides a motor speed, and sets the motor is the exact same
+          three steps. On this page our output is text on a screen. In Phase 2, the output is a spinning
+          motor — but the shape never changes.</p>
+
+        <!-- ===================== ORDER ===================== -->
+        <h2 id="order"><span class="section-h"><span class="num">5</span> Order <em>is</em> the program</span></h2>
+        <p>Here is a complete, working Java program. Don't worry about the first two lines — taking those
+          apart is the <em>next</em> lesson's whole job. For now, look only at the middle.</p>
+
+        <div class="code with-lines">
+          <div class="code-head">
+            <div class="code-dots"><i></i><i></i><i></i></div>
+            <span class="code-file">Main.java</span>
+            <span class="code-lang">Java</span>
+            <span class="code-spacer"></span>
+          </div>
+<pre><code class="language-java">public class Main {
+    public static void main(String[] args) {
+        // Step 1
+        System.out.println("Battery installed");
+        // Step 2
+        System.out.println("Bumpers attached");
+        // Step 3
+        System.out.println("Robot on the field");
+    }
+}</code></pre>
+        </div>
+
+        <div class="vocab">
+          <div class="vocab-term"><dt>public class Main { … }</dt><dd>A named container for the program. We take this apart in the next lesson — for now, copy it.</dd></div>
+          <div class="vocab-term"><dt>public static void main(...)</dt><dd>The starting line. The computer looks for this and begins here.</dd></div>
+          <div class="vocab-term"><dt>System.out.println("…")</dt><dd>One instruction. It means <em>print this text on its own line</em>.</dd></div>
+        </div>
+
+        <p>Running it prints exactly this:</p>
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">Battery installed
+Bumpers attached
+Robot on the field</code></pre>
+        </div>
+
+        <p class="lead"><strong>The output order is the code order. Always.</strong></p>
+
+        <p>Now watch what happens if we keep the same three instructions and just swap two of them:</p>
+
+        <div class="code with-lines">
+          <div class="code-head">
+            <div class="code-dots"><i></i><i></i><i></i></div>
+            <span class="code-file">Main.java · reordered</span>
+            <span class="code-lang">Java</span>
+            <span class="code-spacer"></span>
+          </div>
+<pre><code class="language-java">public class Main {
+    public static void main(String[] args) {
+        System.out.println("Robot on the field");
+        System.out.println("Bumpers attached");
+        System.out.println("Battery installed");
+    }
+}</code></pre>
+        </div>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">Robot on the field
+Bumpers attached
+Battery installed</code></pre>
+        </div>
+
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">This is valid Java</div>
+          <div class="c-body"><p>The compiler is perfectly happy with it. It cannot tell that putting the robot
+            on the field <em>before</em> installing the battery is nonsense — that's a fact about robots, not
+            about grammar. <strong>Only you know the intent.</strong> This is the single most important idea
+            on this page.</p></div>
+        </div>
+
+        <!-- ===================== RUN ===================== -->
+        <h2 id="run"><span class="section-h"><span class="num">6</span> Run it yourself</span></h2>
+        <p>This isn't a picture of code — it's a <strong>real Java compiler</strong>. Press
+          <b style="color:#0a5d70">Run ▶</b> inside the panel and read the order it prints. It's wrong:
+          the robot goes on the field before the battery is in.</p>
+        <p><strong>Your job:</strong> cut and paste whole lines until the output reads battery →
+          bumpers → tether → field.</p>
+
+        <div class="sandbox" data-compiler data-title="Live Java Sandbox" data-lang="java">
+          <script type="text/x-java" class="sb-src">
+public class Main {
+    public static void main(String[] args) {
+        System.out.println("Robot on the field");
+        System.out.println("Battery installed");
+        System.out.println("Bumpers attached");
+        System.out.println("Tether unplugged");
+    }
+}
+          </script>
+        </div>
+
+        <div class="callout callout--tip">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12c.7.7 1 1.4 1 2h6c0-.6.3-1.3 1-2a7 7 0 0 0-4-12z"/></svg></div>
+          <div class="c-title">You don't need to understand the words yet</div>
+          <div class="c-body"><p>Move whole lines around. That is already programming. Understanding what's
+            <em>inside</em> each line is the next lesson.</p></div>
+        </div>
+
+        <div class="callout callout--note">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16v-4M12 8h.01"/><circle cx="12" cy="12" r="9"/></svg></div>
+          <div class="c-title">First run is slow</div>
+          <div class="c-body"><p>The very first run may take a few seconds while the compiler warms up. That's
+            normal — later runs are quick. If the panel ever won't load, use
+            <strong>“Open in new tab ↗”</strong> and paste the code there.</p></div>
+        </div>
+
+        <!-- ===================== CHALLENGES ===================== -->
+        <h2 id="challenges"><span class="section-h"><span class="num">7</span> Practice challenges</span></h2>
+        <p>Reading is easy to fool yourself on. These make sure it actually landed.</p>
+
+        <!-- Predict output -->
+        <div class="challenge" data-kind="text"
+             data-win="Exactly. Top to bottom, no surprises — the output order is the code order."
+             data-lose="Java does not reorder your lines or sort them. It runs line 1, then line 2, then line 3, exactly as written.">
+          <div class="challenge-head"><span class="ch-kind">Predict the output</span><span class="ch-title">What gets printed?</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Java runs these top to bottom. Type the three words in the order they
+              come out, separated by spaces:</p>
+            <pre class="fib">System.out.println("Enable");
+System.out.println("Drive");
+System.out.println("Shoot");</pre>
+            <div class="answer-row">
+              <input class="answer-input" type="text" placeholder="e.g. One Two Three" data-answer="Enable Drive Shoot" aria-label="Your predicted output" />
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check answer</button></div>
+            <div class="feedback"></div>
+            <details class="reveal">
+              <summary><svg class="rv-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg> Show explanation</summary>
+              <div class="reveal-body"><p>Each <code>println</code> prints its text on its own line. Nothing in the
+                program says “sort these” or “pick the important one,” so the order printed is simply the order
+                you typed.</p></div>
+            </details>
+          </div>
+        </div>
+
+        <!-- MCQ: algorithm -->
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">What counts as an algorithm?</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Which of these is an <strong>algorithm</strong>?</p>
+            <div class="options">
+              <label class="option" data-explain="Too vague to follow. An algorithm has to be steps someone could carry out without guessing."><input type="radio" name="q-algo" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">“Make the robot better”</span></label>
+              <label class="option" data-correct data-explain="Right — a finite list of clear, ordered, unambiguous steps. That is exactly what an algorithm is."><input type="radio" name="q-algo" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">“1. Drive to the line. 2. Turn 90°. 3. Shoot.”</span></label>
+              <label class="option" data-explain="Java is a programming language — the thing you write an algorithm in, not the algorithm itself."><input type="radio" name="q-algo" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">“Java”</span></label>
+              <label class="option" data-explain="A robot is hardware. The algorithm is the plan the code makes it follow."><input type="radio" name="q-algo" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">“A robot”</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <!-- Fill in the blank -->
+        <div class="challenge" data-kind="fib"
+             data-win="That's the pipeline: you write source code, the compiler checks and translates it, then it runs."
+             data-lose="You write source code; the tool that checks and translates it is the compiler.">
+          <div class="challenge-head"><span class="ch-kind">Fill in the blanks</span><span class="ch-title">How code gets run</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Click each dashed box and type the missing word.</p>
+<pre class="fib">The text you write is called source <span class="blank" data-answer="code"></span>, and the tool
+that checks it and translates it for the machine is called a <span class="blank" data-answer="compiler"></span>.</pre>
+            <div class="challenge-actions">
+              <button class="btn btn--sm check-btn" type="button">Check</button>
+              <button class="btn btn--sm btn--ghost reset-btn" type="button">Reset</button>
+            </div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <!-- MCQ: literal machine -->
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">Back to the wall</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">You told the robot to drive forward for 2 seconds. It drove into the wall.
+              What almost certainly happened?</p>
+            <div class="options">
+              <label class="option" data-explain="Code is never ignored or overruled by the robot's own judgement — it has none."><input type="radio" name="q-lit" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The robot decided to ignore the code</span></label>
+              <label class="option" data-correct data-explain="Yes. The robot did exactly what it was told; what it was told was wrong. That gap between what you said and what you meant is a bug."><input type="radio" name="q-lit" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The code said 2 seconds, but 2 seconds of driving is farther than the wall</span></label>
+              <label class="option" data-explain="The same code produces the same behaviour every time. That reliability is exactly why debugging is possible at all."><input type="radio" name="q-lit" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Java is unreliable</span></label>
+              <label class="option" data-explain="The compiler only catches grammar mistakes. “Drive 2 seconds” is perfectly grammatical — and perfectly wrong."><input type="radio" name="q-lit" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The compiler should have caught it</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <!-- ===================== MISCONCEPTIONS ===================== -->
+        <h2 id="mistakes"><span class="section-h"><span class="num">8</span> Common misconceptions</span></h2>
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">Get these out of the way now</div>
+          <div class="c-body">
+            <ul>
+              <li><strong>“The computer will figure out what I meant.”</strong> It will not. It has no idea what
+                you meant, only what you wrote — which is why being exact is the entire skill.</li>
+              <li><strong>“Programming means memorising a lot of commands.”</strong> You'll look syntax up
+                forever. What you're actually building is the habit of breaking a job into ordered,
+                unambiguous steps.</li>
+              <li><strong>“If it's not broken it must be right.”</strong> Code that runs without an error can
+                still do the wrong thing. A program that compiles is only a program that is <em>grammatical</em>.</li>
+              <li><strong>“Real programmers don't get errors.”</strong> Everyone on this team gets errors every
+                meeting. The difference is only how fast they read them.</li>
+              <li><strong>“I need a good laptop before I can start.”</strong> You need this browser tab. One
+                season the captain's laptop died and he wrote the season's robot code on the driver-station
+                laptop.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- ===================== EXERCISE ===================== -->
+        <div class="exercise" id="exercise">
+          <div class="exercise-head">
+            <div class="ex-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4L12 17l-6.3 4.4L8 14 2 9.4h7.6z"/></svg></div>
+            <div>
+              <div class="ex-kicker">Mini-project</div>
+              <h3>The Pit Crew Checklist</h3>
+            </div>
+          </div>
+          <div class="exercise-body">
+            <p>Every match, someone on 2551 runs a pre-match checklist out loud. Turn a real checklist into
+              a program — using only what you learned on this page.</p>
+            <ol class="task-list">
+              <li><b>Print a header line:</b> <code>PRE-MATCH CHECKLIST</code>.</li>
+              <li><b>Print these five steps</b>, each on its own line, <em>in an order that makes physical
+                sense</em>: battery installed and strapped, bumpers on and correct colour, tether unplugged,
+                robot powered on, robot placed on the starting line.</li>
+              <li><b>Print a closing line:</b> <code>Ready to play.</code></li>
+              <li><b>Bonus:</b> number your steps in the printed text so a human reading the console can
+                follow along.</li>
+            </ol>
+            <div class="sandbox" data-compiler data-title="Project Sandbox" data-lang="java">
+              <script type="text/x-java" class="sb-src">
+public class Main {
+    public static void main(String[] args) {
+        System.out.println("PRE-MATCH CHECKLIST");
+        // TODO: print the five steps, in an order that makes sense
+
+    }
+}
+              </script>
+            </div>
+            <p><strong>While you're here:</strong> deliberately break it once. Delete a semicolon, press Run,
+              and <em>look</em> at what the compiler says. You won't understand the message yet — the point is
+              to learn that a red error is information, not punishment.</p>
+            <details class="reveal">
+              <summary><svg class="rv-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg> Stuck? Reveal one possible solution</summary>
+              <div class="reveal-body">
+                <div class="code">
+                  <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">solution · Main.java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">public class Main {
+    public static void main(String[] args) {
+        // A pre-match checklist, printed one step at a time
+        System.out.println("PRE-MATCH CHECKLIST");
+        System.out.println("1. Battery installed and strapped in");
+        System.out.println("2. Bumpers on, correct alliance colour");
+        System.out.println("3. Tether unplugged");
+        System.out.println("4. Robot powered on");
+        System.out.println("5. Robot on the starting line");
+        System.out.println("Ready to play.");
+    }
+}</code></pre>
+                </div>
+                <p>Any order that makes physical sense is a correct answer — but “robot on the field” before
+                  “battery installed” is how you lose a match. The compiler would have accepted it happily.</p>
+              </div>
+            </details>
+          </div>
+        </div>
+
+        <!-- ===================== CHECKPOINT ===================== -->
+        <div class="checkpoint" id="checkpoint">
+          <div class="checkpoint-head">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            <h3>Checkpoint</h3>
+            <span class="cp-score">0 / 5</span>
+          </div>
+          <div class="checkpoint-body">
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q1.</span> A program is best described as…</div>
+              <div class="options">
+                <label class="option" data-correct data-explain="Correct. Ordered instructions, run top to bottom — that's the whole definition."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A list of instructions the computer follows in order</span></label>
+                <label class="option" data-explain="That's a goal, not a program. A program has to spell out the steps that achieve it."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A description of what you want to happen</span></label>
+                <label class="option" data-explain="Nothing in this course thinks. Every decision a program makes is one you wrote."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A machine that thinks for itself</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q2.</span> Why do we say a computer is “literal”?</div>
+              <div class="options">
+                <label class="option" data-explain="Printing text is just today's output; in Phase 2 the output is a motor. Being literal is about interpretation, not output."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Because it only prints text</span></label>
+                <label class="option" data-correct data-explain="Exactly — and that's why the wall-ramming robot wasn't broken. It obeyed."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Because it does exactly what the code says, even when that's clearly not what you meant</span></label>
+                <label class="option" data-explain="It never fixes your logic. The compiler catches grammar mistakes only, and even then it just refuses and points."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Because it fixes small mistakes for you</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q3.</span> What is a compiler's job?</div>
+              <div class="options">
+                <label class="option" data-explain="Speed is a side effect at best. Its job is checking and translating."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">To run your program faster</span></label>
+                <label class="option" data-correct data-explain="Right. And if the syntax is wrong it refuses to translate and tells you where — which is help, not punishment."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">To check your code's syntax and translate it into something the machine can run</span></label>
+                <label class="option" data-explain="It cannot. driveForward(2) is perfectly grammatical even when 2 is the wrong number."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">To find all the mistakes in your logic</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q4.</span> Two programs contain the exact same three <code>println</code> lines, in different orders. Are they the same program?</div>
+              <div class="options">
+                <label class="option" data-explain="No: order is the program. Swap two steps in a recipe and you get a different result."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Yes — same lines, same program</span></label>
+                <label class="option" data-correct data-explain="Correct. Sequential execution means the order you write is the order that happens."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">No — they will print in different orders</span></label>
+                <label class="option" data-explain="Both are error-free. That's the uncomfortable part — being wrong and being broken are not the same thing."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Only if one of them has an error</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q5.</span> You wrote code and got a red error message. What's the right reaction?</div>
+              <div class="options">
+                <label class="option" data-correct data-explain="Yes. Errors are the compiler helping. Lesson 6 of this unit is entirely about reading them."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Read it — it names the problem and usually the line</span></label>
+                <label class="option" data-explain="Almost never necessary. The message is pointing at a small, specific problem."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Delete everything and start over</span></label>
+                <label class="option" data-explain="Everyone on the team hits errors constantly. Reading them fast is the actual skill being taught."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Assume you're bad at this</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check my answers</button></div>
+          </div>
+        </div>
+
+        <!-- ===================== COMPLETE ===================== -->
+        <div class="mark-complete">
+          <div class="mc-text"><b>That's the foundation.</b><span>Next: we take that <code>public class Main</code> apart line by line, and you write a program you fully understand.</span></div>
+          <button class="complete-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>Mark as complete</span></button>
+        </div>
+
+      </div><!-- /prose -->
+    </div><!-- /content-inner -->
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="/assets/js/course.js"></script>
+  <script src="/assets/js/site.js"></script>
+  <script src="/assets/js/widgets.js"></script>
+</body>
+</html>

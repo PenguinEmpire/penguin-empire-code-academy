@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Alice's Kitchen 1 · Meet Alice · Penguin Empire 2551</title>
+  <meta name="description" content="Stage 1 of the capstone project. Build the Item class, give it a name through a constructor, and create Alice." />
+  <link rel="icon" href="/assets/img/logo-2551.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Aldrich&family=Russo+One&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/brand.css" />
+  <link rel="stylesheet" href="/assets/css/layout.css" />
+  <link rel="stylesheet" href="/assets/css/lesson.css" />
+</head>
+<body data-page="lesson" data-lesson="j-kitchen-1">
+  <main id="main" class="content">
+    <div class="content-inner">
+
+      <header class="lesson-hero">
+        <nav class="crumbs" aria-label="Breadcrumb">
+          <a href="/">Home</a><span class="sep">/</span>
+          <a href="/syllabus.html">Phase 1 · Java &amp; OOP</a><span class="sep">/</span>
+          <span>Unit J6 · Capstone Project</span>
+        </nav>
+        <span class="badge badge--ocean">Lesson 30</span>
+        <h1 class="lesson-title">Alice's Kitchen 1 · Meet Alice</h1>
+        <p class="lesson-lede">Alice is hungry and has no body, so she cannot get food herself. Your job
+          across these four stages is to build her a kitchen she can interact with.</p>
+        <div class="lesson-meta">
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg> 45 min</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h2v-4H3zM9 20h2V10H9zM15 20h2V4h-2z"/></svg> Project</span>
+        </div>
+      </header>
+
+      <div class="goal">
+        <div class="goal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div>
+        <div>
+          <h2>Your goal</h2>
+          <p>Write a class that stores a name, create an object from it, and read the name back.</p>
+        </div>
+      </div>
+
+      <nav class="toc" aria-label="On this page">
+        <strong>On this page</strong>
+        <ol>
+          <li><a href="#about">About this project</a></li>
+          <li><a href="#item">The Item class</a></li>
+          <li><a href="#naming">A note on the name Item</a></li>
+          <li><a href="#tasks">Your tasks</a></li>
+          <li><a href="#checkpoint">Checkpoint</a></li>
+        </ol>
+      </nav>
+
+      <div class="prose">
+
+        <h2 id="about"><span class="section-h"><span class="num">1</span> About this project</span></h2>
+        <p>This is the capstone for the Java track. It runs across four stages and each one builds directly
+          on the last, so keep your code. At the end you will have a working program that uses almost
+          everything from Units J1 to J5.</p>
+
+        <div class="vocab">
+          <div class="vocab-term"><dt>Stage 1</dt><dd>A class with a name. Classes, constructors, getters.</dd></div>
+          <div class="vocab-term"><dt>Stage 2</dt><dd>The kitchen floor. 2D arrays, placing and moving.</dd></div>
+          <div class="vocab-term"><dt>Stage 3</dt><dd>Appliances and an inventory. Inheritance and ArrayList.</dd></div>
+          <div class="vocab-term"><dt>Stage 4</dt><dd>Recipes and a health bar. Polymorphism and the full story.</dd></div>
+        </div>
+
+        <p>Everything runs in one file, because the sandbox compiles a single file. Classes are written as
+          <code>static class</code> inside <code>Main</code>.</p>
+
+        <h2 id="item"><span class="section-h"><span class="num">2</span> The Item class</span></h2>
+        <p>Everything in the kitchen is an item, including Alice. An item has a name, set once when it is
+          created.</p>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">public class Main {
+
+    static class Item {
+        private String name;
+
+        public Item(String name) {
+            this.name = name;
+        }
+
+        public String getName() {
+            return name;
+        }
+    }
+
+    public static void main(String[] args) {
+        Item alice = new Item("Alice");
+        System.out.println("Her name is " + alice.getName());
+    }
+}</code></pre>
+        </div>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">Her name is Alice</code></pre>
+        </div>
+
+        <p>The field is <code>private</code> and the getter is <code>public</code>, which is the
+          encapsulation pattern from lesson 24. Nothing outside the class can change an item's name after
+          it is made.</p>
+
+        <h2 id="naming"><span class="section-h"><span class="num">3</span> A note on the name Item</span></h2>
+        <p>The original version of this project called the class <code>Object</code>. Java already has a
+          class called <code>Object</code> that every class inherits from without saying so, and declaring
+          your own hides it. That causes confusing errors as soon as inheritance appears, which is stage 3.</p>
+        <p>This version uses <code>Item</code> instead. Everything else matches the original.</p>
+
+        <h2 id="tasks"><span class="section-h"><span class="num">4</span> Your tasks</span></h2>
+
+        <div class="exercise" id="exercise">
+          <div class="exercise-head">
+            <div class="ex-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4L12 17l-6.3 4.4L8 14 2 9.4h7.6z"/></svg></div>
+            <div>
+              <div class="ex-kicker">Stage 1</div>
+              <h3>Meet Alice</h3>
+            </div>
+          </div>
+          <div class="exercise-body">
+            <ol class="task-list">
+              <li>Finish the <code>Item</code> constructor so it stores the name it is given.</li>
+              <li>Create an <code>Item</code> called Alice in <code>main</code>.</li>
+              <li>Finish <code>getName()</code> so it returns the name.</li>
+              <li>Print Alice's name.</li>
+              <li>Bonus: create a second item called Tomato and print both names.</li>
+            </ol>
+            <div class="sandbox" data-compiler data-title="Project Sandbox" data-lang="java">
+              <script type="text/x-java" class="sb-src">
+public class Main {
+
+    static class Item {
+        private String name;
+
+        public Item(String name) {
+            // TODO: store the name in the field
+        }
+
+        public String getName() {
+            // TODO: return the name
+            return "";
+        }
+    }
+
+    public static void main(String[] args) {
+        // TODO: create Alice and print her name
+    }
+}
+              </script>
+            </div>
+            <details class="reveal">
+              <summary><svg class="rv-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg> Show the stage 1 solution</summary>
+              <div class="reveal-body">
+                <div class="code">
+                  <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">solution · Main.java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">public class Main {
+
+    static class Item {
+        private String name;
+
+        public Item(String name) {
+            this.name = name;
+        }
+
+        public String getName() {
+            return name;
+        }
+    }
+
+    public static void main(String[] args) {
+        Item alice = new Item("Alice");
+        System.out.println("Her name is " + alice.getName());
+    }
+}</code></pre>
+                </div>
+                <div class="code">
+                  <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">Her name is Alice</code></pre>
+                </div>
+                <p><code>this.name = name;</code> is needed because the parameter and the field share a
+                  name. Without <code>this</code> the line assigns the parameter to itself and the field
+                  stays empty.</p>
+              </div>
+            </details>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="text"
+             data-win="Correct. Without this, the assignment does nothing useful and the field stays null."
+             data-lose="It prints null. name = name assigns the parameter to itself, so the field is never set.">
+          <div class="challenge-head"><span class="ch-kind">Predict the output</span><span class="ch-title">The missing this</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">The constructor is missing <code>this</code>. What gets printed?</p>
+            <pre class="fib">static class Item {
+    private String name;
+    public Item(String name) { name = name; }
+    public String getName() { return name; }
+}
+
+System.out.println(new Item("Alice").getName());</pre>
+            <div class="answer-row">
+              <input class="answer-input" type="text" placeholder="Type the output…" data-answer="null" aria-label="Your answer" />
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check answer</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="fib"
+             data-win="Correct. this.name is the field and name is the parameter."
+             data-lose="Use this.name for the field being set, and the plain parameter name on the right.">
+          <div class="challenge-head"><span class="ch-kind">Fill in the blanks</span><span class="ch-title">Store the name</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Complete the constructor.</p>
+<pre class="fib">public Item(String name) {
+    <span class="blank" data-answer="this"></span>.name = <span class="blank" data-answer="name"></span>;
+}</pre>
+            <div class="challenge-actions">
+              <button class="btn btn--sm check-btn" type="button">Check</button>
+              <button class="btn btn--sm btn--ghost reset-btn" type="button">Reset</button>
+            </div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">Why private</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Why is <code>name</code> declared <code>private</code> with a public
+              getter, rather than just <code>public</code>?</p>
+            <div class="options">
+              <label class="option" data-correct data-explain="Correct. Outside code can read the name but cannot change it, because there is no setter."><input type="radio" name="q-priv" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">So nothing outside the class can change it after it is created</span></label>
+              <label class="option" data-explain="Access level has no effect on speed."><input type="radio" name="q-priv" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Because it is faster</span></label>
+              <label class="option" data-explain="Java allows public fields. Using private is a design choice, not a requirement."><input type="radio" name="q-priv" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Because Java requires all fields to be private</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="checkpoint" id="checkpoint">
+          <div class="checkpoint-head">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            <h3>Checkpoint</h3>
+            <span class="cp-score">0 / 3</span>
+          </div>
+          <div class="checkpoint-body">
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q1.</span> When does a constructor run?</div>
+              <div class="options">
+                <label class="option" data-correct data-explain="Correct. It runs once for each object, at the moment new is used."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Once, when an object is created with <code>new</code></span></label>
+                <label class="option" data-explain="A constructor is not called by name like an ordinary method."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Every time a method on the object is called</span></label>
+                <label class="option" data-explain="Nothing runs until an object is created. The class alone does nothing."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">When the program starts</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q2.</span> What does <code>this</code> refer to?</div>
+              <div class="options">
+                <label class="option" data-correct data-explain="Correct. It distinguishes the field from a parameter with the same name."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The object being worked on right now</span></label>
+                <label class="option" data-explain="It refers to the object, not the class itself."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The class</span></label>
+                <label class="option" data-explain="this always means the object. The parameter is written without it."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The parameter</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q3.</span> Why does this project use <code>Item</code> rather than <code>Object</code>?</div>
+              <div class="options">
+                <label class="option" data-correct data-explain="Correct. Java already has Object, and hiding it causes confusing errors once inheritance appears in stage 3."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Java already has a class called <code>Object</code></span></label>
+                <label class="option" data-explain="Object is a legal class name. It is just a bad one here because it hides a built in class."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>Object</code> is not a valid class name</span></label>
+                <label class="option" data-explain="Length is not the reason. The reason is the collision with the built in class."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It is shorter to type</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check my answers</button></div>
+          </div>
+        </div>
+
+        <div class="mark-complete">
+          <div class="mc-text"><b>Stage 1 complete.</b><span>Keep your code. Stage 2 gives Alice a floor to stand on.</span></div>
+          <button class="complete-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>Mark as complete</span></button>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="/assets/js/course.js"></script>
+  <script src="/assets/js/site.js"></script>
+  <script src="/assets/js/widgets.js"></script>
+</body>
+</html>

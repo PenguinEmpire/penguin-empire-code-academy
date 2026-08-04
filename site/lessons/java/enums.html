@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Enums &amp; Constants · Penguin Empire 2551</title>
+  <meta name="description" content="A type with a fixed set of named values. Declaring an enum, using it in a switch, values and ordinal, and giving each constant its own data." />
+  <link rel="icon" href="/assets/img/logo-2551.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Aldrich&family=Russo+One&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/brand.css" />
+  <link rel="stylesheet" href="/assets/css/layout.css" />
+  <link rel="stylesheet" href="/assets/css/lesson.css" />
+</head>
+<body data-page="lesson" data-lesson="j-enums">
+  <main id="main" class="content">
+    <div class="content-inner">
+
+      <header class="lesson-hero">
+        <nav class="crumbs" aria-label="Breadcrumb">
+          <a href="/">Home</a><span class="sep">/</span>
+          <a href="/syllabus.html">Phase 1 · Java &amp; OOP</a><span class="sep">/</span>
+          <span>Unit J5 · Object-Oriented Programming</span>
+        </nav>
+        <span class="badge badge--ocean">Lesson 28</span>
+        <h1 class="lesson-title">Enums &amp; Constants</h1>
+        <p class="lesson-lede">An enum is a type whose value must be one of a fixed list you write down.
+          It replaces loose numbers and strings with names the compiler checks.</p>
+        <div class="lesson-meta">
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg> 20 min</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h2v-4H3zM9 20h2V10H9zM15 20h2V4h-2z"/></svg> Intermediate</span>
+        </div>
+      </header>
+
+      <div class="goal">
+        <div class="goal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div>
+        <div>
+          <h2>Your goal</h2>
+          <p>Declare an enum, use it in a switch, and give each value its own data.</p>
+        </div>
+      </div>
+
+      <nav class="toc" aria-label="On this page">
+        <strong>On this page</strong>
+        <ol>
+          <li><a href="#problem">The problem with loose values</a></li>
+          <li><a href="#declare">Declaring an enum</a></li>
+          <li><a href="#switch">Using one in a switch</a></li>
+          <li><a href="#values">values and ordinal</a></li>
+          <li><a href="#fields">Giving each value data</a></li>
+          <li><a href="#vsfinal">Enum or final constant</a></li>
+          <li><a href="#run">Run it yourself</a></li>
+          <li><a href="#challenges">Practice challenges</a></li>
+          <li><a href="#mistakes">Common mistakes</a></li>
+          <li><a href="#exercise">Exercise</a></li>
+          <li><a href="#checkpoint">Checkpoint</a></li>
+        </ol>
+      </nav>
+
+      <div class="prose">
+
+        <h2 id="problem"><span class="section-h"><span class="num">1</span> The problem with loose values</span></h2>
+        <p>A robot mode could be stored as a <code>String</code> or an <code>int</code>. Both let you write
+          values that mean nothing.</p>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">String mode = "telop";     // typo, compiles fine
+int mode2 = 47;            // not a real mode, compiles fine</code></pre>
+        </div>
+
+        <p>Neither line is reported. Both are wrong. An enum makes both impossible.</p>
+
+        <h2 id="declare"><span class="section-h"><span class="num">2</span> Declaring an enum</span></h2>
+        <p>List the allowed values, separated by commas, in capitals by convention.</p>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">enum RobotMode {
+    DISABLED, AUTONOMOUS, TELEOP, TEST
+}
+
+RobotMode mode = RobotMode.TELEOP;
+System.out.println(mode);</code></pre>
+        </div>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">TELEOP</code></pre>
+        </div>
+
+        <p>Printing an enum gives its name. Writing <code>RobotMode.TELOP</code> is
+          <code>cannot find symbol</code> at compile time, which is the whole point.</p>
+
+        <h2 id="switch"><span class="section-h"><span class="num">3</span> Using one in a switch</span></h2>
+        <p>Enums and <code>switch</code> fit together well. Inside a case you write the value name alone,
+          without the enum name in front.</p>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">RobotMode mode = RobotMode.TELEOP;
+
+switch (mode) {
+    case AUTONOMOUS -&gt; System.out.println("running auto");
+    case TELEOP -&gt; System.out.println("driver in control");
+    default -&gt; System.out.println("not moving");
+}</code></pre>
+        </div>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">driver in control</code></pre>
+        </div>
+
+        <h2 id="values"><span class="section-h"><span class="num">4</span> values and ordinal</span></h2>
+        <p>Every enum gets two things for free. <code>values()</code> returns an array of all of them, and
+          <code>ordinal()</code> gives a value's position in the list, counting from 0.</p>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">for (RobotMode m : RobotMode.values()) {
+    System.out.print(m + " ");
+}
+System.out.println();
+System.out.println(RobotMode.TELEOP.ordinal());</code></pre>
+        </div>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">DISABLED AUTONOMOUS TELEOP TEST
+2</code></pre>
+        </div>
+
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">Do not rely on ordinal</div>
+          <div class="c-body"><p>The number comes from the order you wrote the values in. Insert a new value
+            in the middle and every number after it changes silently. Use the names, not the positions.</p></div>
+        </div>
+
+        <h2 id="fields"><span class="section-h"><span class="num">5</span> Giving each value data</span></h2>
+        <p>An enum is a class. Each value can carry its own data through a constructor.</p>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">enum Alliance {
+    RED("R"), BLUE("B");
+
+    private final String letter;
+
+    Alliance(String letter) {
+        this.letter = letter;
+    }
+
+    public String getLetter() {
+        return letter;
+    }
+}
+
+System.out.println(Alliance.BLUE.getLetter());</code></pre>
+        </div>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">B</code></pre>
+        </div>
+
+        <p>The value list comes first and ends with a semicolon. The constructor is not
+          <code>public</code>, because you never create enum values yourself. Java creates them once, when
+          the program starts.</p>
+
+        <h2 id="vsfinal"><span class="section-h"><span class="num">6</span> Enum or final constant</span></h2>
+        <p>Lesson 3 used <code>final</code> for a single fixed value such as an intake speed. That is still
+          right for one number.</p>
+        <p>Use an enum when a value must be exactly one out of a known set, and when passing the wrong one
+          should be impossible rather than merely unlikely.</p>
+
+        <h2 id="run"><span class="section-h"><span class="num">7</span> Run it yourself</span></h2>
+        <p>Add a fourth alliance value, or try a name that does not exist and read the error.</p>
+
+        <div class="sandbox" data-compiler data-title="Live Java Sandbox" data-lang="java">
+          <script type="text/x-java" class="sb-src">
+enum RobotMode {
+    DISABLED, AUTONOMOUS, TELEOP, TEST
+}
+
+enum Alliance {
+    RED("R"), BLUE("B");
+
+    private final String letter;
+
+    Alliance(String letter) { this.letter = letter; }
+
+    public String getLetter() { return letter; }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        RobotMode mode = RobotMode.TELEOP;
+        System.out.println("mode = " + mode);
+
+        switch (mode) {
+            case AUTONOMOUS -> System.out.println("running auto");
+            case TELEOP -> System.out.println("driver in control");
+            default -> System.out.println("not moving");
+        }
+
+        for (RobotMode m : RobotMode.values()) System.out.print(m + " ");
+        System.out.println();
+
+        System.out.println("ordinal of TELEOP: " + RobotMode.TELEOP.ordinal());
+        System.out.println("alliance letter:   " + Alliance.BLUE.getLetter());
+
+        // Try it: change TELEOP to TELOP and read the error.
+        // Then set mode to RobotMode.TEST and run again.
+    }
+}
+          </script>
+        </div>
+
+        <h2 id="challenges"><span class="section-h"><span class="num">8</span> Practice challenges</span></h2>
+
+        <div class="challenge" data-kind="text"
+             data-win="Correct. Printing an enum value gives its name."
+             data-lose="It prints TELEOP. An enum value prints as the name you wrote in the list.">
+          <div class="challenge-head"><span class="ch-kind">Predict the output</span><span class="ch-title">Printing an enum</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">What is printed?</p>
+            <pre class="fib">enum RobotMode { DISABLED, AUTONOMOUS, TELEOP, TEST }
+
+RobotMode mode = RobotMode.TELEOP;
+System.out.println(mode);</pre>
+            <div class="answer-row">
+              <input class="answer-input" type="text" placeholder="Type the output…" data-answer="TELEOP" aria-label="Your answer" />
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check answer</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="text"
+             data-win="Correct. Counting from 0, TELEOP is third in the list, so its ordinal is 2."
+             data-lose="It is 2. ordinal counts from 0, and TELEOP is the third value written.">
+          <div class="challenge-head"><span class="ch-kind">Predict the output</span><span class="ch-title">ordinal</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">What number is printed?</p>
+            <pre class="fib">enum RobotMode { DISABLED, AUTONOMOUS, TELEOP, TEST }
+
+System.out.println(RobotMode.TELEOP.ordinal());</pre>
+            <div class="answer-row">
+              <input class="answer-input" type="text" placeholder="Type a number…" data-answer="2" aria-label="Your answer" />
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check answer</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="fib"
+             data-win="Correct. enum declares it, values are listed in capitals, and values() returns them all."
+             data-lose="Declare the type with enum, list the values, and call values() to loop over every one.">
+          <div class="challenge-head"><span class="ch-kind">Fill in the blanks</span><span class="ch-title">Declare and loop</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Complete the enum and the loop.</p>
+<pre class="fib"><span class="blank" data-answer="enum"></span> Level { LOW, MID, HIGH }
+
+for (Level l : Level.<span class="blank" data-answer="values"></span>()) {
+    System.out.println(l);
+}</pre>
+            <div class="challenge-actions">
+              <button class="btn btn--sm check-btn" type="button">Check</button>
+              <button class="btn btn--sm btn--ghost reset-btn" type="button">Reset</button>
+            </div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">Why not a String</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">What does an enum give you that a <code>String</code> does not?</p>
+            <div class="options">
+              <label class="option" data-correct data-explain="Correct. A misspelled enum value is cannot find symbol at compile time. A misspelled String compiles and fails silently."><input type="radio" name="q-why" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The compiler rejects a value that is not in the list</span></label>
+              <label class="option" data-explain="Speed is not the reason to reach for an enum. Correctness is."><input type="radio" name="q-why" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It runs faster</span></label>
+              <label class="option" data-explain="An enum has a fixed list. Holding any text at all is what a String does."><input type="radio" name="q-why" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It can hold any text</span></label>
+              <label class="option" data-explain="Both work in a switch. Enums are simply safer."><input type="radio" name="q-why" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It can be used in a switch, unlike a String</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <h2 id="mistakes"><span class="section-h"><span class="num">9</span> Common mistakes</span></h2>
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">Watch out for these</div>
+          <div class="c-body">
+            <ul>
+              <li>Writing the enum name in front of a value inside a <code>case</code>. Use the bare name.</li>
+              <li>Relying on <code>ordinal()</code>, which shifts whenever the list is reordered.</li>
+              <li>Forgetting the semicolon after the value list when the enum also has fields or methods.</li>
+              <li>Making the enum constructor <code>public</code>. It cannot be.</li>
+              <li>Trying to create a new value with <code>new</code>. The list is fixed at compile time.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="exercise" id="exercise">
+          <div class="exercise-head">
+            <div class="ex-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4L12 17l-6.3 4.4L8 14 2 9.4h7.6z"/></svg></div>
+            <div>
+              <div class="ex-kicker">Exercise</div>
+              <h3>Scoring Levels</h3>
+            </div>
+          </div>
+          <div class="exercise-body">
+            <p>An arm moves to one of three scoring positions.</p>
+            <ol class="task-list">
+              <li>Declare an enum <code>Level</code> with <code>LOW</code>, <code>MID</code> and
+                <code>HIGH</code>.</li>
+              <li>Give each one a target angle through a constructor and a getter.</li>
+              <li>Loop over <code>values()</code> and print each name with its angle.</li>
+              <li>Write a switch on a chosen level that prints what the arm does.</li>
+            </ol>
+            <div class="sandbox" data-compiler data-title="Project Sandbox" data-lang="java">
+              <script type="text/x-java" class="sb-src">
+// TODO: enum Level with LOW, MID, HIGH and a target angle each
+
+public class Main {
+    public static void main(String[] args) {
+        // TODO: loop over values() and print each name with its angle
+
+        // TODO: switch on one level
+    }
+}
+              </script>
+            </div>
+            <details class="reveal">
+              <summary><svg class="rv-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg> Show one possible solution</summary>
+              <div class="reveal-body">
+                <div class="code">
+                  <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">solution · Main.java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">enum Level {
+    LOW(15), MID(45), HIGH(80);
+
+    private final double angle;
+
+    Level(double angle) { this.angle = angle; }
+
+    public double getAngle() { return angle; }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        for (Level l : Level.values()) {
+            System.out.println(l + " is at " + l.getAngle() + " degrees");
+        }
+
+        Level target = Level.MID;
+        switch (target) {
+            case LOW -&gt; System.out.println("Arm barely lifts");
+            case MID -&gt; System.out.println("Arm to the middle rung");
+            case HIGH -&gt; System.out.println("Arm all the way up");
+        }
+    }
+}</code></pre>
+                </div>
+                <div class="code">
+                  <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">LOW is at 15.0 degrees
+MID is at 45.0 degrees
+HIGH is at 80.0 degrees
+Arm to the middle rung</code></pre>
+                </div>
+                <p>The switch has no <code>default</code> and still compiles, because the three cases cover
+                  every value the type allows. That is only possible with an enum.</p>
+              </div>
+            </details>
+          </div>
+        </div>
+
+        <div class="checkpoint" id="checkpoint">
+          <div class="checkpoint-head">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            <h3>Checkpoint</h3>
+            <span class="cp-score">0 / 4</span>
+          </div>
+          <div class="checkpoint-body">
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q1.</span> What is an enum?</div>
+              <div class="options">
+                <label class="option" data-correct data-explain="Correct. The list of allowed values is written down and the compiler enforces it."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A type whose value must be one of a fixed list</span></label>
+                <label class="option" data-explain="An enum can hold data, but it is a type in its own right, not a number."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Another name for an <code>int</code> constant</span></label>
+                <label class="option" data-explain="A list that grows is an ArrayList. An enum's values are fixed when you write them."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A list you can add values to while running</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q2.</span> What does <code>values()</code> return?</div>
+              <div class="options">
+                <label class="option" data-correct data-explain="Correct. It gives an array you can loop over with a for-each."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">An array of every value in the enum</span></label>
+                <label class="option" data-explain="It returns the enum values themselves, not their positions."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The ordinal numbers</span></label>
+                <label class="option" data-explain="That would be a single value, not the full set."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The currently selected value</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q3.</span> Why avoid depending on <code>ordinal()</code>?</div>
+              <div class="options">
+                <label class="option" data-correct data-explain="Correct. Insert a value in the middle and every number after it shifts, with no warning."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The numbers change if the list is reordered</span></label>
+                <label class="option" data-explain="It works reliably. The problem is that what it returns depends on the order you happened to write."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It does not work</span></label>
+                <label class="option" data-explain="It is a normal method on every enum and is always available."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It is not available on most enums</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q4.</span> Inside <code>switch (mode)</code>, how do you write the case for <code>RobotMode.TELEOP</code>?</div>
+              <div class="options">
+                <label class="option" data-correct data-explain="Correct. The enum type is already known from the switch, so the bare value name is used."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>case TELEOP</code></span></label>
+                <label class="option" data-explain="Java rejects the qualified form here. Use the bare name."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>case RobotMode.TELEOP</code></span></label>
+                <label class="option" data-explain="An enum value is not text, so quotes do not apply."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>case "TELEOP"</code></span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check my answers</button></div>
+          </div>
+        </div>
+
+        <div class="mark-complete">
+          <div class="mc-text"><b>Lesson complete.</b><span>Next: the last Java lesson, and the one Phase 2 opens with.</span></div>
+          <button class="complete-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>Mark as complete</span></button>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="/assets/js/course.js"></script>
+  <script src="/assets/js/site.js"></script>
+  <script src="/assets/js/widgets.js"></script>
+</body>
+</html>

@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Booleans &amp; Comparisons · Penguin Empire 2551</title>
+  <meta name="description" content="Compare values in Java and combine the results. Comparison operators, the difference between == and .equals for text, and the logical operators AND, OR and NOT." />
+  <link rel="icon" href="/assets/img/logo-2551.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Aldrich&family=Russo+One&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/brand.css" />
+  <link rel="stylesheet" href="/assets/css/layout.css" />
+  <link rel="stylesheet" href="/assets/css/lesson.css" />
+</head>
+<body data-page="lesson" data-lesson="j-booleans">
+  <main id="main" class="content">
+    <div class="content-inner">
+
+      <header class="lesson-hero">
+        <nav class="crumbs" aria-label="Breadcrumb">
+          <a href="/">Home</a><span class="sep">/</span>
+          <a href="/syllabus.html">Phase 1 · Java &amp; OOP</a><span class="sep">/</span>
+          <span>Unit J2 · Logic &amp; Flow</span>
+        </nav>
+        <span class="badge badge--ocean">Lesson 7</span>
+        <h1 class="lesson-title">Booleans &amp; Comparisons</h1>
+        <p class="lesson-lede">A comparison asks a question about two values and produces
+          <code>true</code> or <code>false</code>. Everything a program decides is built out of these.</p>
+        <div class="lesson-meta">
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg> 15 min</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h2v-4H3zM9 20h2V10H9zM15 20h2V4h-2z"/></svg> Beginner</span>
+        </div>
+      </header>
+
+      <div class="goal">
+        <div class="goal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div>
+        <div>
+          <h2>Your goal</h2>
+          <p>Write a comparison, combine two comparisons, and compare text correctly.</p>
+        </div>
+      </div>
+
+      <nav class="toc" aria-label="On this page">
+        <strong>On this page</strong>
+        <ol>
+          <li><a href="#type">The boolean type</a></li>
+          <li><a href="#compare">Comparison operators</a></li>
+          <li><a href="#text">Comparing text</a></li>
+          <li><a href="#logic">AND, OR, NOT</a></li>
+          <li><a href="#range">Checking a range</a></li>
+          <li><a href="#run">Run it yourself</a></li>
+          <li><a href="#challenges">Practice challenges</a></li>
+          <li><a href="#mistakes">Common mistakes</a></li>
+          <li><a href="#exercise">Exercise</a></li>
+          <li><a href="#checkpoint">Checkpoint</a></li>
+        </ol>
+      </nav>
+
+      <div class="prose">
+
+        <h2 id="type"><span class="section-h"><span class="num">1</span> The boolean type</span></h2>
+        <p>A <code>boolean</code> holds one of exactly two values, <code>true</code> or <code>false</code>.
+          You met the type in lesson 3. Now you will produce boolean values instead of typing them in.</p>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">boolean hasGamePiece = true;
+boolean isEnabled = false;</code></pre>
+        </div>
+
+        <h2 id="compare"><span class="section-h"><span class="num">2</span> Comparison operators</span></h2>
+        <p>Java has six operators that compare two values. Each one produces a boolean.</p>
+
+        <div class="vocab">
+          <div class="vocab-term"><dt>==</dt><dd>Equal to. Two equals signs, not one.</dd></div>
+          <div class="vocab-term"><dt>!=</dt><dd>Not equal to.</dd></div>
+          <div class="vocab-term"><dt>&gt;</dt><dd>Greater than.</dd></div>
+          <div class="vocab-term"><dt>&lt;</dt><dd>Less than.</dd></div>
+          <div class="vocab-term"><dt>&gt;=</dt><dd>Greater than or equal to.</dd></div>
+          <div class="vocab-term"><dt>&lt;=</dt><dd>Less than or equal to.</dd></div>
+        </div>
+
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">One equals sign stores, two compare</div>
+          <div class="c-body"><p><code>canId = 4</code> puts 4 into <code>canId</code>.
+            <code>canId == 4</code> asks whether <code>canId</code> already holds 4. Writing one when you
+            meant the other is the most common mistake in this lesson.</p></div>
+        </div>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">int canId = 4;
+
+System.out.println(canId == 4);
+System.out.println(canId != 4);
+System.out.println(canId &gt; 2);
+System.out.println(canId &lt;= 3);</code></pre>
+        </div>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">true
+false
+true
+false</code></pre>
+        </div>
+
+        <h2 id="text"><span class="section-h"><span class="num">3</span> Comparing text</span></h2>
+        <p>The strings lesson said there was a second comparison symbol that behaves differently on text.
+          This is it.</p>
+        <p>On numbers, <code>==</code> compares values. On a <code>String</code>, <code>==</code> asks
+          whether the two variables point at the same stored text, not whether the characters match.
+          Sometimes that gives the answer you wanted by accident.</p>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">String a = "Intake";
+String b = "Intake";
+System.out.println(a == b);              // true, but only by luck
+
+String typed = "Int";
+typed = typed + "ake";                   // same characters, built while running
+System.out.println(typed == "Intake");   // false
+System.out.println(typed.equals("Intake"));</code></pre>
+        </div>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">true
+false
+true</code></pre>
+        </div>
+
+        <p>Lines 1 and 2 both hold the text <code>Intake</code> and <code>==</code> reported
+          <code>true</code>. Line 5 also holds the text <code>Intake</code> and <code>==</code> reported
+          <code>false</code>. The characters are identical in both cases.</p>
+
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">Always use .equals for text</div>
+          <div class="c-body"><p>A test using <code>==</code> on text can pass every time you try it and
+            then fail once the text is built from a file, a dashboard field, or joined pieces. Use
+            <code>==</code> for numbers and booleans. Use <code>.equals(...)</code> for text.</p></div>
+        </div>
+
+        <h2 id="logic"><span class="section-h"><span class="num">4</span> AND, OR, NOT</span></h2>
+        <p>Three operators combine boolean values into a single boolean.</p>
+
+        <div class="vocab">
+          <div class="vocab-term"><dt>&amp;&amp;</dt><dd>AND. True only when both sides are true.</dd></div>
+          <div class="vocab-term"><dt>||</dt><dd>OR. True when at least one side is true.</dd></div>
+          <div class="vocab-term"><dt>!</dt><dd>NOT. Flips true to false and false to true.</dd></div>
+        </div>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">boolean hasGamePiece = true;
+boolean armUp = false;
+
+System.out.println(hasGamePiece &amp;&amp; armUp);   // both must be true
+System.out.println(hasGamePiece || armUp);   // one is enough
+System.out.println(!armUp);                  // flips false to true</code></pre>
+        </div>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">false
+true
+true</code></pre>
+        </div>
+
+        <div class="callout callout--note">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16v-4M12 8h.01"/><circle cx="12" cy="12" r="9"/></svg></div>
+          <div class="c-title">Two symbols, not one</div>
+          <div class="c-body"><p>AND is <code>&amp;&amp;</code> and OR is <code>||</code>. Single
+            <code>&amp;</code> and <code>|</code> also exist in Java and do something different. Use the
+            doubled versions.</p></div>
+        </div>
+
+        <h2 id="range"><span class="section-h"><span class="num">5</span> Checking a range</span></h2>
+        <p>A range check needs two comparisons joined with <code>&amp;&amp;</code>. Java has no way to
+          write <code>-0.8 &lt;= speed &lt;= 0.8</code> in one piece.</p>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">double speed = 0.9;
+boolean safe = speed &gt;= -0.8 &amp;&amp; speed &lt;= 0.8;
+System.out.println(safe);</code></pre>
+        </div>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">false</code></pre>
+        </div>
+
+        <p>In lesson 4 you forced a value into that range with <code>Math.min</code> and
+          <code>Math.max</code>. Here you are only asking whether it is already inside.</p>
+
+        <h2 id="run"><span class="section-h"><span class="num">6</span> Run it yourself</span></h2>
+        <p>Press <b style="color:#0a5d70">Run ▶</b>, then change the values at the top and run again.</p>
+
+        <div class="sandbox" data-compiler data-title="Live Java Sandbox" data-lang="java">
+          <script type="text/x-java" class="sb-src">
+public class Main {
+    public static void main(String[] args) {
+        int canId = 4;
+        double speed = 0.9;
+        boolean hasGamePiece = true;
+        boolean armUp = false;
+
+        System.out.println("canId == 4      : " + (canId == 4));
+        System.out.println("speed in range  : " + (speed >= -0.8 && speed <= 0.8));
+        System.out.println("piece AND armUp : " + (hasGamePiece && armUp));
+        System.out.println("piece OR armUp  : " + (hasGamePiece || armUp));
+        System.out.println("NOT armUp       : " + (!armUp));
+
+        // Try it: set speed to 0.5 and run again.
+        // Then set armUp to true and run again.
+    }
+}
+          </script>
+        </div>
+
+        <h2 id="challenges"><span class="section-h"><span class="num">7</span> Practice challenges</span></h2>
+
+        <div class="challenge" data-kind="text"
+             data-win="Correct. ticks is 10, so ticks &gt; 5 is true but ticks &lt; 8 is false. AND needs both."
+             data-lose="It is false. ticks is 10. The first half is true, the second half is false, and AND requires both to be true.">
+          <div class="challenge-head"><span class="ch-kind">Predict the output</span><span class="ch-title">AND with one false half</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Type <code>true</code> or <code>false</code>.</p>
+            <pre class="fib">int ticks = 10;
+System.out.println(ticks &gt; 5 &amp;&amp; ticks &lt; 8);</pre>
+            <div class="answer-row">
+              <input class="answer-input" type="text" placeholder="true or false" data-answer="false" aria-label="Your answer" />
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check answer</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="text"
+             data-win="Correct. ready is true so !ready is false, enabled is false, and false OR false is false."
+             data-lose="It is false. !ready flips true to false. Both sides of the OR are false, so the result is false.">
+          <div class="challenge-head"><span class="ch-kind">Predict the output</span><span class="ch-title">NOT inside an OR</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Type <code>true</code> or <code>false</code>.</p>
+            <pre class="fib">boolean ready = true;
+boolean enabled = false;
+System.out.println(!ready || enabled);</pre>
+            <div class="answer-row">
+              <input class="answer-input" type="text" placeholder="true or false" data-answer="false" aria-label="Your answer" />
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check answer</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="fib"
+             data-win="Correct. Two comparisons joined with AND is how every range check is written."
+             data-lose="Use &gt;= for the lower limit, &amp;&amp; to join them, and &lt;= for the upper limit.">
+          <div class="challenge-head"><span class="ch-kind">Fill in the blanks</span><span class="ch-title">Write a range check</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Make <code>safe</code> true only when <code>speed</code> is between
+              −0.8 and 0.8.</p>
+<pre class="fib">boolean safe = speed <span class="blank" data-answer="&gt;="></span> -0.8 <span class="blank" data-answer="&amp;&amp;"></span> speed <span class="blank" data-answer="&lt;="></span> 0.8;</pre>
+            <div class="challenge-actions">
+              <button class="btn btn--sm check-btn" type="button">Check</button>
+              <button class="btn btn--sm btn--ghost reset-btn" type="button">Reset</button>
+            </div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">Comparing two names</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Which line correctly checks whether two <code>String</code>
+              variables hold the same text?</p>
+            <div class="options">
+              <label class="option" data-explain="This compares whether both variables point at the same stored text. It can return false even when the characters match."><input type="radio" name="q-eq" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>if (a == b)</code></span></label>
+              <label class="option" data-correct data-explain="Correct. equals compares the characters, which is what you want for text."><input type="radio" name="q-eq" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>if (a.equals(b))</code></span></label>
+              <label class="option" data-explain="A single equals sign stores a value. This is an assignment, not a comparison, and it will not compile here."><input type="radio" name="q-eq" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>if (a = b)</code></span></label>
+              <label class="option" data-explain="There is no compare method on String that returns a boolean. The compiler reports cannot find symbol."><input type="radio" name="q-eq" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>if (a.compare(b))</code></span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <h2 id="mistakes"><span class="section-h"><span class="num">8</span> Common mistakes</span></h2>
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">Watch out for these</div>
+          <div class="c-body">
+            <ul>
+              <li>Writing <code>=</code> where you meant <code>==</code>.</li>
+              <li>Using <code>==</code> on text. Use <code>.equals(...)</code>.</li>
+              <li>Writing <code>0 &lt; x &lt; 10</code>. Java needs
+                <code>x &gt; 0 &amp;&amp; x &lt; 10</code>.</li>
+              <li>Using single <code>&amp;</code> or <code>|</code> instead of the doubled versions.</li>
+              <li>Writing <code>if (ready == true)</code>. <code>ready</code> is already a boolean, so
+                <code>if (ready)</code> says the same thing.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="exercise" id="exercise">
+          <div class="exercise-head">
+            <div class="ex-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4L12 17l-6.3 4.4L8 14 2 9.4h7.6z"/></svg></div>
+            <div>
+              <div class="ex-kicker">Exercise</div>
+              <h3>Shooter Ready Check</h3>
+            </div>
+          </div>
+          <div class="exercise-body">
+            <p>A shooter may fire only when three things are true at once. Work out each condition and
+              print the result.</p>
+            <ol class="task-list">
+              <li>Print whether <code>rpm</code> is at least 4000.</li>
+              <li>Print whether <code>hasGamePiece</code> is true and the shooter is not jammed.</li>
+              <li>Print <code>readyToFire</code>, true only when the rpm is high enough, a game piece is
+                loaded, and it is not jammed.</li>
+              <li>Bonus: print whether <code>subsystem</code> holds the text <code>Shooter</code>.</li>
+            </ol>
+            <div class="sandbox" data-compiler data-title="Project Sandbox" data-lang="java">
+              <script type="text/x-java" class="sb-src">
+public class Main {
+    public static void main(String[] args) {
+        double rpm = 4200;
+        boolean hasGamePiece = true;
+        boolean jammed = false;
+        String subsystem = "Shooter";
+
+        // TODO: print each check, then readyToFire
+
+    }
+}
+              </script>
+            </div>
+            <details class="reveal">
+              <summary><svg class="rv-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg> Show one possible solution</summary>
+              <div class="reveal-body">
+                <div class="code">
+                  <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">solution · Main.java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">public class Main {
+    public static void main(String[] args) {
+        double rpm = 4200;
+        boolean hasGamePiece = true;
+        boolean jammed = false;
+        String subsystem = "Shooter";
+
+        boolean fastEnough = rpm &gt;= 4000;
+        boolean loaded = hasGamePiece &amp;&amp; !jammed;
+        boolean readyToFire = fastEnough &amp;&amp; hasGamePiece &amp;&amp; !jammed;
+
+        System.out.println("fastEnough  : " + fastEnough);
+        System.out.println("loaded      : " + loaded);
+        System.out.println("readyToFire : " + readyToFire);
+        System.out.println("is shooter  : " + subsystem.equals("Shooter"));
+    }
+}</code></pre>
+                </div>
+                <div class="code">
+                  <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">fastEnough  : true
+loaded      : true
+readyToFire : true
+is shooter  : true</code></pre>
+                </div>
+                <p>Storing each condition in its own named boolean makes the final line readable and lets
+                  you print the parts separately when one of them is wrong.</p>
+              </div>
+            </details>
+          </div>
+        </div>
+
+        <div class="checkpoint" id="checkpoint">
+          <div class="checkpoint-head">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            <h3>Checkpoint</h3>
+            <span class="cp-score">0 / 5</span>
+          </div>
+          <div class="checkpoint-body">
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q1.</span> What does <code>canId == 4</code> do?</div>
+              <div class="options">
+                <label class="option" data-explain="That is what a single equals sign does. Two equals signs ask a question instead."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Puts 4 into <code>canId</code></span></label>
+                <label class="option" data-correct data-explain="Correct. It produces true or false without changing canId."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Asks whether <code>canId</code> holds 4</span></label>
+                <label class="option" data-explain="Nothing prints unless you call System.out.println. A comparison on its own is silent."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Prints the value of <code>canId</code></span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q2.</span> <code>true &amp;&amp; false</code> gives…</div>
+              <div class="options">
+                <label class="option" data-explain="AND requires both sides to be true. One false makes the whole thing false."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>true</code></span></label>
+                <label class="option" data-correct data-explain="Correct. AND is true only when both sides are true."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>false</code></span></label>
+                <label class="option" data-explain="A comparison always produces a definite true or false."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">An error</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q3.</span> How do you check whether two Strings hold the same text?</div>
+              <div class="options">
+                <label class="option" data-explain="This compares whether they are the same stored object, which can be false even when the characters match."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>a == b</code></span></label>
+                <label class="option" data-correct data-explain="Correct. equals compares the characters."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>a.equals(b)</code></span></label>
+                <label class="option" data-explain="A single equals sign assigns. It does not ask a question."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>a = b</code></span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q4.</span> Which writes “speed is between 0 and 1”?</div>
+              <div class="options">
+                <label class="option" data-explain="Java does not allow two comparisons chained like this. It will not compile."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>0 &lt; speed &lt; 1</code></span></label>
+                <label class="option" data-correct data-explain="Correct. Two separate comparisons joined with AND."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>speed &gt; 0 &amp;&amp; speed &lt; 1</code></span></label>
+                <label class="option" data-explain="OR is true when either side is true, so this accepts values far outside the range."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>speed &gt; 0 || speed &lt; 1</code></span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q5.</span> What does <code>!jammed</code> mean when <code>jammed</code> is <code>false</code>?</div>
+              <div class="options">
+                <label class="option" data-correct data-explain="Correct. NOT flips the value, so it reads as not jammed."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>true</code></span></label>
+                <label class="option" data-explain="NOT never leaves a value unchanged. It always flips it."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>false</code></span></label>
+                <label class="option" data-explain="NOT applies to booleans and produces a boolean. It does not change the variable itself."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It sets <code>jammed</code> to <code>true</code></span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check my answers</button></div>
+          </div>
+        </div>
+
+        <div class="mark-complete">
+          <div class="mc-text"><b>Lesson complete.</b><span>Next: using a boolean to choose which code runs.</span></div>
+          <button class="complete-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>Mark as complete</span></button>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="/assets/js/course.js"></script>
+  <script src="/assets/js/site.js"></script>
+  <script src="/assets/js/widgets.js"></script>
+</body>
+</html>

@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Writing Methods · Penguin Empire 2551</title>
+  <meta name="description" content="Give a block of code a name and call it whenever you need it. Declaring a method, calling it, void, and why repeated code becomes a method." />
+  <link rel="icon" href="/assets/img/logo-2551.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Aldrich&family=Russo+One&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/brand.css" />
+  <link rel="stylesheet" href="/assets/css/layout.css" />
+  <link rel="stylesheet" href="/assets/css/lesson.css" />
+</head>
+<body data-page="lesson" data-lesson="j-methods">
+  <main id="main" class="content">
+    <div class="content-inner">
+
+      <header class="lesson-hero">
+        <nav class="crumbs" aria-label="Breadcrumb">
+          <a href="/">Home</a><span class="sep">/</span>
+          <a href="/syllabus.html">Phase 1 · Java &amp; OOP</a><span class="sep">/</span>
+          <span>Unit J3 · Methods</span>
+        </nav>
+        <span class="badge badge--ocean">Lesson 12</span>
+        <h1 class="lesson-title">Writing Methods</h1>
+        <p class="lesson-lede">A method is a named block of code you can run whenever you want. You have
+          been calling methods since lesson 2. Now you will write your own.</p>
+        <div class="lesson-meta">
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg> 20 min</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h2v-4H3zM9 20h2V10H9zM15 20h2V4h-2z"/></svg> Beginner</span>
+        </div>
+      </header>
+
+      <div class="goal">
+        <div class="goal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div>
+        <div>
+          <h2>Your goal</h2>
+          <p>Write a method, call it from <code>main</code>, and replace repeated code with a single named
+            block.</p>
+        </div>
+      </div>
+
+      <nav class="toc" aria-label="On this page">
+        <strong>On this page</strong>
+        <ol>
+          <li><a href="#what">What a method is</a></li>
+          <li><a href="#declare">Declaring one</a></li>
+          <li><a href="#calling">Calling it</a></li>
+          <li><a href="#static">The word static</a></li>
+          <li><a href="#why">Why bother</a></li>
+          <li><a href="#run">Run it yourself</a></li>
+          <li><a href="#challenges">Practice challenges</a></li>
+          <li><a href="#mistakes">Common mistakes</a></li>
+          <li><a href="#exercise">Exercise</a></li>
+          <li><a href="#checkpoint">Checkpoint</a></li>
+        </ol>
+      </nav>
+
+      <div class="prose">
+
+        <h2 id="what"><span class="section-h"><span class="num">1</span> What a method is</span></h2>
+        <p>A method groups statements under a name. Calling the name runs the statements. Nothing inside a
+          method happens until something calls it.</p>
+        <p>You already use methods written by other people. <code>System.out.println(...)</code> is one.
+          <code>Math.max(...)</code> is another. <code>main</code> itself is a method, and it is the one
+          Java calls to start your program.</p>
+
+        <h2 id="declare"><span class="section-h"><span class="num">2</span> Declaring one</span></h2>
+        <p>A method declaration has four parts before the body.</p>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">the shape</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">static void printBanner() {
+    System.out.println("=== PENGUIN EMPIRE 2551 ===");
+}</code></pre>
+        </div>
+
+        <div class="vocab">
+          <div class="vocab-term"><dt>static</dt><dd>Covered in section 4. For now, every method you write goes next to <code>main</code> and needs this word.</dd></div>
+          <div class="vocab-term"><dt>void</dt><dd>The return type. <code>void</code> means this method hands nothing back. The next lesson covers methods that do.</dd></div>
+          <div class="vocab-term"><dt>printBanner</dt><dd>The name. Use camelCase and start with a verb, because a method does something.</dd></div>
+          <div class="vocab-term"><dt>()</dt><dd>The parameter list, empty here. The next lesson fills it in.</dd></div>
+        </div>
+
+        <p>Methods are written inside the class but outside <code>main</code>. Order does not matter, so a
+          method can sit above or below <code>main</code> and still be callable.</p>
+
+        <h2 id="calling"><span class="section-h"><span class="num">3</span> Calling it</span></h2>
+        <p>Write the name followed by parentheses and a semicolon. Java jumps into the method, runs it to
+          the end, then returns to the line after the call.</p>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">public class Main {
+
+    static void printBanner() {
+        System.out.println("=== PENGUIN EMPIRE 2551 ===");
+    }
+
+    public static void main(String[] args) {
+        printBanner();
+        System.out.println("Subsystems online");
+        printBanner();
+    }
+}</code></pre>
+        </div>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">=== PENGUIN EMPIRE 2551 ===
+Subsystems online
+=== PENGUIN EMPIRE 2551 ===</code></pre>
+        </div>
+
+        <p>The banner text is written once and printed twice. That is the whole idea.</p>
+
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">Declaring is not calling</div>
+          <div class="c-body"><p>A method that is never called never runs. If you write a method and see no
+            output, check that <code>main</code> actually calls it.</p></div>
+        </div>
+
+        <h2 id="static"><span class="section-h"><span class="num">4</span> The word static</span></h2>
+        <p><code>static</code> means the method belongs to the class itself rather than to an object made
+          from it. You have already seen the effect. <code>Math.max(3, 9)</code> is called on the name
+          <code>Math</code>, not on a <code>Math</code> you created.</p>
+        <p>Because <code>main</code> is static, every method it calls directly must be static too. Unit J5
+          explains what the alternative is and when to use it.</p>
+
+        <div class="callout callout--note">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16v-4M12 8h.01"/><circle cx="12" cy="12" r="9"/></svg></div>
+          <div class="c-title">For now, write static</div>
+          <div class="c-body"><p>Leaving it out gives the error
+            <code>non-static method cannot be referenced from a static context</code>. That message means
+            exactly what this section describes.</p></div>
+        </div>
+
+        <h2 id="why"><span class="section-h"><span class="num">5</span> Why bother</span></h2>
+        <p>Three reasons, in order of how much they matter.</p>
+        <ol class="task-list">
+          <li><b>One place to change it.</b> The same reason a <code>final</code> value beat ten copies of
+            <code>0.65</code> in lesson 3.</li>
+          <li><b>A name explains the code.</b> <code>clamp(speed)</code> says what is happening.
+            <code>Math.min(0.8, Math.max(-0.8, speed))</code> makes the reader work it out.</li>
+          <li><b>Smaller pieces are easier to fix.</b> When a method produces the wrong answer, the bug is
+            inside those few lines.</li>
+        </ol>
+        <p>In Phase 2 every subsystem is a set of methods. <code>runRoller(0.7)</code> and
+          <code>stop()</code> are methods you will write on a real robot.</p>
+
+        <h2 id="run"><span class="section-h"><span class="num">6</span> Run it yourself</span></h2>
+        <p>Add a second method and call it from <code>main</code>.</p>
+
+        <div class="sandbox" data-compiler data-title="Live Java Sandbox" data-lang="java">
+          <script type="text/x-java" class="sb-src">
+public class Main {
+
+    static void printBanner() {
+        System.out.println("=== PENGUIN EMPIRE 2551 ===");
+    }
+
+    public static void main(String[] args) {
+        printBanner();
+        System.out.println("Subsystems online");
+        printBanner();
+
+        // Try it: write a method called printFooter that prints a line of dashes,
+        // then call it at the end of main.
+    }
+}
+          </script>
+        </div>
+
+        <h2 id="challenges"><span class="section-h"><span class="num">7</span> Practice challenges</span></h2>
+
+        <div class="challenge" data-kind="text"
+             data-win="Correct. The method is declared but never called, so only the main line prints."
+             data-lose="Only Ready prints. Declaring a method does not run it. Nothing calls warmUp.">
+          <div class="challenge-head"><span class="ch-kind">Predict the output</span><span class="ch-title">Declared but not called</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Type everything that gets printed.</p>
+            <pre class="fib">static void warmUp() {
+    System.out.println("Warming up");
+}
+
+public static void main(String[] args) {
+    System.out.println("Ready");
+}</pre>
+            <div class="answer-row">
+              <input class="answer-input" type="text" placeholder="Type the output…" data-answer="Ready" aria-label="Your answer" />
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check answer</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="fib"
+             data-win="Correct. static, then the return type void, then the name and empty parentheses."
+             data-lose="A method next to main needs static, a return type, a name, and parentheses.">
+          <div class="challenge-head"><span class="ch-kind">Fill in the blanks</span><span class="ch-title">Declare a method</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Complete a method that prints a message and returns nothing.</p>
+<pre class="fib"><span class="blank" data-answer="static"></span> <span class="blank" data-answer="void"></span> stopAll<span class="blank" data-answer="()"></span> {
+    System.out.println("All motors stopped");
+}</pre>
+            <div class="challenge-actions">
+              <button class="btn btn--sm check-btn" type="button">Check</button>
+              <button class="btn btn--sm btn--ghost reset-btn" type="button">Reset</button>
+            </div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">What void means</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">What does <code>void</code> tell you about a method?</p>
+            <div class="options">
+              <label class="option" data-explain="A void method usually does plenty. It just does not hand a value back to the caller."><input type="radio" name="q-void" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It does nothing</span></label>
+              <label class="option" data-correct data-explain="Correct. It runs its statements and hands no value back."><input type="radio" name="q-void" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It returns no value</span></label>
+              <label class="option" data-explain="Parameters are controlled by the parentheses, not by the return type."><input type="radio" name="q-void" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It takes no parameters</span></label>
+              <label class="option" data-explain="Any method can be called as many times as you like."><input type="radio" name="q-void" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It can only be called once</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <h2 id="mistakes"><span class="section-h"><span class="num">8</span> Common mistakes</span></h2>
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">Watch out for these</div>
+          <div class="c-body">
+            <ul>
+              <li>Writing a method and never calling it.</li>
+              <li>Leaving off <code>static</code>, which gives
+                <code>non-static method cannot be referenced from a static context</code>.</li>
+              <li>Declaring a method inside <code>main</code>. Methods go beside <code>main</code>, not
+                inside it.</li>
+              <li>Forgetting the parentheses when calling, which makes Java look for a variable instead.</li>
+              <li>Naming a method after a noun. Use a verb, since a method performs an action.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="exercise" id="exercise">
+          <div class="exercise-head">
+            <div class="ex-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4L12 17l-6.3 4.4L8 14 2 9.4h7.6z"/></svg></div>
+            <div>
+              <div class="ex-kicker">Exercise</div>
+              <h3>Startup Sequence</h3>
+            </div>
+          </div>
+          <div class="exercise-body">
+            <p>Split a startup report into named methods.</p>
+            <ol class="task-list">
+              <li>Write <code>printBanner</code> to print the team header.</li>
+              <li>Write <code>printSubsystems</code> to print three subsystem lines.</li>
+              <li>Write <code>printReady</code> to print a final line.</li>
+              <li>Call all three from <code>main</code>, in order. <code>main</code> should be three lines
+                long.</li>
+            </ol>
+            <div class="sandbox" data-compiler data-title="Project Sandbox" data-lang="java">
+              <script type="text/x-java" class="sb-src">
+public class Main {
+
+    // TODO: printBanner, printSubsystems, printReady
+
+    public static void main(String[] args) {
+        // TODO: call your three methods
+    }
+}
+              </script>
+            </div>
+            <details class="reveal">
+              <summary><svg class="rv-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg> Show one possible solution</summary>
+              <div class="reveal-body">
+                <div class="code">
+                  <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">solution · Main.java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">public class Main {
+
+    static void printBanner() {
+        System.out.println("=== PENGUIN EMPIRE 2551 ===");
+    }
+
+    static void printSubsystems() {
+        System.out.println("Intake     OK");
+        System.out.println("Shooter    OK");
+        System.out.println("Drivetrain OK");
+    }
+
+    static void printReady() {
+        System.out.println("Robot ready.");
+    }
+
+    public static void main(String[] args) {
+        printBanner();
+        printSubsystems();
+        printReady();
+    }
+}</code></pre>
+                </div>
+                <div class="code">
+                  <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">=== PENGUIN EMPIRE 2551 ===
+Intake     OK
+Shooter    OK
+Drivetrain OK
+Robot ready.</code></pre>
+                </div>
+                <p>A three line <code>main</code> reads as a summary of what the program does. The detail
+                  sits inside the methods.</p>
+              </div>
+            </details>
+          </div>
+        </div>
+
+        <div class="checkpoint" id="checkpoint">
+          <div class="checkpoint-head">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            <h3>Checkpoint</h3>
+            <span class="cp-score">0 / 4</span>
+          </div>
+          <div class="checkpoint-body">
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q1.</span> When do the statements inside a method run?</div>
+              <div class="options">
+                <label class="option" data-explain="Declaring a method only defines it. Nothing happens until it is called."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">As soon as the program starts</span></label>
+                <label class="option" data-correct data-explain="Correct. A method runs once per call and never on its own."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Each time something calls it</span></label>
+                <label class="option" data-explain="Position in the file does not matter. A method below main can still be called from main."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Only if it is written above <code>main</code></span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q2.</span> Where is a method written?</div>
+              <div class="options">
+                <label class="option" data-correct data-explain="Correct. Methods sit side by side inside the class."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Inside the class, next to <code>main</code></span></label>
+                <label class="option" data-explain="Java does not allow one method to be declared inside another like this."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Inside <code>main</code></span></label>
+                <label class="option" data-explain="Everything in Java lives inside a class."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Outside the class</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q3.</span> Why does a method next to <code>main</code> need <code>static</code>?</div>
+              <div class="options">
+                <label class="option" data-correct data-explain="Correct. main is static, so the methods it calls directly must be static as well."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Because <code>main</code> is static and can only call static methods directly</span></label>
+                <label class="option" data-explain="static has no effect on speed."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It makes the method faster</span></label>
+                <label class="option" data-explain="Java has plenty of non-static methods. You will write them in Unit J5."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Every method in Java must be static</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q4.</span> What is the strongest reason to pull repeated lines into a method?</div>
+              <div class="options">
+                <label class="option" data-explain="File length is not the point, and a method adds a couple of lines of its own."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It makes the file shorter</span></label>
+                <label class="option" data-correct data-explain="Correct. One definition means one place to fix, which is the same reason a final value beat ten copies of a number."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A change has to be made in only one place</span></label>
+                <label class="option" data-explain="Calling a method has a tiny cost, not a saving. The benefit is for the people reading and editing the code."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The program runs faster</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check my answers</button></div>
+          </div>
+        </div>
+
+        <div class="mark-complete">
+          <div class="mc-text"><b>Lesson complete.</b><span>Next: passing values into a method and getting one back.</span></div>
+          <button class="complete-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>Mark as complete</span></button>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="/assets/js/course.js"></script>
+  <script src="/assets/js/site.js"></script>
+  <script src="/assets/js/widgets.js"></script>
+</body>
+</html>

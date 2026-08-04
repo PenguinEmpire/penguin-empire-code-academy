@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FRC Game Tools &amp; the Driver Station · Penguin Empire 2551</title>
+  <meta name="description" content="Install FRC Game Tools, read the Driver Station's three status indicators, and tell in seconds whether a problem is the network, your code, or the controller." />
+  <link rel="icon" href="/assets/img/logo-2551.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Aldrich&family=Russo+One&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/brand.css" />
+  <link rel="stylesheet" href="/assets/css/layout.css" />
+  <link rel="stylesheet" href="/assets/css/lesson.css" />
+</head>
+<body data-page="lesson" data-lesson="frc-game-tools">
+  <main id="main" class="content">
+    <div class="content-inner">
+
+      <!-- ===================== HEADER ===================== -->
+      <header class="lesson-hero">
+        <nav class="crumbs" aria-label="Breadcrumb">
+          <a href="/">Home</a><span class="sep">/</span>
+          <a href="/syllabus.html">Phase 2 · FRC</a><span class="sep">/</span>
+          <span>Unit 2 · The Toolchain</span>
+        </nav>
+        <span class="badge badge--ocean">Unit 2</span>
+        <h1 class="lesson-title">FRC Game Tools &amp; the Driver Station</h1>
+        <p class="lesson-lede">Nothing you write in Unit 4 reaches a robot until these tools exist on a laptop. This
+          is the application that decides whether your code is allowed to run at all.</p>
+        <div class="lesson-meta">
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg> 20 min</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h2v-4H3zM9 20h2V10H9zM15 20h2V4h-2z"/></svg> Beginner</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2zM18 3v16"/></svg> Needs: Unit 1</span>
+        </div>
+      </header>
+
+      <!-- ===================== GOAL ===================== -->
+      <div class="goal">
+        <div class="goal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div>
+        <div>
+          <h2>Your goal</h2>
+          <p>Read the Driver Station's three status indicators to say whether a problem is the network, your code, or
+            the controller, and find your <code>println</code> output.</p>
+        </div>
+      </div>
+
+      <nav class="toc" aria-label="On this page">
+        <strong>On this page</strong>
+        <ol>
+          <li><a href="#why">Why this matters</a></li>
+          <li><a href="#what">What Game Tools is</a></li>
+          <li><a href="#ds">The Driver Station</a></li>
+          <li><a href="#lights">The three status indicators</a></li>
+          <li><a href="#modes">Modes and Enable</a></li>
+          <li><a href="#console">Where println output goes</a></li>
+          <li><a href="#triage">Triage practice</a></li>
+          <li><a href="#challenges">Practice challenges</a></li>
+          <li><a href="#mistakes">Common mistakes</a></li>
+          <li><a href="#exercise">Project: PenguinBot's bring-up checklist</a></li>
+          <li><a href="#checkpoint">Checkpoint</a></li>
+        </ol>
+      </nav>
+
+      <div class="prose">
+
+        <!-- ===================== WHY ===================== -->
+        <h2 id="why"><span class="section-h"><span class="num">1</span> Why this matters</span></h2>
+
+        <div class="callout callout--why">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></div>
+          <div class="c-title">Macs cannot run the Driver Station</div>
+          <div class="c-body">
+            <p>Team 2551 runs Macs, a PC, and one dedicated Windows laptop. You can write robot code on any of them.
+              You can only <strong>enable the robot</strong> on the Windows one, because FRC Game Tools has a Windows
+              build and nothing else. WPILib's own requirements page lists Windows 10 or higher, with no macOS or
+              Linux option.</p>
+            <p>That single fact reorganises how the team works. There is one laptop that goes to the field, and
+              everyone's code eventually has to reach it. A good part of game day in Unit 12 is logistics that follow
+              from this one line.</p>
+          </div>
+        </div>
+
+        <!-- ===================== WHAT ===================== -->
+        <h2 id="what"><span class="section-h"><span class="num">2</span> What Game Tools is</span></h2>
+        <p>FRC Game Tools is one installer from National Instruments containing three things you need:</p>
+        <ul>
+          <li>The <strong>FRC Driver Station</strong>, the application that enables the robot.</li>
+          <li>The <strong>roboRIO Imaging Tool</strong> and its images, which is how you flash the roboRIO at the
+            start of a season.</li>
+          <li>A LabVIEW update and the runtime components those two tools need.</li>
+        </ul>
+        <p>Keep this separation clear, because new members mix it up constantly:</p>
+
+        <div class="tablewrap">
+          <table class="data">
+            <thead><tr><th>Install</th><th>What it is for</th><th>Runs on</th></tr></thead>
+            <tbody>
+              <tr><td>WPILib</td><td>Writing code and deploying it to the robot</td><td>Windows, macOS, Linux</td></tr>
+              <tr><td>FRC Game Tools</td><td>Enabling the robot, watching the console, imaging the roboRIO</td><td>Windows only</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout callout--season">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
+          <div class="c-title">Verify for current season</div>
+          <div class="c-body"><p>Game Tools is versioned by season and you reinstall it every year. The download
+            location, the installer name, and the exact bundle contents change. Follow the current season's WPILib
+            "Zero to Robot" instructions rather than an old link from a teammate.</p></div>
+        </div>
+
+        <!-- ===================== DS ===================== -->
+        <h2 id="ds"><span class="section-h"><span class="num">3</span> The Driver Station</span></h2>
+        <p>The Driver Station is the bar that sits at the bottom of the screen on the driver station laptop. It does
+          not drive the robot. It decides whether the robot may run at all, and it tells you what is wrong.</p>
+        <p>The most important rule on this page:</p>
+
+        <div class="callout callout--note">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg></div>
+          <div class="c-title">Disabled means no code runs</div>
+          <div class="c-body"><p>Disabled is not a motor cutout. It stops your program from acting on anything. A
+            robot with three green lights, deployed code, and a controller plugged in still does absolutely nothing
+            until somebody presses Enable. This is the answer to "why isn't my code doing anything" more often than
+            any real bug.</p></div>
+        </div>
+
+        <!-- ===================== LIGHTS ===================== -->
+        <h2 id="lights"><span class="section-h"><span class="num">4</span> The three status indicators</span></h2>
+        <p>The Driver Station shows three lights. WPILib describes them precisely, and each one points at a
+          different part of the system.</p>
+
+        <div class="tablewrap">
+          <table class="data">
+            <thead><tr><th>Indicator</th><th>Green means</th><th>Red means</th><th>Where to look</th></tr></thead>
+            <tbody>
+              <tr><td>Communications</td><td>The Driver Station can reach the robot</td><td>A network problem</td><td>Radio still booting, Ethernet, radio configuration</td></tr>
+              <tr><td>Robot Code</td><td>Your program is on the roboRIO and running</td><td>Not deployed, or it crashed</td><td>Deploy again, then read the console for an exception</td></tr>
+              <tr><td>Joysticks</td><td>At least one controller is connected and recognised</td><td>No controller in a port</td><td>Plug it in and assign it to port 0</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>Read them top down. If Communications is red, nothing below it means anything, because the Driver Station
+          cannot see the robot to know whether the code is running. Fix in that order every time.</p>
+
+        <!-- ===================== MODES ===================== -->
+        <h2 id="modes"><span class="section-h"><span class="num">5</span> Modes and Enable</span></h2>
+        <p>The Driver Station picks which mode the robot is in. Your code does not choose. You write a handler for
+          each mode and the Driver Station decides which one is live.</p>
+
+        <div class="vocab">
+          <div class="vocab-term"><dt>Teleoperated</dt><dd>The driving portion of a match. Your teleop code runs and the controllers are live.</dd></div>
+          <div class="vocab-term"><dt>Autonomous</dt><dd>The opening seconds, with no driver. Your autonomous routine runs.</dd></div>
+          <div class="vocab-term"><dt>Practice</dt><dd>Cycles automatically through the match transitions so you can rehearse a full match.</dd></div>
+          <div class="vocab-term"><dt>Test</dt><dd>For testing code that does not run in a real match. Unit 8 shows the one case where the team edits this.</dd></div>
+        </div>
+
+        <p>Two keyboard shortcuts are worth memorising now, because you will want them under pressure. WPILib
+          documents <strong>Enter</strong> as disable and <strong>Space</strong> as emergency stop. Space is the one
+          you hit when a mechanism is about to hurt itself.</p>
+
+        <!-- ===================== CONSOLE ===================== -->
+        <h2 id="console"><span class="section-h"><span class="num">6</span> Where println output goes</span></h2>
+        <p>In Phase 1 your <code>System.out.println</code> output appeared in a terminal on your own machine. Robot
+          code runs on the roboRIO, not on your laptop, so the output has to travel back over the network.</p>
+        <p>It arrives in two places:</p>
+        <ul>
+          <li>The Driver Station's <strong>Messages</strong> tab, which WPILib describes as showing "diagnostic
+            messages from the DS, WPILib, User Code, and/or the roboRIO."</li>
+          <li>The <strong>RioLog</strong> inside VS Code, which opens automatically after a successful deploy.</li>
+        </ul>
+        <p>Until Unit 2's dashboards lesson, printing is your entire debugging toolkit. It is a good one. A line like
+          this is often faster than any dashboard:</p>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">ArmSubsystem.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">// this shows up in the Driver Station console, once every 20 ms
+System.out.println("arm position: " + armMotor.getEncoder().getPosition());</code></pre>
+        </div>
+
+        <div class="callout callout--tip">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12c.7.7 1 1.4 1 2h6c0-.6.3-1.3 1-2a7 7 0 0 0-4-12z"/></svg></div>
+          <div class="c-title">Printing every loop is noisy</div>
+          <div class="c-body"><p>That line runs about fifty times a second and floods the console. It is fine while
+            you are actively watching one number. Take it out afterwards, or you will lose real error messages in
+            the scroll.</p></div>
+        </div>
+
+        <!-- ===================== TRIAGE ===================== -->
+        <h2 id="triage"><span class="section-h"><span class="num">7</span> Triage practice</span></h2>
+        <p>Here is a mock Driver Station running real situations. Read the lights, the robot state, and the console,
+          then say where the problem is. This is the skill the lesson is actually for.</p>
+
+        <div class="dspanel">
+          <div class="ds-case" data-comms="green" data-code="red" data-joy="green" data-enabled="false"
+               data-mode="Teleoperated" data-console="No robot code running." data-answer="code"
+               data-explain="Right. Communications is green, so the network is fine. Robot Code red means your program is not on the roboRIO or it crashed on startup. Deploy again and read the console for an exception.">
+            You just deployed. The robot will not respond to anything.
+          </div>
+          <div class="ds-case" data-comms="red" data-code="red" data-joy="green" data-enabled="false"
+               data-mode="Teleoperated" data-console="(no messages)" data-answer="network"
+               data-explain="Correct. Communications red means the Driver Station cannot reach the robot at all, so Robot Code being red tells you nothing yet. Wait for the radio, then try an Ethernet tether.">
+            You powered the robot on twenty seconds ago and opened the Driver Station.
+          </div>
+          <div class="ds-case" data-comms="green" data-code="green" data-joy="green" data-enabled="false"
+               data-mode="Teleoperated" data-console="(no messages)" data-answer="disabled"
+               data-explain="Yes. Three green lights and a healthy console, and still nothing moves, because the robot is Disabled. This is the most common false bug in FRC.">
+            Everything looks healthy. You press the intake button and nothing happens.
+          </div>
+          <div class="ds-case" data-comms="green" data-code="green" data-joy="red" data-enabled="true"
+               data-mode="Teleoperated" data-console="(no messages)" data-answer="joystick"
+               data-explain="Correct. The robot is enabled and your code is running, but the Driver Station sees no controller. Plug it in and make sure it lands in port 0.">
+            The robot is enabled. Autonomous commands work but no button does anything.
+          </div>
+          <div class="ds-case" data-comms="green" data-code="green" data-joy="green" data-enabled="true"
+               data-mode="Teleoperated" data-console="ERROR  CAN ID 16 timed out" data-answer="nothing"
+               data-explain="The Driver Station itself is healthy. All three lights are green and the robot is enabled. The console is reporting a problem further down the signal path, on the CAN bus, which is a Unit 1 problem and not a Driver Station one.">
+            The robot drives, but the back left swerve module does nothing and the console keeps printing.
+          </div>
+        </div>
+
+        <!-- ===================== CHALLENGES ===================== -->
+        <h2 id="challenges"><span class="section-h"><span class="num">8</span> Practice challenges</span></h2>
+
+        <!-- fib -->
+        <div class="challenge" data-kind="fib"
+             data-win="Both halves of that sentence will save you hours this season."
+             data-lose="Printed output lands in the Driver Station console. While the robot is Disabled, nothing your code says has any effect.">
+          <div class="challenge-head"><span class="ch-kind">Fill in the blanks</span><span class="ch-title">Two facts to keep</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Complete the sentence.</p>
+<pre class="fib">The Driver Station shows your <span class="blank" data-answer="println|System.out.println|print|printed"></span> output,
+and while the robot is <span class="blank" data-answer="disabled|Disabled"></span> no code runs.</pre>
+            <div class="challenge-actions">
+              <button class="btn btn--sm check-btn" type="button">Check</button>
+              <button class="btn btn--sm btn--ghost reset-btn" type="button">Reset</button>
+            </div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <!-- mcq -->
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">Before you open your code</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">All three indicators are green, you press the intake button, and nothing
+              happens. What do you check <em>before</em> your code?</p>
+            <div class="options">
+              <label class="option" data-explain="Worth checking eventually, and there is something faster and far more common."><input type="radio" name="q-first" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The CAN wiring</span></label>
+              <label class="option" data-correct data-explain="Yes. Disabled means no code runs, even with three green lights. Check this first, every time."><input type="radio" name="q-first" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Whether the robot is Enabled</span></label>
+              <label class="option" data-explain="The Robot Code light already proves your program is loaded and running, which means the roboRIO is imaged fine."><input type="radio" name="q-first" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The roboRIO image</span></label>
+              <label class="option" data-explain="Reinstalling is never the first move. It is the move that costs an hour and teaches you nothing."><input type="radio" name="q-first" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Reinstall Game Tools</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <!-- short answer -->
+        <div class="challenge" data-kind="text"
+             data-win="No. The Driver Station is Windows only. She can write and deploy code from a Mac, and enabling happens on the Windows laptop."
+             data-lose="No. FRC Game Tools has a Windows build only. Writing code works anywhere, and enabling the robot needs the Windows laptop, which is why the team keeps a dedicated one.">
+          <div class="challenge-head"><span class="ch-kind">Predict</span><span class="ch-title">Can she enable it?</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Your teammate has a MacBook and has just finished writing the intake code.
+              Can she enable the robot from her laptop?</p>
+            <div class="answer-row">
+              <input class="answer-input" type="text" placeholder="yes or no" data-answer="no|nope|not on a mac|no windows only|no she cant|no she can't|no she cannot" aria-label="Your answer" />
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <!-- ===================== MISTAKES ===================== -->
+        <h2 id="mistakes"><span class="section-h"><span class="num">9</span> Common mistakes</span></h2>
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">Watch out for these</div>
+          <div class="c-body">
+            <ul>
+              <li><strong>Reading green Communications as "my code is running."</strong> Communications only means
+                the Driver Station can reach the robot. Robot Code is the separate light that says your program is
+                loaded and running.</li>
+              <li><strong>Expecting println in the VS Code terminal.</strong> Your code runs on the roboRIO. Output
+                travels back to the Driver Station console and to the RioLog.</li>
+              <li><strong>Thinking Game Tools and WPILib are one install.</strong> Two installs, two jobs. WPILib to
+                write and deploy, Game Tools to enable and observe.</li>
+              <li><strong>Trying to pick the mode in code.</strong> You write a handler per mode. The Driver Station
+                decides which is active.</li>
+              <li><strong>Thinking Disabled just stops the motors.</strong> It stops your program from doing anything
+                at all.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- ===================== EXERCISE ===================== -->
+        <div class="exercise" id="exercise">
+          <div class="exercise-head">
+            <div class="ex-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4L12 17l-6.3 4.4L8 14 2 9.4h7.6z"/></svg></div>
+            <div>
+              <div class="ex-kicker">Build it · PenguinBot</div>
+              <h3>PenguinBot's bring-up checklist</h3>
+            </div>
+          </div>
+          <div class="exercise-body">
+            <p>You can trace a signal and name the hardware. Nothing you write reaches PenguinBot until you can bring
+              the robot up. Write the ordered checklist you would follow, from "the robot is on the cart, powered
+              off" to "the intake spins when I press the button." Every step names what you would look at to confirm
+              it worked.</p>
+            <p>Keep it. This becomes the seed of the real pre-match checklist in Unit 12.</p>
+            <details class="reveal">
+              <summary><svg class="rv-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg> Reveal the reference checklist</summary>
+              <div class="reveal-body">
+                <p class="cl-count"></p>
+                <ol class="checklist" data-key="bring-up">
+                  <li><b>Power on the robot.</b> Look at the roboRIO's lights coming up.</li>
+                  <li><b>Wait one to two minutes for the radio.</b> There is nothing to look at. This is the step
+                    people skip.</li>
+                  <li><b>Open the Driver Station</b> on the Windows laptop.</li>
+                  <li><b>Communications green?</b> If not, wait longer, then check the radio and try an Ethernet
+                    tether.</li>
+                  <li><b>Robot Code green?</b> If not, deploy from VS Code and read the console for an exception.</li>
+                  <li><b>Plug in the controller. Joysticks green?</b> If not, assign it to port 0 in the Driver
+                    Station.</li>
+                  <li><b>Choose Teleoperated</b> in the mode selector.</li>
+                  <li><b>Press Enable.</b> Nothing before this point can move a motor.</li>
+                  <li><b>Press the button.</b> If nothing happens now, it is finally time to suspect your code, and
+                    the console is where you look first.</li>
+                </ol>
+              </div>
+            </details>
+            <p>Next: the other half of the toolchain, the VS Code that knows what a robot is, and how code gets onto
+              the roboRIO in the first place.</p>
+          </div>
+        </div>
+
+        <!-- ===================== CHECKPOINT ===================== -->
+        <div class="checkpoint" id="checkpoint">
+          <div class="checkpoint-head">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            <h3>Checkpoint</h3>
+            <span class="cp-score">0 / 4</span>
+          </div>
+          <div class="checkpoint-body">
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q1.</span> Where does <code>System.out.println</code> output appear in robot code?</div>
+              <div class="options">
+                <label class="option" data-explain="Your code runs on the roboRIO, not your laptop. The RioLog does show it after a deploy, but that is not the same as a plain terminal."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">In a normal terminal on your laptop</span></label>
+                <label class="option" data-correct data-explain="Correct. The Driver Station console is your primary debugging channel, and the RioLog in VS Code shows the same stream."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The Driver Station console</span></label>
+                <label class="option" data-explain="Log files do exist and are useful after the fact. The console is live and immediate."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Only in a log file you download later</span></label>
+                <label class="option" data-explain="It works, and you will lean on it constantly for the next eight units."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Nowhere. Printing does not work on a robot</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q2.</span> "Disabled" means…</div>
+              <div class="options">
+                <label class="option" data-explain="No. The whole program is prevented from acting, not just the motor outputs."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Motors are cut but code still acts</span></label>
+                <label class="option" data-explain="That is the Communications indicator, and it is separate."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The robot has lost communication</span></label>
+                <label class="option" data-correct data-explain="Yes. Three green lights and a disabled robot does nothing at all."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">No code runs at all</span></label>
+                <label class="option" data-explain="Test is one of the four modes. Disabled is the enable state, which is a separate thing."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">You are in test mode</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q3.</span> Which indicator being red tells you the problem is the network rather than your program?</div>
+              <div class="options">
+                <label class="option" data-explain="That one means your program is not running on the roboRIO."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Robot Code</span></label>
+                <label class="option" data-explain="That is the controller."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Joysticks</span></label>
+                <label class="option" data-correct data-explain="Right. The Driver Station cannot reach the robot at all, so everything below it is unknown rather than broken."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Communications</span></label>
+                <label class="option" data-explain="All three going red does happen, and Communications is still the one that identifies the network specifically."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">All three at once</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q4.</span> Why does the team keep a dedicated Windows laptop?</div>
+              <div class="options">
+                <label class="option" data-explain="Speed is not the reason. Robot code builds fine on a laptop from any year."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It is faster than the Macs</span></label>
+                <label class="option" data-correct data-explain="Exactly, and that laptop is the one that goes to the field."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">FRC Game Tools and the Driver Station only run on Windows</span></label>
+                <label class="option" data-explain="VS Code runs on Windows, macOS and Linux. The Driver Station does not."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">VS Code is Windows only</span></label>
+                <label class="option" data-explain="The CAN bus is entirely on the robot. Your laptop never touches it."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The CAN bus needs Windows drivers</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check my answers</button></div>
+          </div>
+        </div>
+
+        <!-- ===================== COMPLETE ===================== -->
+        <div class="mark-complete">
+          <div class="mc-text"><b>You can read a Driver Station.</b><span>Next: WPILib and VS Code, where the code actually gets written and deployed.</span></div>
+          <button class="complete-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>Mark as complete</span></button>
+        </div>
+
+      </div><!-- /prose -->
+    </div><!-- /content-inner -->
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="/assets/js/course.js"></script>
+  <script src="/assets/js/site.js"></script>
+  <script src="/assets/js/widgets.js"></script>
+</body>
+</html>

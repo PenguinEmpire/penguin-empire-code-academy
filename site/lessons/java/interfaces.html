@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Interfaces &amp; Abstract Classes · Penguin Empire 2551</title>
+  <meta name="description" content="An interface lists what a class can do without saying how. implements, default methods, implementing several interfaces, and when to use an interface instead of an abstract class." />
+  <link rel="icon" href="/assets/img/logo-2551.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Aldrich&family=Russo+One&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/brand.css" />
+  <link rel="stylesheet" href="/assets/css/layout.css" />
+  <link rel="stylesheet" href="/assets/css/lesson.css" />
+</head>
+<body data-page="lesson" data-lesson="j-interfaces">
+  <main id="main" class="content">
+    <div class="content-inner">
+
+      <header class="lesson-hero">
+        <nav class="crumbs" aria-label="Breadcrumb">
+          <a href="/">Home</a><span class="sep">/</span>
+          <a href="/syllabus.html">Phase 1 · Java &amp; OOP</a><span class="sep">/</span>
+          <span>Unit J5 · Object-Oriented Programming</span>
+        </nav>
+        <span class="badge badge--ocean">Lesson 27</span>
+        <h1 class="lesson-title">Interfaces &amp; Abstract Classes</h1>
+        <p class="lesson-lede">An interface is a list of methods a class promises to provide. It says what
+          a class can do and nothing about how.</p>
+        <div class="lesson-meta">
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg> 25 min</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h2v-4H3zM9 20h2V10H9zM15 20h2V4h-2z"/></svg> Intermediate</span>
+        </div>
+      </header>
+
+      <div class="goal">
+        <div class="goal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div>
+        <div>
+          <h2>Your goal</h2>
+          <p>Declare an interface, implement it, and say when an interface beats an abstract class.</p>
+        </div>
+      </div>
+
+      <nav class="toc" aria-label="On this page">
+        <strong>On this page</strong>
+        <ol>
+          <li><a href="#declare">Declaring an interface</a></li>
+          <li><a href="#implements">implements</a></li>
+          <li><a href="#astype">Using it as a type</a></li>
+          <li><a href="#several">Several interfaces at once</a></li>
+          <li><a href="#default">default methods</a></li>
+          <li><a href="#which">Interface or abstract class</a></li>
+          <li><a href="#run">Run it yourself</a></li>
+          <li><a href="#challenges">Practice challenges</a></li>
+          <li><a href="#mistakes">Common mistakes</a></li>
+          <li><a href="#exercise">Exercise</a></li>
+          <li><a href="#checkpoint">Checkpoint</a></li>
+        </ol>
+      </nav>
+
+      <div class="prose">
+
+        <h2 id="declare"><span class="section-h"><span class="num">1</span> Declaring an interface</span></h2>
+        <p>Use the word <code>interface</code> instead of <code>class</code>. Methods have no body, just a
+          signature and a semicolon.</p>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">interface Stoppable {
+    void emergencyStop();
+}</code></pre>
+        </div>
+
+        <p>There are no fields and no constructor. An interface holds no data. Methods are automatically
+          public, so the word <code>public</code> is left out.</p>
+
+        <h2 id="implements"><span class="section-h"><span class="num">2</span> implements</span></h2>
+        <p>A class promises to provide the methods with <code>implements</code>.</p>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">class Compressor implements Stoppable {
+    @Override
+    public void emergencyStop() {
+        System.out.println("Compressor off");
+    }
+}</code></pre>
+        </div>
+
+        <p>Leave out <code>emergencyStop</code> and the class does not compile. The interface is a
+          requirement the compiler enforces, the same way an abstract method was in the previous lesson.</p>
+
+        <h2 id="astype"><span class="section-h"><span class="num">3</span> Using it as a type</span></h2>
+        <p>An interface can be used as a variable type. Any class that implements it fits.</p>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">Compressor c = new Compressor();
+Stoppable s = c;
+s.emergencyStop();</code></pre>
+        </div>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">Compressor off</code></pre>
+        </div>
+
+        <p>This is the polymorphism from the previous lesson, without any inheritance. A
+          <code>Stoppable[]</code> can hold a compressor, a motor and a light, none of which share a
+          parent class.</p>
+
+        <h2 id="several"><span class="section-h"><span class="num">4</span> Several interfaces at once</span></h2>
+        <p>A class can extend only one class. It can implement as many interfaces as it likes, separated by
+          commas.</p>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">class Flywheel extends Subsystem implements Stoppable, Reportable {
+    // must provide every method from both interfaces
+}</code></pre>
+        </div>
+
+        <p>This is the main practical difference. Inheritance gives a class one parent. Interfaces let a
+          class take on any number of separate capabilities.</p>
+
+        <h2 id="default"><span class="section-h"><span class="num">5</span> default methods</span></h2>
+        <p>An interface method marked <code>default</code> may have a body. Classes get it automatically and
+          can override it if they want.</p>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">interface Stoppable {
+    void emergencyStop();
+
+    default void log() {
+        System.out.println("logging a stoppable device");
+    }
+}</code></pre>
+        </div>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output of c.emergencyStop() then c.log()</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">Compressor off
+logging a stoppable device</code></pre>
+        </div>
+
+        <p><code>Compressor</code> never declared <code>log</code>. It came from the interface.</p>
+
+        <h2 id="which"><span class="section-h"><span class="num">6</span> Interface or abstract class</span></h2>
+
+        <div class="vocab">
+          <div class="vocab-term"><dt>Abstract class</dt><dd>Use when the classes are genuinely related and share data or code. It can hold fields, constructors and normal methods. A class can extend only one.</dd></div>
+          <div class="vocab-term"><dt>Interface</dt><dd>Use when unrelated classes need to be treated the same way. It holds no data. A class can implement many.</dd></div>
+        </div>
+
+        <p>A useful test. If the sentence is “a Flywheel <em>is a</em> Subsystem”, that is inheritance. If
+          the sentence is “a Flywheel <em>can be</em> stopped”, that is an interface.</p>
+
+        <div class="callout callout--note">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16v-4M12 8h.01"/><circle cx="12" cy="12" r="9"/></svg></div>
+          <div class="c-title">Both appear in WPILib</div>
+          <div class="c-body"><p>In Phase 2 your subsystems extend a class called
+            <code>SubsystemBase</code>, and your commands satisfy an interface called <code>Command</code>.
+            You will use both in the same file.</p></div>
+        </div>
+
+        <h2 id="run"><span class="section-h"><span class="num">7</span> Run it yourself</span></h2>
+        <p>Add a second class that implements the same interface.</p>
+
+        <div class="sandbox" data-compiler data-title="Live Java Sandbox" data-lang="java">
+          <script type="text/x-java" class="sb-src">
+interface Stoppable {
+    void emergencyStop();
+
+    default void log() {
+        System.out.println("logging a stoppable device");
+    }
+}
+
+class Compressor implements Stoppable {
+    @Override
+    public void emergencyStop() {
+        System.out.println("Compressor off");
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Compressor c = new Compressor();
+        c.emergencyStop();
+        c.log();
+
+        Stoppable s = c;
+        s.emergencyStop();
+
+        // Try it: add a Light class that implements Stoppable,
+        // then put both in a Stoppable[] and loop over it.
+    }
+}
+          </script>
+        </div>
+
+        <h2 id="challenges"><span class="section-h"><span class="num">8</span> Practice challenges</span></h2>
+
+        <div class="challenge" data-kind="text"
+             data-win="Correct. Compressor never declared log, so the default version from the interface runs."
+             data-lose="It prints the default message from the interface. A default method is inherited automatically.">
+          <div class="challenge-head"><span class="ch-kind">Predict the output</span><span class="ch-title">Where does log come from?</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Type the exact line that gets printed.</p>
+            <pre class="fib">interface Stoppable {
+    void emergencyStop();
+    default void log() { System.out.println("logging a stoppable device"); }
+}
+class Compressor implements Stoppable {
+    public void emergencyStop() { System.out.println("Compressor off"); }
+}
+
+new Compressor().log();</pre>
+            <div class="answer-row">
+              <input class="answer-input" type="text" placeholder="Type the output…" data-answer="logging a stoppable device" aria-label="Your answer" />
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check answer</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="fib"
+             data-win="Correct. interface declares it, implements takes it on, and the method needs a body."
+             data-lose="Declare it with interface, take it on with implements, and supply the method in the class.">
+          <div class="challenge-head"><span class="ch-kind">Fill in the blanks</span><span class="ch-title">Declare and implement</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Complete both halves.</p>
+<pre class="fib"><span class="blank" data-answer="interface"></span> Stoppable {
+    void emergencyStop();
+}
+
+class Light <span class="blank" data-answer="implements"></span> Stoppable {
+    public void <span class="blank" data-answer="emergencyStop"></span>() {
+        System.out.println("Light off");
+    }
+}</pre>
+            <div class="challenge-actions">
+              <button class="btn btn--sm check-btn" type="button">Check</button>
+              <button class="btn btn--sm btn--ghost reset-btn" type="button">Reset</button>
+            </div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">How many of each</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">How many classes can a class extend, and how many interfaces can it
+              implement?</p>
+            <div class="options">
+              <label class="option" data-explain="Java does not allow extending more than one class. That is the whole reason interfaces exist."><input type="radio" name="q-count" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Many classes, many interfaces</span></label>
+              <label class="option" data-correct data-explain="Correct. One parent class, any number of interfaces."><input type="radio" name="q-count" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">One class, many interfaces</span></label>
+              <label class="option" data-explain="A class may implement as many interfaces as it needs, separated by commas."><input type="radio" name="q-count" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">One class, one interface</span></label>
+              <label class="option" data-explain="Extending several classes is exactly what Java forbids."><input type="radio" name="q-count" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Many classes, one interface</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">Pick the right tool</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">A compressor, a status light and a motor are unrelated classes, but
+              all three need to be shut down together. What fits?</p>
+            <div class="options">
+              <label class="option" data-correct data-explain="Correct. They share a capability, not a family, which is exactly what an interface expresses."><input type="radio" name="q-pick" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">An interface they all implement</span></label>
+              <label class="option" data-explain="Forcing unrelated classes under one parent gives them fields and behaviour that make no sense for them."><input type="radio" name="q-pick" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">An abstract class they all extend</span></label>
+              <label class="option" data-explain="That works but has to be edited every time a new device is added, which is the problem polymorphism removes."><input type="radio" name="q-pick" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A long chain of <code>if</code> statements</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <h2 id="mistakes"><span class="section-h"><span class="num">9</span> Common mistakes</span></h2>
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">Watch out for these</div>
+          <div class="c-body">
+            <ul>
+              <li>Writing <code>extends</code> where you need <code>implements</code>.</li>
+              <li>Forgetting to make the implementing method <code>public</code>. Interface methods are
+                public, and an implementation cannot be less visible.</li>
+              <li>Giving an interface method a body without <code>default</code>.</li>
+              <li>Trying to put a field in an interface. It holds no data.</li>
+              <li>Using an interface when the classes really are related and share code. An abstract class
+                is the better fit there.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="exercise" id="exercise">
+          <div class="exercise-head">
+            <div class="ex-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4L12 17l-6.3 4.4L8 14 2 9.4h7.6z"/></svg></div>
+            <div>
+              <div class="ex-kicker">Exercise</div>
+              <h3>One Switch, Three Devices</h3>
+            </div>
+          </div>
+          <div class="exercise-body">
+            <p>Shut down three unrelated devices with one loop.</p>
+            <ol class="task-list">
+              <li>Declare a <code>Stoppable</code> interface with <code>emergencyStop()</code> and a
+                <code>default</code> method <code>log()</code>.</li>
+              <li>Write <code>Compressor</code>, <code>StatusLight</code> and <code>DriveMotor</code>, none
+                of which extend anything, all implementing <code>Stoppable</code>.</li>
+              <li>Put all three in a <code>Stoppable[]</code> and loop over it calling <code>log()</code>
+                then <code>emergencyStop()</code>.</li>
+              <li>Bonus: override <code>log()</code> in one of the three and see which version runs.</li>
+            </ol>
+            <div class="sandbox" data-compiler data-title="Project Sandbox" data-lang="java">
+              <script type="text/x-java" class="sb-src">
+// TODO: interface Stoppable with emergencyStop() and a default log()
+
+// TODO: Compressor, StatusLight and DriveMotor
+
+public class Main {
+    public static void main(String[] args) {
+        // TODO: Stoppable[] then loop
+    }
+}
+              </script>
+            </div>
+            <details class="reveal">
+              <summary><svg class="rv-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg> Show one possible solution</summary>
+              <div class="reveal-body">
+                <div class="code">
+                  <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">solution · Main.java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">interface Stoppable {
+    void emergencyStop();
+
+    default void log() {
+        System.out.println("logging a stoppable device");
+    }
+}
+
+class Compressor implements Stoppable {
+    @Override public void emergencyStop() { System.out.println("Compressor off"); }
+}
+
+class StatusLight implements Stoppable {
+    @Override public void emergencyStop() { System.out.println("Status light off"); }
+    @Override public void log() { System.out.println("logging the status light"); }
+}
+
+class DriveMotor implements Stoppable {
+    @Override public void emergencyStop() { System.out.println("Drive motor at zero"); }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Stoppable[] devices = { new Compressor(), new StatusLight(), new DriveMotor() };
+
+        for (Stoppable d : devices) {
+            d.log();
+            d.emergencyStop();
+        }
+    }
+}</code></pre>
+                </div>
+                <div class="code">
+                  <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">logging a stoppable device
+Compressor off
+logging the status light
+Status light off
+logging a stoppable device
+Drive motor at zero</code></pre>
+                </div>
+                <p>The three classes share no parent. <code>StatusLight</code> overrode
+                  <code>log()</code> and the other two used the default. The loop treats all three
+                  identically.</p>
+              </div>
+            </details>
+          </div>
+        </div>
+
+        <div class="checkpoint" id="checkpoint">
+          <div class="checkpoint-head">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            <h3>Checkpoint</h3>
+            <span class="cp-score">0 / 4</span>
+          </div>
+          <div class="checkpoint-body">
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q1.</span> What does an interface contain by default?</div>
+              <div class="options">
+                <label class="option" data-correct data-explain="Correct. Method signatures with no body, unless a method is marked default."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Method names with no bodies</span></label>
+                <label class="option" data-explain="An interface holds no data. Fields belong in a class."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Fields and a constructor</span></label>
+                <label class="option" data-explain="Only default methods have bodies. The rest are signatures only."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Fully written methods</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q2.</span> What happens if a class implements an interface but omits one of its methods?</div>
+              <div class="options">
+                <label class="option" data-correct data-explain="Correct. The compiler enforces the promise, so the class will not build."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It does not compile</span></label>
+                <label class="option" data-explain="There is no body to inherit unless the method was marked default."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It gets an empty version</span></label>
+                <label class="option" data-explain="This is caught at compile time, not when the method is called."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It crashes when that method is called</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q3.</span> When is an abstract class the better choice?</div>
+              <div class="options">
+                <label class="option" data-correct data-explain="Correct. An abstract class can hold fields, a constructor and shared method bodies. An interface cannot hold data."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">When the classes are related and share fields or code</span></label>
+                <label class="option" data-explain="Unrelated classes are exactly the case an interface handles better."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">When the classes have nothing in common</span></label>
+                <label class="option" data-explain="A class can only extend one parent, so this is the case interfaces solve."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">When a class needs several parents</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q4.</span> What does <code>default</code> allow inside an interface?</div>
+              <div class="options">
+                <label class="option" data-correct data-explain="Correct. Implementing classes get it for free and may override it."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A method with a body that classes inherit</span></label>
+                <label class="option" data-explain="Interfaces hold no data, with or without default."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A field with a starting value</span></label>
+                <label class="option" data-explain="Interfaces have no constructors at all."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A constructor</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check my answers</button></div>
+          </div>
+        </div>
+
+        <div class="mark-complete">
+          <div class="mc-text"><b>Lesson complete.</b><span>Next: a type with a fixed set of named values.</span></div>
+          <button class="complete-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>Mark as complete</span></button>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="/assets/js/course.js"></script>
+  <script src="/assets/js/site.js"></script>
+  <script src="/assets/js/widgets.js"></script>
+</body>
+</html>

@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Chain of Command · Penguin Empire 2551</title>
+  <meta name="description" content="RobotContainer to Command to Subsystem to Motor. The four layers of a command-based robot, why a behaviour needs an end, and a live scheduler you can watch run." />
+  <link rel="icon" href="/assets/img/logo-2551.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Aldrich&family=Russo+One&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/brand.css" />
+  <link rel="stylesheet" href="/assets/css/layout.css" />
+  <link rel="stylesheet" href="/assets/css/lesson.css" />
+</head>
+<body data-page="lesson" data-lesson="frc-chain-of-command">
+  <main id="main" class="content">
+    <div class="content-inner">
+
+      <!-- ===================== HEADER ===================== -->
+      <header class="lesson-hero">
+        <nav class="crumbs" aria-label="Breadcrumb">
+          <a href="/">Home</a><span class="sep">/</span>
+          <a href="/syllabus.html">Phase 2 · FRC</a><span class="sep">/</span>
+          <span>Unit 3 · Project Anatomy</span>
+        </nav>
+        <span class="badge badge--ocean">Unit 3</span>
+        <h1 class="lesson-title">The Chain of Command</h1>
+        <p class="lesson-lede">Four layers, in one direction, every time. This is the most important idea in Phase 2,
+          and everything from Unit 7 onward is built on it.</p>
+        <div class="lesson-meta">
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg> 25 min</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h2v-4H3zM9 20h2V10H9zM15 20h2V4h-2z"/></svg> Beginner</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2zM18 3v16"/></svg> Needs: The src Tree</span>
+        </div>
+      </header>
+
+      <!-- ===================== GOAL ===================== -->
+      <div class="goal">
+        <div class="goal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div>
+        <div>
+          <h2>Your goal</h2>
+          <p>Given any piece of robot behaviour, say which of the four layers it belongs in and why.</p>
+        </div>
+      </div>
+
+      <nav class="toc" aria-label="On this page">
+        <strong>On this page</strong>
+        <ol>
+          <li><a href="#why">Why this matters</a></li>
+          <li><a href="#four">The four layers</a></li>
+          <li><a href="#subsystem">Subsystems own hardware</a></li>
+          <li><a href="#command">Commands have an end</a></li>
+          <li><a href="#container">RobotContainer wires it up</a></li>
+          <li><a href="#run">Watch it run</a></li>
+          <li><a href="#ownership">The ownership rule</a></li>
+          <li><a href="#challenges">Practice challenges</a></li>
+          <li><a href="#mistakes">Common mistakes</a></li>
+          <li><a href="#exercise">Project: Design PenguinBot's layers</a></li>
+          <li><a href="#checkpoint">Checkpoint</a></li>
+        </ol>
+      </nav>
+
+      <div class="prose">
+
+        <!-- ===================== WHY ===================== -->
+        <h2 id="why"><span class="section-h"><span class="num">1</span> Why this matters</span></h2>
+
+        <div class="callout callout--why">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></div>
+          <div class="c-title">The flywheel</div>
+          <div class="c-body">
+            <p>A flywheel is a heavy spinning disc. It is hard to get moving and, once moving, it stays moving. You
+              cannot shoot until it is up to speed, say 4000 RPM.</p>
+            <p>Now try to write that with nothing but "turn the motor on":</p>
+            <ul>
+              <li>Turn it on at full power to get there fast, and you fry the motor.</li>
+              <li>Turn it on gently, and now how do you know when to shoot? Something has to wait and decide.</li>
+              <li>Turn it on and immediately run the feeder, and you shoot into a wheel that is not ready.</li>
+            </ul>
+            <p>What is missing is not a motor call. It is a behaviour with an end: run the flywheel <em>until</em> it
+              reaches 4000 RPM, and only then report finished so the next step can begin. That is a
+              <strong>Command</strong>, and it is the reason command based robots exist.</p>
+          </div>
+        </div>
+
+        <!-- ===================== FOUR ===================== -->
+        <h2 id="four"><span class="section-h"><span class="num">2</span> The four layers</span></h2>
+        <p>This diagram is the backbone of the whole track. Learn it in this exact order.</p>
+
+        <div class="diagram">
+<span class="hl">RobotContainer</span>   binds a button press to…
+      ↓
+   <span class="hl">Command</span>      a unit of behaviour with a clear END, which tells…
+      ↓
+  <span class="hl">Subsystem</span>     the object that owns the hardware, which calls…
+      ↓
+    <span class="hl">Motor</span>       and the mechanism finally moves
+        </div>
+
+        <p>Two rules follow from the picture, and they are the whole lesson:</p>
+        <ul>
+          <li><strong>Information flows down, never sideways.</strong> A command never reaches past a subsystem to a
+            motor. RobotContainer never reaches past a command to a subsystem method.</li>
+          <li><strong>Subsystems are the only place motors get touched.</strong> No exceptions.</li>
+        </ul>
+
+        <!-- ===================== SUBSYSTEM ===================== -->
+        <h2 id="subsystem"><span class="section-h"><span class="num">3</span> Subsystems own hardware</span></h2>
+        <p>A <strong>subsystem</strong> is one mechanism. It holds the motor objects for that mechanism, and it
+          exposes methods that describe what the mechanism can do. Nothing outside it ever sees a motor.</p>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">IntakeSubsystem.java · shape only</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">public class IntakeSubsystem extends SubsystemBase {
+
+    // 1. the hardware this mechanism owns, and nobody else touches
+    private final SparkMax roller = new SparkMax(2, MotorType.kBrushless);
+
+    // 2. verbs the rest of the robot is allowed to use
+    public void runRoller(double speed) { }
+    public void stop() { }
+
+    // 3. periodic() runs every 20 ms, always, command or no command
+    @Override
+    public void periodic() { }
+}</code></pre>
+        </div>
+
+        <p>Read the method names. <code>runRoller</code> and <code>stop</code> describe the mechanism, not the
+          motor. That is deliberate. When the mechanical team replaces one motor with two, every caller in the
+          project keeps working, because none of them knew there was one motor to begin with.</p>
+
+        <!-- ===================== COMMAND ===================== -->
+        <h2 id="command"><span class="section-h"><span class="num">4</span> Commands have an end</span></h2>
+        <p>A <strong>command</strong> is one behaviour, and its defining feature is that it can say when it is done.
+          It has four methods, and WPILib runs them on the robot's 20 ms loop.</p>
+
+        <div class="tablewrap">
+          <table class="data">
+            <thead><tr><th>Method</th><th>Runs</th><th>Used for</th></tr></thead>
+            <tbody>
+              <tr><td><code>initialize()</code></td><td>Once, when the command starts</td><td>Set up. Start a timer, command a speed</td></tr>
+              <tr><td><code>execute()</code></td><td>Every 20 ms while the command is active</td><td>Adjust something continuously</td></tr>
+              <tr><td><code>isFinished()</code></td><td>Every cycle, after execute</td><td>Return true when the behaviour is complete</td></tr>
+              <tr><td><code>end(boolean interrupted)</code></td><td>Once, when the command stops</td><td>Clean up. Stop the motor</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout callout--verified">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4 12 14.01l-3-3"/></svg></div>
+          <div class="c-title">Two names people mix up</div>
+          <div class="c-body"><p><code>execute()</code> belongs to a <strong>command</strong> and only runs while
+            that command is scheduled. <code>periodic()</code> belongs to a <strong>subsystem</strong> and always
+            runs. They are two different methods on the same 20 ms loop. The onboarding video calls
+            <code>execute()</code> "the periodic," and that is worth un-learning now.</p></div>
+        </div>
+
+        <p>Unit 7 teaches commands properly. What matters today is why <code>isFinished()</code> exists at all: so
+          behaviours can be put in order. "Arm up, <em>then</em> outtake" is impossible unless the first step can say
+          when it is done.</p>
+
+        <!-- ===================== CONTAINER ===================== -->
+        <h2 id="container"><span class="section-h"><span class="num">5</span> RobotContainer wires it up</span></h2>
+        <p><code>RobotContainer</code> creates one instance of each subsystem, creates the commands, and connects
+          controller inputs to those commands. It runs once at startup and then mostly sits there. It does not run
+          the robot. It wires it.</p>
+
+        <div class="diagram">
+<span class="dim">The driver presses cross</span>
+      ↓
+<span class="hl">RobotContainer</span>  <span class="dim">a binding written once at startup fires</span>
+      ↓
+<span class="hl">Command</span>         <span class="dim">the scheduler starts it and calls its methods every 20 ms</span>
+      ↓
+<span class="hl">Subsystem</span>       <span class="dim">the command calls runRoller(0.7)</span>
+      ↓
+<span class="hl">Motor</span>           <span class="dim">the subsystem tells the roller motor to spin</span>
+        </div>
+
+        <!-- ===================== RUN ===================== -->
+        <h2 id="run"><span class="section-h"><span class="num">6</span> Watch it run</span></h2>
+        <p>Everything above is abstract until you see the loop turning. Below is all four layers in one runnable
+          file. Press Run and read the trace: one row per 20 ms cycle, showing which subsystem's
+          <code>periodic()</code> ran, which command's <code>execute()</code> ran, and what
+          <code>isFinished()</code> answered.</p>
+
+        <div class="callout callout--note">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg></div>
+          <div class="c-title">One line here is next lesson's topic</div>
+          <div class="c-body"><p>Inside the subsystem you will see <code>roller.set(speed)</code>. That is the whole
+            subject of Unit 4 and you are not expected to understand it yet. For today, read it as "tell the motor to
+            spin at this speed." It is here only so the code actually runs.</p></div>
+        </div>
+
+        <div class="sandbox" data-compiler data-sim data-title="The four layers, running">
+          <script type="text/x-java" class="sb-src">
+public class Main {
+
+    // ===== LAYER 3 · SUBSYSTEM =====  owns the hardware, exposes verbs
+    static class IntakeSubsystem extends SubsystemBase {
+        private final SparkMax roller = new SparkMax(2, MotorType.kBrushless);
+
+        public void runRoller(double speed) {
+            roller.set(speed);          // the ONLY line in the project that touches a motor
+        }
+        public void stop() {
+            roller.set(0);
+        }
+        @Override public void periodic() {
+            // runs every 20 ms whether or not a command is scheduled
+        }
+    }
+
+    // ===== LAYER 2 · COMMAND =====  behaviour with an END
+    static class IntakeForTimeCommand extends Command {
+        private final IntakeSubsystem intake;
+        private final Timer timer = new Timer();
+
+        IntakeForTimeCommand(IntakeSubsystem intake) {
+            this.intake = intake;
+        }
+        @Override public void initialize() {
+            timer.reset();
+            timer.start();
+            intake.runRoller(0.7);
+        }
+        @Override public void execute() {
+            // nothing to adjust each cycle here
+        }
+        @Override public boolean isFinished() {
+            return timer.hasElapsed(0.20);      // the END condition
+        }
+        @Override public void end(boolean interrupted) {
+            intake.stop();
+        }
+    }
+
+    // ===== LAYER 1 · ROBOTCONTAINER =====  wires input to behaviour
+    public static void main(String[] args) {
+        IntakeSubsystem intake = new IntakeSubsystem();
+        IntakeForTimeCommand grab = new IntakeForTimeCommand(intake);
+
+        // on a real robot this line reads driver.cross().onTrue(grab);
+        CommandScheduler.getInstance().schedule(grab);
+        CommandScheduler.getInstance().runUntilDone();
+    }
+}
+          </script>
+        </div>
+
+        <p>The output you should see:</p>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code>[sim] SparkMax on CAN ID 2 (kBrushless) is alive.
+
+  [sim] CommandScheduler — one row per 20 ms robot loop.
+   t(s)  cyc  subsystem periodic()   command execute()      isFinished()
+  -----  ---  ---------------------- ---------------------- ------------
+   0.00    -  &gt;&gt; IntakeForTimeCommand.initialize()
+   0.00    1  IntakeSubsystem        IntakeForTimeCommand   false
+   0.02    2  IntakeSubsystem        IntakeForTimeCommand   false
+   0.04    3  IntakeSubsystem        IntakeForTimeCommand   false
+   ...
+   0.20   11  IntakeSubsystem        IntakeForTimeCommand   false
+   0.22   12  IntakeSubsystem        IntakeForTimeCommand   TRUE
+   0.22    -  &lt;&lt; IntakeForTimeCommand.end(interrupted = false)
+  [sim] all commands finished after 12 cycles (0.24 s of robot time).</code></pre>
+        </div>
+
+        <p>Three things to notice, because they are the concepts made visible:</p>
+        <ul>
+          <li><code>initialize()</code> ran once, before any cycle. <code>end()</code> ran once, after the last one.</li>
+          <li>The subsystem's <code>periodic()</code> ran on every single cycle, next to the command's
+            <code>execute()</code>. Two different methods, same loop.</li>
+          <li>The command ended because <code>isFinished()</code> returned true. Nothing else stopped it.</li>
+        </ul>
+
+        <div class="callout callout--tip">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12c.7.7 1 1.4 1 2h6c0-.6.3-1.3 1-2a7 7 0 0 0-4-12z"/></svg></div>
+          <div class="c-title">Try this in the sandbox</div>
+          <div class="c-body">
+            <ul>
+              <li>Change <code>isFinished()</code> to <code>return false;</code> and run it. The command never ends,
+                the scheduler runs out of cycles, and the sim tells you a real robot would do this forever.</li>
+              <li>Change the time from <code>0.20</code> to <code>1.0</code> and count the cycles. Fifty cycles per
+                second is not a figure of speech.</li>
+              <li>Move <code>intake.runRoller(0.7)</code> from <code>initialize()</code> into <code>execute()</code>.
+                The behaviour looks identical here, and Unit 7 explains when that difference matters.</li>
+            </ul>
+          </div>
+        </div>
+
+        <p>The timer is a placeholder end condition. A real intake command would end when a sensor says the game
+          piece is in, and reading a sensor is Unit 5.</p>
+
+        <!-- ===================== OWNERSHIP ===================== -->
+        <h2 id="ownership"><span class="section-h"><span class="num">7</span> The ownership rule</span></h2>
+        <p>Here is why the layers are worth the trouble. Suppose two commands both write directly to the arm motor,
+          each every 20 ms. One wants 0.5 and one wants minus 0.3.</p>
+        <p>The code compiles. Nothing errors. The bus is fine. The arm judders, because on each cycle whichever
+          command ran last wins, and they alternate fifty times a second.</p>
+        <p>One subsystem owning the hardware makes this impossible to write by accident. Everything else has to ask,
+          and Unit 7 adds a mechanism that makes the framework refuse to run two commands that need the same
+          subsystem.</p>
+
+        <div class="vocab">
+          <div class="vocab-term"><dt>subsystem</dt><dd>A noun. One mechanism, owning its hardware, exposing verbs.</dd></div>
+          <div class="vocab-term"><dt>command</dt><dd>A verb. One behaviour, with a defined end.</dd></div>
+          <div class="vocab-term"><dt>RobotContainer</dt><dd>The wiring. Creates the subsystems and commands and connects inputs to them.</dd></div>
+          <div class="vocab-term"><dt>end condition</dt><dd>What <code>isFinished()</code> returns true on. The thing that makes sequencing possible.</dd></div>
+          <div class="vocab-term"><dt>scheduler</dt><dd>The part of WPILib that runs every scheduled command's methods once per 20 ms cycle.</dd></div>
+        </div>
+
+        <!-- ===================== CHALLENGES ===================== -->
+        <h2 id="challenges"><span class="section-h"><span class="num">8</span> Practice challenges</span></h2>
+
+        <!-- match -->
+        <div class="challenge" data-kind="match"
+             data-win="That is the sorting instinct to build. Hardware and verbs go in the subsystem, end conditions go in the command, wiring goes in RobotContainer."
+             data-lose="Not that one. Ask what kind of thing it is: hardware or a verb about a mechanism, a decision about when something is done, or a connection between an input and a behaviour.">
+          <div class="challenge-head"><span class="ch-kind">Match them up</span><span class="ch-title">Where does it go?</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Click a piece of code, then click the layer it belongs in.</p>
+            <div class="match">
+              <div class="match-col">
+                <div class="match-head">The code</div>
+                <button class="match-item" data-match="sub">A <code>SparkMax</code> object for the arm motor</button>
+                <button class="match-item" data-match="rc">"When cross is pressed, run the intake"</button>
+                <button class="match-item" data-match="cmd">
+                  <code>return flywheelRPM &gt;= 4000;</code></button>
+                <button class="match-item" data-match="sub"><code>public void runRoller(double speed)</code></button>
+                <button class="match-item" data-match="cmd"><code>end(boolean interrupted)</code> stopping the motor</button>
+              </div>
+              <div class="match-col">
+                <div class="match-head">The layer</div>
+                <button class="match-item" data-key="sub">Subsystem</button>
+                <button class="match-item" data-key="cmd">Command</button>
+                <button class="match-item" data-key="rc">RobotContainer</button>
+              </div>
+            </div>
+            <div class="challenge-actions">
+              <button class="btn btn--sm btn--ghost reset-btn" type="button">Reset</button>
+            </div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <!-- order -->
+        <div class="challenge" data-kind="order">
+          <div class="challenge-head"><span class="ch-kind">Put them in order</span><span class="ch-title">One button press</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Drag these into the order they actually happen.</p>
+            <ul class="order-list">
+              <li class="order-item" data-pos="4"><span class="grip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h16M4 16h16"/></svg></span><span>The subsystem tells the motor to run at 0.7</span></li>
+              <li class="order-item" data-pos="1"><span class="grip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h16M4 16h16"/></svg></span><span>The driver presses cross</span></li>
+              <li class="order-item" data-pos="5"><span class="grip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h16M4 16h16"/></svg></span><span>The roller spins</span></li>
+              <li class="order-item" data-pos="2"><span class="grip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h16M4 16h16"/></svg></span><span>RobotContainer's binding starts the command</span></li>
+              <li class="order-item" data-pos="3"><span class="grip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h16M4 16h16"/></svg></span><span>The command calls <code>runRoller(0.7)</code></span></li>
+            </ul>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <!-- mcq end -->
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">Why an end at all?</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Why does a command have an <code>isFinished()</code> at all?</p>
+            <div class="options">
+              <label class="option" data-explain="Nothing crashes from running. The loop just keeps going forever, which the sandbox will show you if you try it."><input type="radio" name="q-end" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">So the program does not crash</span></label>
+              <label class="option" data-correct data-explain="Exactly. Arm up, then outtake, needs each step to say when it is done. That is the whole reason the framework exists."><input type="radio" name="q-end" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">So behaviours can be sequenced</span></label>
+              <label class="option" data-explain="Battery is not a factor in whether a method returns true."><input type="radio" name="q-end" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">To save battery</span></label>
+              <label class="option" data-explain="Java requires nothing of the sort. It is a design decision in the framework."><input type="radio" name="q-end" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Because Java requires it</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <!-- mcq ownership -->
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">Two commands, one motor</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Two different commands both write directly to the arm motor, each every
+              20 ms. What happens?</p>
+            <div class="options">
+              <label class="option" data-explain="Neither wins. They alternate, fifty times a second."><input type="radio" name="q-own" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The second one wins permanently</span></label>
+              <label class="option" data-correct data-explain="Right, and that is exactly why one subsystem owns the hardware and everything else has to ask."><input type="radio" name="q-own" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">They fight and the arm judders, with no error at all</span></label>
+              <label class="option" data-explain="It compiles fine. That is what makes it dangerous."><input type="radio" name="q-own" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The code will not compile</span></label>
+              <label class="option" data-explain="Nothing is wrong with the bus. The two pieces of code simply disagree."><input type="radio" name="q-own" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The CAN bus times out</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <!-- predict -->
+        <div class="challenge" data-kind="text"
+             data-win="Never. isFinished() would keep returning false, so the command runs forever and nothing after it in a sequence ever starts."
+             data-lose="Never. Returning false means the command has no end of its own. Try it in the sandbox above and read what the simulator tells you.">
+          <div class="challenge-head"><span class="ch-kind">Predict</span><span class="ch-title">Always false</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">You change <code>isFinished()</code> to <code>return false;</code>. When does
+              the command end on its own?</p>
+            <div class="answer-row">
+              <input class="answer-input" type="text" placeholder="one word" data-answer="never|it doesn't|it does not|it never does|not at all|it never ends" aria-label="Your answer" />
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <!-- ===================== MISTAKES ===================== -->
+        <h2 id="mistakes"><span class="section-h"><span class="num">9</span> Common mistakes</span></h2>
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">Watch out for these</div>
+          <div class="c-body">
+            <ul>
+              <li><strong>Treating commands and subsystems as the same thing.</strong> A subsystem is a noun that
+                owns hardware. A command is a verb that has an end. One arm, many things you can ask it to do.</li>
+              <li><strong>Calling the motor from RobotContainer because it is shorter.</strong> It works right up
+                until two pieces of code want the arm at once, and then it fails with no error at all.</li>
+              <li><strong>Thinking every behaviour needs a command class.</strong> Instantaneous behaviour can bind
+                straight to a subsystem method. The ChairBot never used a single command. Commands earn their place
+                when behaviour takes time and has to finish.</li>
+              <li><strong>Calling <code>execute()</code> the subsystem's periodic.</strong> Two different methods on
+                the same loop. <code>periodic()</code> always runs. <code>execute()</code> runs only while its
+                command is scheduled.</li>
+              <li><strong>Thinking RobotContainer runs the robot.</strong> It wires the robot. It runs once at
+                startup and then mostly sits there.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- ===================== EXERCISE ===================== -->
+        <div class="exercise" id="exercise">
+          <div class="exercise-head">
+            <div class="ex-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4L12 17l-6.3 4.4L8 14 2 9.4h7.6z"/></svg></div>
+            <div>
+              <div class="ex-kicker">Design it · PenguinBot</div>
+              <h3>Design PenguinBot's layers</h3>
+            </div>
+          </div>
+          <div class="exercise-body">
+            <p>You have the project map. Next lesson you write your first real motor code, so decide now where each
+              piece of PenguinBot's scoring behaviour belongs.</p>
+            <p><strong>The behaviour:</strong> when the driver presses one button, PenguinBot raises the arm to the
+              scoring position, then spits the game piece out, then lowers the arm back to stowed.</p>
+            <ol class="task-list">
+              <li><b>Write the three layers on paper.</b> Class names and method names only, no bodies.</li>
+              <li><b>Then answer this.</b> Which of the three steps <em>needs</em> to be a command rather than a
+                direct method call, and why?</li>
+              <li><b>And this.</b> What goes wrong if all three steps fire at the same instant?</li>
+            </ol>
+            <details class="reveal">
+              <summary><svg class="rv-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg> Reveal the reference design</summary>
+              <div class="reveal-body">
+                <p><strong>Subsystems,</strong> which own the hardware and expose verbs:</p>
+                <ul>
+                  <li><code>IntakeSubsystem</code> with <code>runRoller(double speed)</code>,
+                    <code>outtake()</code>, <code>stop()</code>. Motor on CAN ID 2.</li>
+                  <li><code>ArmSubsystem</code> with <code>setSpeed(double)</code>, <code>getPosition()</code>,
+                    <code>goToScore()</code>, <code>stop()</code>. Motor on CAN ID 3.</li>
+                </ul>
+                <p><strong>Commands,</strong> which are behaviour with an end:</p>
+                <ul>
+                  <li><code>ArmToScoreCommand</code>, which runs until the arm reaches the scoring setpoint.</li>
+                  <li><code>ArmToStowCommand</code>, the same thing back to stowed.</li>
+                  <li><code>ScoreSequence</code>, which runs arm up, then outtake, then arm down, in order.</li>
+                </ul>
+                <p><strong>RobotContainer,</strong> which is wiring:</p>
+                <ul>
+                  <li>One <code>IntakeSubsystem</code> and one <code>ArmSubsystem</code>.</li>
+                  <li><code>driver.cross()</code> starts <code>ScoreSequence</code>.</li>
+                </ul>
+                <p><strong>Which step needs to be a command?</strong> Both arm moves. Raising the arm takes time. The
+                  motor runs for many 20 ms cycles and has to stop in the right place, so something must decide when
+                  it has arrived and report finished. Spitting the piece out is instantaneous, so it is a direct
+                  subsystem call. In Unit 8 you wrap that call so it can sit inside a sequence.</p>
+                <p><strong>If all three fire at once,</strong> you outtake into the floor while the arm is still
+                  moving. Sequencing is not tidiness. It is the difference between scoring and not.</p>
+              </div>
+            </details>
+            <p>That is the design. Next lesson you write the bottom layer for real, and make a motor spin.</p>
+          </div>
+        </div>
+
+        <!-- ===================== CHECKPOINT ===================== -->
+        <div class="checkpoint" id="checkpoint">
+          <div class="checkpoint-head">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            <h3>Checkpoint</h3>
+            <span class="cp-score">0 / 5</span>
+          </div>
+          <div class="checkpoint-body">
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q1.</span> Which layer is the only one allowed to touch a motor?</div>
+              <div class="options">
+                <label class="option" data-explain="RobotContainer wires inputs to commands. It never reaches a motor."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">RobotContainer</span></label>
+                <label class="option" data-explain="A command asks a subsystem to do something. It does not touch hardware itself."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Command</span></label>
+                <label class="option" data-correct data-explain="Correct, and it is the rule with no exceptions in this whole course."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Subsystem</span></label>
+                <label class="option" data-explain="Robot.java runs the mode lifecycle and is nearly empty in a command based project."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Robot.java</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q2.</span> What makes a command a command, rather than just a method?</div>
+              <div class="options">
+                <label class="option" data-explain="Commands live in a folder called commands, and the folder is not what makes them useful."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It lives in the commands folder</span></label>
+                <label class="option" data-correct data-explain="Yes. Having an end is what makes sequencing possible, and sequencing is the whole point."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It runs over many cycles and can say when it is done</span></label>
+                <label class="option" data-explain="Commands do not have to touch motors at all. Plenty of them just wait or watch."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It controls a motor directly</span></label>
+                <label class="option" data-explain="A button is one way to start a command. Autonomous starts them with no button anywhere."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It is attached to a button</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q3.</span> <code>periodic()</code> and <code>execute()</code> differ how?</div>
+              <div class="options">
+                <label class="option" data-explain="They run on the same 20 ms loop. Timing is not the difference."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">One runs faster than the other</span></label>
+                <label class="option" data-correct data-explain="Right. You saw both of them on every row of the trace, doing different jobs."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>periodic()</code> belongs to a subsystem and always runs. <code>execute()</code> belongs to a command and runs only while it is scheduled</span></label>
+                <label class="option" data-explain="They are two different methods with two different owners, not two names for one thing."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">They are two names for the same method</span></label>
+                <label class="option" data-explain="Both run in every mode the robot is enabled in."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">One only runs in autonomous</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q4.</span> Where does a button binding live?</div>
+              <div class="options">
+                <label class="option" data-explain="A subsystem knows nothing about controllers. It exposes verbs and waits to be asked."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">In the subsystem</span></label>
+                <label class="option" data-explain="A command does not know what started it, and that is a feature. The same command can be started by a button or by autonomous."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">In the command</span></label>
+                <label class="option" data-correct data-explain="Yes. Wiring inputs to behaviour is RobotContainer's entire job."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">In RobotContainer</span></label>
+                <label class="option" data-explain="The Driver Station reports which buttons are pressed. It does not decide what they do."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">In the Driver Station</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q5.</span> Why is the flywheel a good argument for commands?</div>
+              <div class="options">
+                <label class="option" data-explain="Flywheels do use a lot of power, and that is not what makes a command necessary."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It draws a lot of current</span></label>
+                <label class="option" data-correct data-explain="Correct. It takes time to spin up and something has to decide when it is ready, which is exactly what isFinished() is for."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">You cannot shoot until it reaches speed, so something has to wait and then say it is ready</span></label>
+                <label class="option" data-explain="It has one motor like most mechanisms. Motor count is not the issue."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It needs more motors than other mechanisms</span></label>
+                <label class="option" data-explain="Nothing about a flywheel is autonomous specific. The same problem exists when a driver is shooting."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It only runs in autonomous</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check my answers</button></div>
+          </div>
+        </div>
+
+        <!-- ===================== COMPLETE ===================== -->
+        <div class="mark-complete">
+          <div class="mc-text"><b>You have the mental model the rest of the course hangs on.</b><span>Unit 4 next: the line of code that makes a motor spin.</span></div>
+          <button class="complete-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>Mark as complete</span></button>
+        </div>
+
+      </div><!-- /prose -->
+    </div><!-- /content-inner -->
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="/assets/js/course.js"></script>
+  <script src="/assets/js/site.js"></script>
+  <script src="/assets/js/widgets.js"></script>
+</body>
+</html>

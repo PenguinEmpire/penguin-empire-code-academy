@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>REV &amp; CTRE Hardware Clients · Penguin Empire 2551</title>
+  <meta name="description" content="Use the REV Hardware Client and Phoenix Tuner to set CAN IDs, push firmware, read sticky faults, and prove in fifteen seconds whether a dead mechanism is code, wiring, or build." />
+  <link rel="icon" href="/assets/img/logo-2551.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Aldrich&family=Russo+One&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/brand.css" />
+  <link rel="stylesheet" href="/assets/css/layout.css" />
+  <link rel="stylesheet" href="/assets/css/lesson.css" />
+</head>
+<body data-page="lesson" data-lesson="frc-vendor-clients">
+  <main id="main" class="content">
+    <div class="content-inner">
+
+      <!-- ===================== HEADER ===================== -->
+      <header class="lesson-hero">
+        <nav class="crumbs" aria-label="Breadcrumb">
+          <a href="/">Home</a><span class="sep">/</span>
+          <a href="/syllabus.html">Phase 2 · FRC</a><span class="sep">/</span>
+          <span>Unit 2 · The Toolchain</span>
+        </nav>
+        <span class="badge badge--ocean">Unit 2</span>
+        <h1 class="lesson-title">REV &amp; CTRE Hardware Clients</h1>
+        <p class="lesson-lede">These two desktop applications talk to motor controllers directly, with no robot code
+          involved. That is what makes them the fastest debugging tools you own.</p>
+        <div class="lesson-meta">
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg> 20 min</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h2v-4H3zM9 20h2V10H9zM15 20h2V4h-2z"/></svg> Beginner</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2zM18 3v16"/></svg> Needs: Vendor Libraries</span>
+        </div>
+      </header>
+
+      <!-- ===================== GOAL ===================== -->
+      <div class="goal">
+        <div class="goal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div>
+        <div>
+          <h2>Your goal</h2>
+          <p>Use a vendor hardware client to prove whether a dead mechanism is a code problem, a wiring problem, or a
+            build problem, before writing a line of code.</p>
+        </div>
+      </div>
+
+      <nav class="toc" aria-label="On this page">
+        <strong>On this page</strong>
+        <ol>
+          <li><a href="#why">Why this matters</a></li>
+          <li><a href="#two">Two clients, two vendors</a></li>
+          <li><a href="#rev">Inside the REV Hardware Client</a></li>
+          <li><a href="#faults">Sticky faults</a></li>
+          <li><a href="#isolate">Isolation, as a procedure</a></li>
+          <li><a href="#challenges">Practice challenges</a></li>
+          <li><a href="#mistakes">Common mistakes</a></li>
+          <li><a href="#exercise">Project: PenguinBot's device sheet</a></li>
+          <li><a href="#checkpoint">Checkpoint</a></li>
+        </ol>
+      </nav>
+
+      <div class="prose">
+
+        <!-- ===================== WHY ===================== -->
+        <h2 id="why"><span class="section-h"><span class="num">1</span> Why this matters</span></h2>
+
+        <div class="callout callout--why">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></div>
+          <div class="c-title">Two days, and the answer took fifteen seconds</div>
+          <div class="c-body">
+            <p>The team once lost two full days to a motor that had stopped running. The cause turned out to be a
+              commanded value set far too high. The two days went into not knowing where to look. Was it the code?
+              The wiring? The mechanism?</p>
+            <p>The REV Hardware Client answers that question in about fifteen seconds. Plug a USB-C cable into the
+              SparkMax and run the motor from the client's Run tab. If it spins, the wiring and the motor are fine
+              and the problem is in your code. If it does not spin, stop reading your code, because the code was
+              never involved.</p>
+            <p>This is the most valuable habit in Unit 2. Cut the system in half and find out which half is broken.</p>
+          </div>
+        </div>
+
+        <!-- ===================== TWO ===================== -->
+        <h2 id="two"><span class="section-h"><span class="num">2</span> Two clients, two vendors</span></h2>
+        <p>Each vendor ships a desktop application for its own hardware. They are not interchangeable, and they do
+          not even connect the same way.</p>
+
+        <div class="tablewrap">
+          <table class="data">
+            <thead><tr><th>Client</th><th>Talks to</th><th>Connects by</th><th>Does</th></tr></thead>
+            <tbody>
+              <tr><td>REV Hardware Client</td><td>SparkMax, SPARK Flex, Neos, the PDH</td><td>USB-C, straight to the device</td><td>Set CAN IDs, update firmware, change parameters, run the motor, read faults</td></tr>
+              <tr><td>Phoenix Tuner</td><td>Krakens and other CTRE devices</td><td>Over the robot's radio</td><td>List and name devices, set IDs, update firmware, run and tune</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>The USB-C detail matters more than it sounds. A SparkMax can be tested on a workbench with no roboRIO, no
+          radio, and no robot at all. A Kraken has to be on a powered robot you can reach over the network.</p>
+
+        <div class="callout callout--season">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
+          <div class="c-title">Verify for current season</div>
+          <div class="c-body"><p>Vendor tools get renamed and replaced. REV notes that teams on REVLib 2026 or newer
+            need REV Hardware Client 2, and CTRE's tool has been through several versions. Download the version that
+            matches the library your project pulls in.</p></div>
+        </div>
+
+        <!-- ===================== REV ===================== -->
+        <h2 id="rev"><span class="section-h"><span class="num">3</span> Inside the REV Hardware Client</span></h2>
+        <p>Plug a SparkMax into your laptop over USB-C and the client finds it automatically. Selecting the device
+          reveals four tabs worth knowing.</p>
+
+        <div class="vocab">
+          <div class="vocab-term"><dt>Basic</dt><dd>The common settings. Device Identify blinks the controller's LED so you can tell which physical device you are looking at. This is also where you set the <strong>CAN ID</strong>. REV's documentation is blunt: any configured SPARK MAX must have a CAN ID.</dd></div>
+          <div class="vocab-term"><dt>Advanced</dt><dd>Every configurable parameter, without writing code. Useful for one-off testing, dangerous as a permanent solution, because settings that live only on a device are invisible to whoever reads your repository.</dd></div>
+          <div class="vocab-term"><dt>Run</dt><dd>Drives the motor over USB with no control system at all. This is the isolation test from the story above. It also does live PID tuning, which you will use in Unit 6.</dd></div>
+          <div class="vocab-term"><dt>Update</dt><dd>Shows the firmware version on the device and updates it. Out of date firmware causes failures that look exactly like code bugs.</dd></div>
+        </div>
+
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">Save before you unplug</div>
+          <div class="c-body"><p>Changes you make in the client are not permanent until you persist them to the
+            controller's memory. In older versions of the client that button was labelled Burn Flash. As of client
+            version 1.7.0 it is called Persist Parameters. Same operation, different name, and forgetting it means
+            your CAN ID quietly reverts the next time the robot is power cycled.</p></div>
+        </div>
+
+        <!-- ===================== FAULTS ===================== -->
+        <h2 id="faults"><span class="section-h"><span class="num">4</span> Sticky faults</span></h2>
+        <p>A <strong>sticky fault</strong> is a record that something went wrong at some point. It does not mean
+          something is wrong now. The device latches the fault so you can find out about a problem that happened
+          during a match, while you were looking at the field instead of a screen.</p>
+        <p>The right procedure is:</p>
+        <ol>
+          <li>Read the fault. It tells you what category of problem occurred.</li>
+          <li>Fix the actual cause.</li>
+          <li>Clear the fault.</li>
+          <li>Run the mechanism again.</li>
+        </ol>
+        <p>Step four is the one people skip. If the fault comes straight back, the problem is live and you have not
+          fixed it. If it stays clear, you have. Clearing faults without fixing anything just deletes your only
+          evidence.</p>
+
+        <!-- ===================== ISOLATE ===================== -->
+        <h2 id="isolate"><span class="section-h"><span class="num">5</span> Isolation, as a procedure</span></h2>
+        <p>When a mechanism does not move, there are exactly three places the problem can be.</p>
+
+        <div class="diagram">
+<span class="hl">CODE</span>            <span class="hl">WIRING</span>          <span class="hl">BUILD</span>
+<span class="dim">your program    power, CAN,     the mechanism
+sent the wrong  connectors,     itself: jammed,
+value, or none  a dead motor    seized, unbolted</span>
+        </div>
+
+        <p>Each check below rules out a whole category, and they are ordered cheapest first.</p>
+
+        <div class="tablewrap">
+          <table class="data">
+            <thead><tr><th>Check</th><th>If it fails</th><th>If it passes</th></tr></thead>
+            <tbody>
+              <tr><td>Turn the mechanism by hand, robot off</td><td>The build is jammed. Nothing else matters yet</td><td>The mechanism is free</td></tr>
+              <tr><td>Run the motor from the vendor client</td><td>Power or wiring or a dead motor</td><td>Everything below your code is healthy</td></tr>
+              <tr><td>Does the client see the device at the expected ID?</td><td>Wrong ID, or the device is off the bus</td><td>The address in your code should work</td></tr>
+              <tr><td>Read your code</td><td>Now it is a code problem, and you know it</td><td>Look at what value you are actually sending</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>Reading code comes last because it is the only step that cannot rule anything out by itself. You can stare
+          at correct code for two days.</p>
+
+        <!-- ===================== CHALLENGES ===================== -->
+        <h2 id="challenges"><span class="section-h"><span class="num">6</span> Practice challenges</span></h2>
+
+        <!-- match -->
+        <div class="challenge" data-kind="match"
+             data-win="Four tools, four jobs. Knowing which one answers your question is most of debugging."
+             data-lose="REV for REV hardware over USB-C, Phoenix Tuner for CTRE hardware over the radio, the Driver Station to enable and watch, VS Code to build and deploy.">
+          <div class="challenge-head"><span class="ch-kind">Match them up</span><span class="ch-title">Tool to job</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Click a tool, then click the job it does.</p>
+            <div class="match">
+              <div class="match-col">
+                <div class="match-head">Tool</div>
+                <button class="match-item" data-match="rev">REV Hardware Client</button>
+                <button class="match-item" data-match="ctre">Phoenix Tuner</button>
+                <button class="match-item" data-match="ds">Driver Station</button>
+                <button class="match-item" data-match="vs">VS Code with WPILib</button>
+              </div>
+              <div class="match-col">
+                <div class="match-head">Job</div>
+                <button class="match-item" data-key="rev">Apply a test voltage to a Neo over USB-C</button>
+                <button class="match-item" data-key="ctre">Set a Kraken's CAN ID over the radio</button>
+                <button class="match-item" data-key="ds">Enable the robot and read the console</button>
+                <button class="match-item" data-key="vs">Build and deploy the code</button>
+              </div>
+            </div>
+            <div class="challenge-actions">
+              <button class="btn btn--sm btn--ghost reset-btn" type="button">Reset</button>
+            </div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <!-- order -->
+        <div class="challenge" data-kind="order">
+          <div class="challenge-head"><span class="ch-kind">Put them in order</span><span class="ch-title">Isolate the fault</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">The intake does not move. Drag these checks into the order that eliminates
+              the most possibilities soonest.</p>
+            <ul class="order-list">
+              <li class="order-item" data-pos="4"><span class="grip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h16M4 16h16"/></svg></span><span>Read your intake code</span></li>
+              <li class="order-item" data-pos="1"><span class="grip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h16M4 16h16"/></svg></span><span>Try to turn the roller by hand with the robot off</span></li>
+              <li class="order-item" data-pos="2"><span class="grip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h16M4 16h16"/></svg></span><span>Run the motor from the REV client over USB-C</span></li>
+              <li class="order-item" data-pos="3"><span class="grip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h16M4 16h16"/></svg></span><span>Check the client sees the device at CAN ID 2</span></li>
+            </ul>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+            <details class="reveal">
+              <summary><svg class="rv-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg> Hint</summary>
+              <div class="reveal-body"><p>Cheapest and broadest first. Reading code is last, because it is the only
+                step that cannot rule anything out on its own.</p></div>
+            </details>
+          </div>
+        </div>
+
+        <!-- mcq sticky -->
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">A sticky fault</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">The client shows a sticky fault on the arm's SparkMax. What does that tell
+              you?</p>
+            <div class="options">
+              <label class="option" data-explain="Not necessarily. Sticky means it happened at some point, which may have been during a match yesterday."><input type="radio" name="q-sf" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The arm is broken right now</span></label>
+              <label class="option" data-correct data-explain="Correct. Fix the real cause, then clear it. A fault that reappears after clearing is live."><input type="radio" name="q-sf" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A fault occurred at some point and may or may not be happening now</span></label>
+              <label class="option" data-explain="Out of date firmware is a real problem worth checking, and it is not what a sticky fault means."><input type="radio" name="q-sf" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The firmware is out of date</span></label>
+              <label class="option" data-explain="A wrong ID means the device would not appear in the list at all."><input type="radio" name="q-sf" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The CAN ID is wrong</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <!-- short answer -->
+        <div class="challenge" data-kind="text"
+             data-win="In your code. The motor, the controller, the power wiring and the mechanism just proved themselves."
+             data-lose="In your code. If the motor spins with no robot program involved, everything downstream of your code is healthy, so stop looking at the wiring.">
+          <div class="challenge-head"><span class="ch-kind">Predict</span><span class="ch-title">It spins in the client</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">You run the intake motor from the REV client and the roller spins perfectly.
+              Where is the bug?</p>
+            <div class="answer-row">
+              <input class="answer-input" type="text" placeholder="one or two words" data-answer="code|in the code|my code|the code|software|in my code" aria-label="Your answer" />
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <!-- ===================== MISTAKES ===================== -->
+        <h2 id="mistakes"><span class="section-h"><span class="num">7</span> Common mistakes</span></h2>
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">Watch out for these</div>
+          <div class="c-body">
+            <ul>
+              <li><strong>Reading a sticky fault as a live problem.</strong> It means something was wrong at some
+                point. Clear it after you fix the cause, and if it returns it is live.</li>
+              <li><strong>Thinking CAN IDs are set in code.</strong> Your code says which ID it wants. The vendor
+                client is where the device is told its ID. Mismatch them and nothing moves and nothing complains at
+                compile time.</li>
+              <li><strong>Assuming a dead motor means bad code.</strong> Prove it. Run the motor from the client and
+                find out in fifteen seconds whether code is even involved.</li>
+              <li><strong>Treating the two clients as interchangeable.</strong> Each talks only to its own vendor's
+                hardware, over a different connection.</li>
+              <li><strong>Leaving firmware to somebody else.</strong> Programmers push firmware. It sits on your list
+                right next to imaging the roboRIO.</li>
+              <li><strong>Configuring a device only in the client.</strong> Settings that live on a device and not in
+                your repository are invisible to the next person, and they vanish if the controller is replaced.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- ===================== EXERCISE ===================== -->
+        <div class="exercise" id="exercise">
+          <div class="exercise-head">
+            <div class="ex-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4L12 17l-6.3 4.4L8 14 2 9.4h7.6z"/></svg></div>
+            <div>
+              <div class="ex-kicker">Build it · PenguinBot</div>
+              <h3>PenguinBot's device sheet</h3>
+            </div>
+          </div>
+          <div class="exercise-body">
+            <p>PenguinBot's project has REVLib installed. Before any code can address a motor, every device needs a
+              known and recorded identity, and you need to know which tool assigns it.</p>
+            <ol class="task-list">
+              <li><b>Build the sheet.</b> One row per device: name, hardware, CAN ID, which client sets that ID, and
+                how it connects.</li>
+              <li><b>Add an alive test</b> to each row. One line describing what you would do in that client to prove
+                the device is working.</li>
+              <li><b>Write two rules at the bottom</b> that you would want a tired teammate to read at 11pm.</li>
+            </ol>
+            <details class="reveal">
+              <summary><svg class="rv-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg> Reveal the reference sheet</summary>
+              <div class="reveal-body">
+                <div class="tablewrap">
+                  <table class="data">
+                    <thead><tr><th>Device</th><th>Hardware</th><th>CAN ID</th><th>Client</th><th>Connection</th><th>Alive test</th></tr></thead>
+                    <tbody>
+                      <tr><td>Intake roller</td><td>SparkMax and Neo</td><td>2</td><td>REV Hardware Client</td><td>USB-C to the SparkMax</td><td>Run it low from the Run tab. The roller spins</td></tr>
+                      <tr><td>Arm pivot</td><td>SparkMax and Neo</td><td>3</td><td>REV Hardware Client</td><td>USB-C</td><td>Run it low. The arm creeps</td></tr>
+                      <tr><td>Swerve drive, four of them</td><td>Kraken</td><td>10 to 13</td><td>Phoenix Tuner</td><td>Over the radio</td><td>List devices. Each appears and can be spun</td></tr>
+                      <tr><td>Swerve steer, four of them</td><td>Kraken</td><td>14 to 17</td><td>Phoenix Tuner</td><td>Over the radio</td><td>Same</td></tr>
+                      <tr><td>PDH</td><td>Power hub</td><td>1</td><td>REV Hardware Client</td><td>USB-C or on the bus</td><td>Appears in the device list</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+                <p>The two rules for the bottom of the sheet:</p>
+                <ul>
+                  <li><strong>Run it low first.</strong> The fried motor cost the team two days, and it started with
+                    a value that was too high.</li>
+                  <li><strong>Clear sticky faults only after fixing the cause,</strong> so that the next fault you
+                    see means something.</li>
+                </ul>
+              </div>
+            </details>
+            <p>Every one of those ID numbers is about to become a number in your code. The next lesson is about not
+              getting them wrong.</p>
+          </div>
+        </div>
+
+        <!-- ===================== CHECKPOINT ===================== -->
+        <div class="checkpoint" id="checkpoint">
+          <div class="checkpoint-head">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            <h3>Checkpoint</h3>
+            <span class="cp-score">0 / 4</span>
+          </div>
+          <div class="checkpoint-body">
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q1.</span> How does the REV Hardware Client connect to a SparkMax?</div>
+              <div class="options">
+                <label class="option" data-explain="That is how Phoenix Tuner reaches Krakens."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Over the radio</span></label>
+                <label class="option" data-correct data-explain="Yes, which means you can test a SparkMax on a bench with no robot at all."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">USB-C, straight to the device</span></label>
+                <label class="option" data-explain="The Driver Station talks to the roboRIO, not to individual controllers."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Through the Driver Station</span></label>
+                <label class="option" data-explain="Your laptop is not on the CAN bus. The bus lives entirely on the robot."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Over the CAN bus from your laptop</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q2.</span> What is running the motor from the client's Run tab for?</div>
+              <div class="options">
+                <label class="option" data-explain="Motors do not hold charge."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Charging the motor</span></label>
+                <label class="option" data-explain="That is a different operation, and it lives in a different tab."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Calibrating the encoder</span></label>
+                <label class="option" data-correct data-explain="Exactly. It is the single most useful isolation step in this unit."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Spinning the motor with no robot code involved, to find out whether the problem is code or hardware</span></label>
+                <label class="option" data-explain="Also done in the client, in the Basic tab, and a different function."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Setting the CAN ID</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q3.</span> You clear a sticky fault, run the mechanism, and the fault comes straight back. That means…</div>
+              <div class="options">
+                <label class="option" data-explain="Clearing worked. The fault re-occurred, which is different."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Clearing did not work</span></label>
+                <label class="option" data-correct data-explain="Right, and this is exactly why you clear faults. It makes the next one meaningful."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The problem is happening right now</span></label>
+                <label class="option" data-explain="The fault is a symptom of something on the robot, not a bug in the client."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The client has a bug</span></label>
+                <label class="option" data-explain="Faults can be ignored, and doing that is how a robot dies mid match."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Nothing. Sticky faults can be ignored</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q4.</span> Where does a device's CAN ID actually get set?</div>
+              <div class="options">
+                <label class="option" data-explain="Your code states which ID it wants to talk to. It cannot assign one."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">In the constructor argument in your code</span></label>
+                <label class="option" data-correct data-explain="Correct. The device is told its ID in the vendor client, and your code has to match."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">On the device, using the vendor client</span></label>
+                <label class="option" data-explain="The Driver Station has no idea what is on the CAN bus."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">In the Driver Station</span></label>
+                <label class="option" data-explain="Position on the chain has nothing to do with a device's ID."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It is assigned automatically by position on the CAN chain</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check my answers</button></div>
+          </div>
+        </div>
+
+        <!-- ===================== COMPLETE ===================== -->
+        <div class="mark-complete">
+          <div class="mc-text"><b>You can prove where a fault is.</b><span>Next: the numbers those clients assign, and the one error message they cause.</span></div>
+          <button class="complete-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>Mark as complete</span></button>
+        </div>
+
+      </div><!-- /prose -->
+    </div><!-- /content-inner -->
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="/assets/js/course.js"></script>
+  <script src="/assets/js/site.js"></script>
+  <script src="/assets/js/widgets.js"></script>
+</body>
+</html>

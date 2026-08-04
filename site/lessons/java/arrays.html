@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Arrays (1D) · Penguin Empire 2551</title>
+  <meta name="description" content="Store many values of the same type under one name. Creating an array, indexing from zero, length, looping over it, and the for-each loop." />
+  <link rel="icon" href="/assets/img/logo-2551.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Aldrich&family=Russo+One&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/brand.css" />
+  <link rel="stylesheet" href="/assets/css/layout.css" />
+  <link rel="stylesheet" href="/assets/css/lesson.css" />
+</head>
+<body data-page="lesson" data-lesson="j-arrays">
+  <main id="main" class="content">
+    <div class="content-inner">
+
+      <header class="lesson-hero">
+        <nav class="crumbs" aria-label="Breadcrumb">
+          <a href="/">Home</a><span class="sep">/</span>
+          <a href="/syllabus.html">Phase 1 · Java &amp; OOP</a><span class="sep">/</span>
+          <span>Unit J4 · Data Structures</span>
+        </nav>
+        <span class="badge badge--ocean">Lesson 16</span>
+        <h1 class="lesson-title">Arrays (1D)</h1>
+        <p class="lesson-lede">An array holds many values of the same type under one name. Instead of four
+          variables for four CAN IDs, you have one array with four slots.</p>
+        <div class="lesson-meta">
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg> 25 min</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h2v-4H3zM9 20h2V10H9zM15 20h2V4h-2z"/></svg> Beginner</span>
+        </div>
+      </header>
+
+      <div class="goal">
+        <div class="goal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div>
+        <div>
+          <h2>Your goal</h2>
+          <p>Create an array, read and change a slot, and loop over every value in it.</p>
+        </div>
+      </div>
+
+      <nav class="toc" aria-label="On this page">
+        <strong>On this page</strong>
+        <ol>
+          <li><a href="#make">Making an array</a></li>
+          <li><a href="#index">Reading and writing a slot</a></li>
+          <li><a href="#length">length</a></li>
+          <li><a href="#loop">Looping over an array</a></li>
+          <li><a href="#foreach">The for-each loop</a></li>
+          <li><a href="#bounds">Going out of bounds</a></li>
+          <li><a href="#run">Run it yourself</a></li>
+          <li><a href="#challenges">Practice challenges</a></li>
+          <li><a href="#mistakes">Common mistakes</a></li>
+          <li><a href="#exercise">Exercise</a></li>
+          <li><a href="#checkpoint">Checkpoint</a></li>
+        </ol>
+      </nav>
+
+      <div class="prose">
+
+        <h2 id="make"><span class="section-h"><span class="num">1</span> Making an array</span></h2>
+        <p>There are two ways. Use the first when you already know the values, and the second when you do
+          not.</p>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">int[] canIds = {2, 3, 4, 5};        // known values
+double[] speeds = new double[3];    // three empty slots</code></pre>
+        </div>
+
+        <p>The square brackets after the type mean “an array of these”. An array has a fixed size, decided
+          when it is created. You cannot add a fifth slot to <code>canIds</code> later. The next lesson but
+          one covers a structure that can grow.</p>
+
+        <div class="callout callout--note">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16v-4M12 8h.01"/><circle cx="12" cy="12" r="9"/></svg></div>
+          <div class="c-title">Empty slots are not empty</div>
+          <div class="c-body"><p><code>new double[3]</code> fills every slot with <code>0.0</code>. An
+            <code>int</code> array fills with <code>0</code>, a <code>boolean</code> array with
+            <code>false</code>, and a <code>String</code> array with <code>null</code>. That last one
+            matters, and the exceptions lesson comes back to it.</p></div>
+        </div>
+
+        <h2 id="index"><span class="section-h"><span class="num">2</span> Reading and writing a slot</span></h2>
+        <p>Each slot has a position, called an <strong>index</strong>. Counting starts at 0, exactly as it
+          did for characters in a String.</p>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">the ruler</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">   +---+---+---+---+
+   | 2 | 3 | 4 | 5 |
+   +---+---+---+---+
+     0   1   2   3</code></pre>
+        </div>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">System.out.println(canIds[0]);   // 2
+canIds[1] = 9;                   // change the second slot</code></pre>
+        </div>
+
+        <h2 id="length"><span class="section-h"><span class="num">3</span> length</span></h2>
+        <p><code>canIds.length</code> gives the number of slots. Note there are no parentheses. A String
+          uses <code>length()</code> with parentheses, and an array uses <code>length</code> without them.
+          This inconsistency is real and it catches everybody once.</p>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">System.out.println(canIds.length);                 // 4
+System.out.println(canIds[canIds.length - 1]);     // 5, the last slot</code></pre>
+        </div>
+
+        <p><code>length - 1</code> is the last index. That is the same pattern as the last character of a
+          String.</p>
+
+        <h2 id="loop"><span class="section-h"><span class="num">4</span> Looping over an array</span></h2>
+        <p>A counted loop from 0 up to <code>length</code> visits every slot exactly once.</p>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">int[] canIds = {2, 3, 4, 5};
+
+for (int i = 0; i &lt; canIds.length; i++) {
+    System.out.println("index " + i + " = " + canIds[i]);
+}</code></pre>
+        </div>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">index 0 = 2
+index 1 = 3
+index 2 = 4
+index 3 = 5</code></pre>
+        </div>
+
+        <p>Using <code>i &lt; length</code> rather than <code>i &lt;= length</code> is what keeps the loop
+          inside the array. This is why loops are written with <code>&lt;</code> so often.</p>
+
+        <h2 id="foreach"><span class="section-h"><span class="num">5</span> The for-each loop</span></h2>
+        <p>When you need the values but not the positions, this shorter form reads better.</p>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">for (int id : canIds) {
+    System.out.println("id " + id);
+}</code></pre>
+        </div>
+
+        <p>Read the colon as “in”. For each <code>int</code> called <code>id</code> in <code>canIds</code>.
+          There is no index variable, so use the counted form when you need to know the position or want to
+          change slots.</p>
+
+        <h2 id="bounds"><span class="section-h"><span class="num">6</span> Going out of bounds</span></h2>
+        <p>Asking for an index that does not exist stops the program.</p>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">console</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">Exception in thread "main" java.lang.ArrayIndexOutOfBoundsException:
+        Index 3 out of bounds for length 3</code></pre>
+        </div>
+
+        <p>The message names the index you asked for and the length you had. An array of length 3 has
+          indexes 0, 1 and 2. This is the same shape of message as the String crash in lesson 5.</p>
+
+        <h2 id="run"><span class="section-h"><span class="num">7</span> Run it yourself</span></h2>
+        <p>Run it, then push the index past the end and read the message.</p>
+
+        <div class="sandbox" data-compiler data-title="Live Java Sandbox" data-lang="java">
+          <script type="text/x-java" class="sb-src">
+public class Main {
+    public static void main(String[] args) {
+        int[] canIds = {2, 3, 4, 5};
+
+        System.out.println("first:  " + canIds[0]);
+        System.out.println("last:   " + canIds[canIds.length - 1]);
+        System.out.println("length: " + canIds.length);
+
+        for (int i = 0; i < canIds.length; i++) {
+            System.out.println("index " + i + " = " + canIds[i]);
+        }
+
+        // Try it: change canIds[1] to 9 and run again.
+        // Then print canIds[4] and read the crash.
+    }
+}
+          </script>
+        </div>
+
+        <h2 id="challenges"><span class="section-h"><span class="num">8</span> Practice challenges</span></h2>
+
+        <div class="challenge" data-kind="text"
+             data-win="Correct. Index 2 is the third slot."
+             data-lose="It is 4. Counting starts at 0, so index 2 is the third value in the array.">
+          <div class="challenge-head"><span class="ch-kind">Predict the output</span><span class="ch-title">Which slot?</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">What number is printed?</p>
+            <pre class="fib">int[] canIds = {2, 3, 4, 5};
+System.out.println(canIds[2]);</pre>
+            <div class="answer-row">
+              <input class="answer-input" type="text" placeholder="Type the number…" data-answer="4" aria-label="Your answer" />
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check answer</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="text"
+             data-win="Correct. An int array starts every slot at 0."
+             data-lose="It is 0. new int[3] fills all three slots with zero before you put anything in them.">
+          <div class="challenge-head"><span class="ch-kind">Predict the output</span><span class="ch-title">Before you fill it</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">What is printed?</p>
+            <pre class="fib">int[] counts = new int[3];
+System.out.println(counts[0]);</pre>
+            <div class="answer-row">
+              <input class="answer-input" type="text" placeholder="Type the value…" data-answer="0" aria-label="Your answer" />
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check answer</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="fib"
+             data-win="Correct. Start at 0, stop before length, and index with the counter."
+             data-lose="Start at 0, keep going while i is less than length, and use i inside the square brackets.">
+          <div class="challenge-head"><span class="ch-kind">Fill in the blanks</span><span class="ch-title">Loop over every slot</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Visit every value exactly once.</p>
+<pre class="fib">for (int i = <span class="blank" data-answer="0"></span>; i &lt; canIds.<span class="blank" data-answer="length"></span>; i++) {
+    System.out.println(canIds[<span class="blank" data-answer="i"></span>]);
+}</pre>
+            <div class="challenge-actions">
+              <button class="btn btn--sm check-btn" type="button">Check</button>
+              <button class="btn btn--sm btn--ghost reset-btn" type="button">Reset</button>
+            </div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">The last slot</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">An array has length 4. Which index is the last valid one?</p>
+            <div class="options">
+              <label class="option" data-explain="Index 4 is one past the end. Asking for it throws ArrayIndexOutOfBoundsException."><input type="radio" name="q-last" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">4</span></label>
+              <label class="option" data-correct data-explain="Correct. Indexes run 0 to length minus 1, so 0, 1, 2, 3."><input type="radio" name="q-last" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">3</span></label>
+              <label class="option" data-explain="Index 1 is the second slot, not the last."><input type="radio" name="q-last" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">1</span></label>
+              <label class="option" data-explain="The length is fixed and known, so the last index is always length minus 1."><input type="radio" name="q-last" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It depends on the values</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <h2 id="mistakes"><span class="section-h"><span class="num">9</span> Common mistakes</span></h2>
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">Watch out for these</div>
+          <div class="c-body">
+            <ul>
+              <li>Writing <code>length()</code> on an array. Arrays use <code>length</code> with no
+                parentheses.</li>
+              <li>Looping with <code>i &lt;= length</code>, which runs one slot past the end.</li>
+              <li>Expecting an array to grow. The size is fixed when it is created.</li>
+              <li>Assuming index 1 is the first slot.</li>
+              <li>Trying to change values with a for-each loop. Use the counted form for that.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="exercise" id="exercise">
+          <div class="exercise-head">
+            <div class="ex-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4L12 17l-6.3 4.4L8 14 2 9.4h7.6z"/></svg></div>
+            <div>
+              <div class="ex-kicker">Exercise</div>
+              <h3>Motor Speed Report</h3>
+            </div>
+          </div>
+          <div class="exercise-body">
+            <p>Work over an array of motor speeds.</p>
+            <ol class="task-list">
+              <li>Print every speed with its index.</li>
+              <li>Find and print the largest speed using a loop.</li>
+              <li>Count how many are above 0.8 and print the count.</li>
+              <li>Bonus: print the average.</li>
+            </ol>
+            <div class="sandbox" data-compiler data-title="Project Sandbox" data-lang="java">
+              <script type="text/x-java" class="sb-src">
+public class Main {
+    public static void main(String[] args) {
+        double[] speeds = {0.4, 0.95, 0.7, 0.85, 0.2};
+
+        // TODO: print each speed with its index
+
+        // TODO: find the largest
+
+        // TODO: count how many are above 0.8
+    }
+}
+              </script>
+            </div>
+            <details class="reveal">
+              <summary><svg class="rv-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg> Show one possible solution</summary>
+              <div class="reveal-body">
+                <div class="code">
+                  <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">solution · Main.java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">public class Main {
+    public static void main(String[] args) {
+        double[] speeds = {0.4, 0.95, 0.7, 0.85, 0.2};
+
+        for (int i = 0; i &lt; speeds.length; i++) {
+            System.out.println("motor " + i + " at " + speeds[i]);
+        }
+
+        double largest = speeds[0];
+        int tooFast = 0;
+        double total = 0;
+
+        for (int i = 0; i &lt; speeds.length; i++) {
+            if (speeds[i] &gt; largest) {
+                largest = speeds[i];
+            }
+            if (speeds[i] &gt; 0.8) {
+                tooFast++;
+            }
+            total += speeds[i];
+        }
+
+        System.out.println("largest  = " + largest);
+        System.out.println("over 0.8 = " + tooFast);
+        System.out.println("average  = " + (total / speeds.length));
+    }
+}</code></pre>
+                </div>
+                <div class="code">
+                  <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">motor 0 at 0.4
+motor 1 at 0.95
+motor 2 at 0.7
+motor 3 at 0.85
+motor 4 at 0.2
+largest  = 0.95
+over 0.8 = 2
+average  = 0.62</code></pre>
+                </div>
+                <p><code>largest</code> starts at the first value rather than 0, so the comparison works
+                  even when every speed is negative.</p>
+              </div>
+            </details>
+          </div>
+        </div>
+
+        <div class="checkpoint" id="checkpoint">
+          <div class="checkpoint-head">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            <h3>Checkpoint</h3>
+            <span class="cp-score">0 / 4</span>
+          </div>
+          <div class="checkpoint-body">
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q1.</span> How do you get the number of slots in an array called <code>ids</code>?</div>
+              <div class="options">
+                <label class="option" data-correct data-explain="Correct. Arrays use length with no parentheses."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>ids.length</code></span></label>
+                <label class="option" data-explain="That is the String form. On an array it gives cannot find symbol."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>ids.length()</code></span></label>
+                <label class="option" data-explain="There is no size method on an array. ArrayList uses size, and that comes in two lessons."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>ids.size()</code></span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q2.</span> What is in every slot of <code>new int[4]</code> before you fill it?</div>
+              <div class="options">
+                <label class="option" data-correct data-explain="Correct. Number arrays start at zero, booleans at false, and object arrays at null."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>0</code></span></label>
+                <label class="option" data-explain="null is the default for arrays of objects, such as String, not for int."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>null</code></span></label>
+                <label class="option" data-explain="The slots exist immediately and hold a default value. Reading one is safe."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Nothing, reading one crashes</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q3.</span> Why does a loop use <code>i &lt; length</code> rather than <code>i &lt;= length</code>?</div>
+              <div class="options">
+                <label class="option" data-correct data-explain="Correct. The last valid index is length minus 1, so &lt;= would run one slot past the end and crash."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Because index <code>length</code> does not exist</span></label>
+                <label class="option" data-explain="Both forms run at the same speed. One of them just crashes."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Because it is faster</span></label>
+                <label class="option" data-explain="Java allows &lt;= perfectly well. It compiles and then throws at runtime."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Because Java does not allow <code>&lt;=</code></span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q4.</span> When should you use a for-each loop instead of a counted loop?</div>
+              <div class="options">
+                <label class="option" data-correct data-explain="Correct. It is shorter and clearer, but it gives you no index and cannot change slots."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">When you need the values but not their positions</span></label>
+                <label class="option" data-explain="A for-each loop has no index variable, so it cannot tell you the position."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">When you need to print the index</span></label>
+                <label class="option" data-explain="Changing slots requires the counted form with an index."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">When you want to replace values in the array</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check my answers</button></div>
+          </div>
+        </div>
+
+        <div class="mark-complete">
+          <div class="mc-text"><b>Lesson complete.</b><span>Next: arrays of arrays, which give you a grid.</span></div>
+          <button class="complete-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>Mark as complete</span></button>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="/assets/js/course.js"></script>
+  <script src="/assets/js/site.js"></script>
+  <script src="/assets/js/widgets.js"></script>
+</body>
+</html>

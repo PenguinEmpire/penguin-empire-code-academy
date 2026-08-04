@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Scope &amp; the Call Stack · Penguin Empire 2551</title>
+  <meta name="description" content="Where a variable exists and when it disappears. Blocks, local variables, why changing a parameter does not change the caller, and how to read a full stack trace." />
+  <link rel="icon" href="/assets/img/logo-2551.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Aldrich&family=Russo+One&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/brand.css" />
+  <link rel="stylesheet" href="/assets/css/layout.css" />
+  <link rel="stylesheet" href="/assets/css/lesson.css" />
+</head>
+<body data-page="lesson" data-lesson="j-scope">
+  <main id="main" class="content">
+    <div class="content-inner">
+
+      <header class="lesson-hero">
+        <nav class="crumbs" aria-label="Breadcrumb">
+          <a href="/">Home</a><span class="sep">/</span>
+          <a href="/syllabus.html">Phase 1 · Java &amp; OOP</a><span class="sep">/</span>
+          <span>Unit J3 · Methods</span>
+        </nav>
+        <span class="badge badge--ocean">Lesson 14</span>
+        <h1 class="lesson-title">Scope &amp; the Call Stack</h1>
+        <p class="lesson-lede">A variable does not exist everywhere. It exists inside the braces where it
+          was declared and nowhere else. Knowing the rule explains a whole class of errors.</p>
+        <div class="lesson-meta">
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg> 20 min</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h2v-4H3zM9 20h2V10H9zM15 20h2V4h-2z"/></svg> Beginner</span>
+        </div>
+      </header>
+
+      <div class="goal">
+        <div class="goal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div>
+        <div>
+          <h2>Your goal</h2>
+          <p>Say where a variable exists, explain why a method cannot change the caller's number, and read
+            a stack trace with several frames.</p>
+        </div>
+      </div>
+
+      <nav class="toc" aria-label="On this page">
+        <strong>On this page</strong>
+        <ol>
+          <li><a href="#blocks">Scope is the braces</a></li>
+          <li><a href="#loop">Loop variables</a></li>
+          <li><a href="#local">Each method has its own</a></li>
+          <li><a href="#copies">Values are copied in</a></li>
+          <li><a href="#stack">The call stack</a></li>
+          <li><a href="#trace">Reading a full trace</a></li>
+          <li><a href="#run">Run it yourself</a></li>
+          <li><a href="#challenges">Practice challenges</a></li>
+          <li><a href="#mistakes">Common mistakes</a></li>
+          <li><a href="#exercise">Exercise</a></li>
+          <li><a href="#checkpoint">Checkpoint</a></li>
+        </ol>
+      </nav>
+
+      <div class="prose">
+
+        <h2 id="blocks"><span class="section-h"><span class="num">1</span> Scope is the braces</span></h2>
+        <p>A variable exists from the line that declares it to the closing brace of the block it is in.
+          After that it is gone, and using its name gives <code>cannot find symbol</code>.</p>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">does not compile</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">if (true) {
+    int inside = 1;
+}
+System.out.println(inside);</code></pre>
+        </div>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">error</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">Main.java:4: error: cannot find symbol</code></pre>
+        </div>
+
+        <p>You met that message in lesson 6 as the typo error. This is its other cause. The name is spelled
+          correctly and the variable really was declared, but not in a place this line can see.</p>
+
+        <h2 id="loop"><span class="section-h"><span class="num">2</span> Loop variables</span></h2>
+        <p>A variable declared in a <code>for</code> header belongs to the loop and disappears when the
+          loop ends.</p>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">does not compile</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">for (int i = 0; i &lt; 3; i++) {
+}
+System.out.println(i);</code></pre>
+        </div>
+
+        <p>This is why a running total is declared before the loop. Anything declared inside vanishes at
+          the closing brace.</p>
+
+        <h2 id="local"><span class="section-h"><span class="num">3</span> Each method has its own</span></h2>
+        <p>Variables declared inside a method are called <strong>local</strong> variables. Another method
+          cannot see them, and two methods can use the same name with no connection at all.</p>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">static double average(double a, double b) {
+    double sum = a + b;      // sum exists only in here
+    return sum / 2;
+}</code></pre>
+        </div>
+
+        <p>Parameters follow the same rule. <code>a</code> and <code>b</code> exist only inside
+          <code>average</code>.</p>
+
+        <h2 id="copies"><span class="section-h"><span class="num">4</span> Values are copied in</span></h2>
+        <p>When you pass a number to a method, the method receives a copy. Changing the parameter inside
+          the method does not touch the caller's variable.</p>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">static void addOne(int speed) {
+    speed = speed + 1;
+    System.out.println("inside addOne, speed = " + speed);
+}
+
+public static void main(String[] args) {
+    int speed = 5;
+    addOne(speed);
+    System.out.println("back in main, speed = " + speed);
+}</code></pre>
+        </div>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">inside addOne, speed = 6
+back in main, speed = 5</code></pre>
+        </div>
+
+        <p>Two variables named <code>speed</code> exist here and they are unrelated. This is the same rule
+          as <code>int b = a;</code> in lesson 3, which copied a value rather than linking two boxes.</p>
+
+        <div class="callout callout--note">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16v-4M12 8h.01"/><circle cx="12" cy="12" r="9"/></svg></div>
+          <div class="c-title">To change a value, return it</div>
+          <div class="c-body"><p>A method cannot reach back and edit a number you passed in. Return the new
+            value and store it, as in <code>speed = addOne(speed);</code>. Objects behave differently, and
+            Unit J5 covers that.</p></div>
+        </div>
+
+        <h2 id="stack"><span class="section-h"><span class="num">5</span> The call stack</span></h2>
+        <p>Java keeps a list of which method called which. When <code>main</code> calls
+          <code>runDiagnostics</code>, which calls <code>checkBus</code>, the list has three entries. Each
+          entry holds that method's own local variables.</p>
+        <p>When a method finishes, its entry is removed and its local variables are gone. That is the
+          mechanism behind everything in the sections above.</p>
+
+        <h2 id="trace"><span class="section-h"><span class="num">6</span> Reading a full trace</span></h2>
+        <p>Lesson 6 promised an explanation of the <code>at</code> lines. This is it. Each
+          <code>at</code> line is one entry in the call stack.</p>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">console</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">Exception in thread "main" java.lang.ArithmeticException: / by zero
+        at Main.checkBus(Main.java:13)
+        at Main.runDiagnostics(Main.java:15)
+        at Main.main(Main.java:23)</code></pre>
+        </div>
+
+        <p>Read it from the bottom up as the story of how you got there. <code>main</code> on line 23
+          called <code>runDiagnostics</code>. That method on line 15 called <code>checkBus</code>. The
+          crash happened inside <code>checkBus</code> on line 13.</p>
+        <p>The top line is where it broke. The lines below tell you how execution arrived there, which
+          matters when a method is called from several places.</p>
+
+        <h2 id="run"><span class="section-h"><span class="num">7</span> Run it yourself</span></h2>
+        <p>Run it, then uncomment the last line to produce a three frame stack trace.</p>
+
+        <div class="sandbox" data-compiler data-title="Live Java Sandbox" data-lang="java">
+          <script type="text/x-java" class="sb-src">
+public class Main {
+
+    static void addOne(int speed) {
+        speed = speed + 1;
+        System.out.println("inside addOne, speed = " + speed);
+    }
+
+    static void checkBus() {
+        int totalDevices = 8;
+        int missing = 0;
+        System.out.println("devices per missing: " + (totalDevices / missing));
+    }
+
+    static void runDiagnostics() {
+        checkBus();
+    }
+
+    public static void main(String[] args) {
+        int speed = 5;
+        addOne(speed);
+        System.out.println("back in main, speed = " + speed);
+
+        // Try it: remove the // below and read the three at lines.
+        // runDiagnostics();
+    }
+}
+          </script>
+        </div>
+
+        <h2 id="challenges"><span class="section-h"><span class="num">8</span> Practice challenges</span></h2>
+
+        <div class="challenge" data-kind="text"
+             data-win="Correct. addOne changed its own copy, so main still holds 5."
+             data-lose="It prints 5. The method received a copy of the value, and changing the copy left the original alone.">
+          <div class="challenge-head"><span class="ch-kind">Predict the output</span><span class="ch-title">The copy</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">What does the last line print?</p>
+            <pre class="fib">static void addOne(int speed) {
+    speed = speed + 1;
+}
+
+int speed = 5;
+addOne(speed);
+System.out.println(speed);</pre>
+            <div class="answer-row">
+              <input class="answer-input" type="text" placeholder="Type the number…" data-answer="5" aria-label="Your answer" />
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check answer</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="text"
+             data-win="Correct. The crash is on line 13, which is the top at line."
+             data-lose="It is 13. The top at line is where the program actually broke. The lines below show how it got there.">
+          <div class="challenge-head"><span class="ch-kind">Predict the output</span><span class="ch-title">Where did it break?</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">On which line did the program actually crash? Type a number.</p>
+            <pre class="fib">Exception in thread "main" java.lang.ArithmeticException: / by zero
+        at Main.checkBus(Main.java:13)
+        at Main.runDiagnostics(Main.java:15)
+        at Main.main(Main.java:23)</pre>
+            <div class="answer-row">
+              <input class="answer-input" type="text" placeholder="Type a line number…" data-answer="13" aria-label="Your answer" />
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check answer</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">Where the total goes</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Why must a running total be declared before a loop rather than
+              inside it?</p>
+            <div class="options">
+              <label class="option" data-correct data-explain="Correct. A variable declared inside the loop is created fresh each pass and disappears at the closing brace."><input type="radio" name="q-tot" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A variable declared inside the loop does not survive between passes</span></label>
+              <label class="option" data-explain="Speed is not the issue. The variable simply does not exist long enough."><input type="radio" name="q-tot" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Loops run faster that way</span></label>
+              <label class="option" data-explain="Java allows declarations inside a loop body. They just do not last."><input type="radio" name="q-tot" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Java forbids declaring variables inside a loop</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">Reading the frames</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">In a stack trace, what does the <strong>bottom</strong>
+              <code>at</code> line usually tell you?</p>
+            <div class="options">
+              <label class="option" data-explain="The top line is where the crash happened. The bottom is where execution started."><input type="radio" name="q-bot" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Where the crash happened</span></label>
+              <label class="option" data-correct data-explain="Correct. The bottom frame is the outermost call, normally main, and the list reads upward toward the crash."><input type="radio" name="q-bot" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Where the chain of calls started</span></label>
+              <label class="option" data-explain="Every at line names a real method and line. None of them is filler."><input type="radio" name="q-bot" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Nothing useful</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <h2 id="mistakes"><span class="section-h"><span class="num">9</span> Common mistakes</span></h2>
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">Watch out for these</div>
+          <div class="c-body">
+            <ul>
+              <li>Using a variable after the block that declared it has closed.</li>
+              <li>Expecting a method to change a number you passed in. Return the value instead.</li>
+              <li>Declaring a running total inside the loop.</li>
+              <li>Reading only the top line of a stack trace when the useful context is below it.</li>
+              <li>Assuming two variables with the same name in different methods are connected.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="exercise" id="exercise">
+          <div class="exercise-head">
+            <div class="ex-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4L12 17l-6.3 4.4L8 14 2 9.4h7.6z"/></svg></div>
+            <div>
+              <div class="ex-kicker">Exercise</div>
+              <h3>Make the Change Stick</h3>
+            </div>
+          </div>
+          <div class="exercise-body">
+            <p>A method is meant to raise a speed but the change never survives. Fix it.</p>
+            <ol class="task-list">
+              <li>Run the starter and confirm <code>speed</code> is still 0.5 afterwards.</li>
+              <li>Change <code>boost</code> so it returns the new value instead of assigning to the
+                parameter.</li>
+              <li>Store the result back into <code>speed</code> in <code>main</code>.</li>
+              <li>Bonus: add a second method that calls <code>boost</code>, then trigger a crash inside it
+                and read the three frame trace.</li>
+            </ol>
+            <div class="sandbox" data-compiler data-title="Project Sandbox" data-lang="java">
+              <script type="text/x-java" class="sb-src">
+public class Main {
+
+    static void boost(double speed) {
+        speed = speed + 0.2;
+    }
+
+    public static void main(String[] args) {
+        double speed = 0.5;
+        boost(speed);
+        System.out.println("speed = " + speed);
+
+        // TODO: make the change actually stick
+    }
+}
+              </script>
+            </div>
+            <details class="reveal">
+              <summary><svg class="rv-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg> Show one possible solution</summary>
+              <div class="reveal-body">
+                <div class="code">
+                  <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">solution · Main.java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">public class Main {
+
+    static double boost(double speed) {
+        return speed + 0.2;
+    }
+
+    public static void main(String[] args) {
+        double speed = 0.5;
+        speed = boost(speed);
+        System.out.println("speed = " + speed);
+    }
+}</code></pre>
+                </div>
+                <div class="code">
+                  <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">speed = 0.7</code></pre>
+                </div>
+                <p>The method no longer tries to reach into <code>main</code>. It computes an answer and
+                  hands it back, and the caller decides what to do with it.</p>
+              </div>
+            </details>
+          </div>
+        </div>
+
+        <div class="checkpoint" id="checkpoint">
+          <div class="checkpoint-head">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            <h3>Checkpoint</h3>
+            <span class="cp-score">0 / 4</span>
+          </div>
+          <div class="checkpoint-body">
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q1.</span> How long does a local variable exist?</div>
+              <div class="options">
+                <label class="option" data-correct data-explain="Correct. It is created at its declaration and gone at the closing brace of its block."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Until the closing brace of the block it was declared in</span></label>
+                <label class="option" data-explain="Only variables outside every method can last that long, which Unit J5 covers."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">For the whole program</span></label>
+                <label class="option" data-explain="It lasts for the rest of its block, not just one line."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">For one line only</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q2.</span> A method changes its <code>int</code> parameter. What does the caller see?</div>
+              <div class="options">
+                <label class="option" data-explain="The method worked on a copy, so the caller's variable was never touched."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The new value</span></label>
+                <label class="option" data-correct data-explain="Correct. Numbers are copied in, so the caller keeps its original value."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The original value, unchanged</span></label>
+                <label class="option" data-explain="Assigning to a parameter is legal. It simply has no effect outside the method."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A compiler error</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q3.</span> What is each <code>at</code> line in a stack trace?</div>
+              <div class="options">
+                <label class="option" data-correct data-explain="Correct. One frame per method call, with the file and line inside that method."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">One method call in the chain that led to the crash</span></label>
+                <label class="option" data-explain="A trace lists calls, not separate errors. There is one exception."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A separate error</span></label>
+                <label class="option" data-explain="Only the lines actually involved in the call chain appear."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Every line the program ran</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q4.</span> Two methods each declare a variable called <code>sum</code>. What is the relationship?</div>
+              <div class="options">
+                <label class="option" data-explain="Sharing a name creates no connection. Each method has its own storage."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">They share one value</span></label>
+                <label class="option" data-correct data-explain="Correct. They are separate variables that happen to have the same name."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">They are completely unrelated</span></label>
+                <label class="option" data-explain="Reusing a name across methods is normal and causes no error."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The second one causes an error</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check my answers</button></div>
+          </div>
+        </div>
+
+        <div class="mark-complete">
+          <div class="mc-text"><b>Lesson complete.</b><span>Next: giving two methods the same name on purpose.</span></div>
+          <button class="complete-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>Mark as complete</span></button>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="/assets/js/course.js"></script>
+  <script src="/assets/js/site.js"></script>
+  <script src="/assets/js/widgets.js"></script>
+</body>
+</html>

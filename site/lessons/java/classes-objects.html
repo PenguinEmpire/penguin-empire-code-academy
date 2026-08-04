@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Classes &amp; Objects · Penguin Empire 2551</title>
+  <meta name="description" content="A class is a blueprint for data and behavior. An object is a specific instance built from it with new. Fields, default values, and why two objects never share data." />
+  <link rel="icon" href="/assets/img/logo-2551.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Aldrich&family=Russo+One&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/brand.css" />
+  <link rel="stylesheet" href="/assets/css/layout.css" />
+  <link rel="stylesheet" href="/assets/css/lesson.css" />
+</head>
+<body data-page="lesson" data-lesson="j-classes-objects">
+  <main id="main" class="content">
+    <div class="content-inner">
+
+      <header class="lesson-hero">
+        <nav class="crumbs" aria-label="Breadcrumb">
+          <a href="/">Home</a><span class="sep">/</span>
+          <a href="/syllabus.html">Phase 1 · Java &amp; OOP</a><span class="sep">/</span>
+          <span>Unit J5 · Object-Oriented Programming</span>
+        </nav>
+        <span class="badge badge--ocean">Lesson 20</span>
+        <h1 class="lesson-title">Classes &amp; Objects</h1>
+        <p class="lesson-lede">A class groups related data and behavior under one name. An object is a
+          specific instance built from that class. Everything from here to the end of Phase 1 is built out
+          of these two ideas.</p>
+        <div class="lesson-meta">
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg> 25 min</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h2v-4H3zM9 20h2V10H9zM15 20h2V4h-2z"/></svg> Beginner</span>
+        </div>
+      </header>
+
+      <div class="goal">
+        <div class="goal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div>
+        <div>
+          <h2>Your goal</h2>
+          <p>Write a class with fields, create objects from it with <code>new</code>, and see that each
+            object keeps its own separate data.</p>
+        </div>
+      </div>
+
+      <nav class="toc" aria-label="On this page">
+        <strong>On this page</strong>
+        <ol>
+          <li><a href="#blueprint">A class is a blueprint</a></li>
+          <li><a href="#instance">An object is an instance</a></li>
+          <li><a href="#new">Creating an object with new</a></li>
+          <li><a href="#defaults">Fields start with default values</a></li>
+          <li><a href="#multiple">Multiple objects, independent data</a></li>
+          <li><a href="#run">Run it yourself</a></li>
+          <li><a href="#challenges">Practice challenges</a></li>
+          <li><a href="#mistakes">Common mistakes</a></li>
+          <li><a href="#exercise">Exercise</a></li>
+          <li><a href="#checkpoint">Checkpoint</a></li>
+        </ol>
+      </nav>
+
+      <div class="prose">
+
+        <h2 id="blueprint"><span class="section-h"><span class="num">1</span> A class is a blueprint</span></h2>
+        <p>A class groups related data under one name. The data lives in <strong>fields</strong>, declared
+          the same way you have always declared a variable, except a field is written inside the class body
+          and outside any method.</p>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">the shape</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">class Flywheel {
+    int canId;
+    String name;
+}</code></pre>
+        </div>
+
+        <p>This class by itself does nothing and prints nothing. It only describes what a
+          <code>Flywheel</code> is made of, an integer called <code>canId</code> and a piece of text called
+          <code>name</code>. No <code>Flywheel</code> exists yet.</p>
+
+        <h2 id="instance"><span class="section-h"><span class="num">2</span> An object is an instance</span></h2>
+        <p>An object is a specific value built from a class. It carries its own copy of every field the
+          class declares. The class is the description. The object is the actual thing described.</p>
+
+        <div class="vocab">
+          <div class="vocab-term"><dt>Class</dt><dd>The declaration. Written once, in a file.</dd></div>
+          <div class="vocab-term"><dt>Object</dt><dd>A value built from a class at run time. Also called an instance.</dd></div>
+          <div class="vocab-term"><dt>Field</dt><dd>A variable declared inside a class. Every object gets its own copy.</dd></div>
+        </div>
+
+        <p>One <code>Flywheel</code> class can produce as many <code>Flywheel</code> objects as the program
+          needs, one for each motor the robot actually has.</p>
+
+        <h2 id="new"><span class="section-h"><span class="num">3</span> Creating an object with new</span></h2>
+        <p>The keyword <code>new</code> builds an object from a class. It goes on the right of the equals
+          sign, followed by the class name and parentheses.</p>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">class Flywheel {
+    int canId;
+    String name;
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Flywheel shooter = new Flywheel();
+        shooter.canId = 5;
+        shooter.name = "Shooter Flywheel";
+
+        System.out.println(shooter.name + " on CAN " + shooter.canId);
+    }
+}</code></pre>
+        </div>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">Shooter Flywheel on CAN 5</code></pre>
+        </div>
+
+        <p>Line 8 declares a variable named <code>shooter</code> whose type is <code>Flywheel</code> and
+          builds a new object for it to hold. Lines 9 and 10 reach into that object with a dot and set each
+          field. A dot after a variable always means "look inside the object this variable holds."</p>
+
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">The class name is not a value</div>
+          <div class="c-body"><p><code>Flywheel</code> on its own names the blueprint. It cannot be printed,
+            assigned, or asked for its <code>canId</code>. Only an object made with <code>new Flywheel()</code>
+            has fields to read.</p></div>
+        </div>
+
+        <h2 id="defaults"><span class="section-h"><span class="num">4</span> Fields start with default values</span></h2>
+        <p>A local variable inside a method must be assigned before you can read it. A field is different.
+          The moment <code>new</code> builds the object, every field already holds a default value, even one
+          you never touched.</p>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">Flywheel shooter = new Flywheel();
+
+System.out.println(shooter.canId);
+System.out.println(shooter.name);</code></pre>
+        </div>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">0
+null</code></pre>
+        </div>
+
+        <p>An <code>int</code> field defaults to <code>0</code>. A <code>String</code> field, like every
+          field whose type is not one of the five basic types, defaults to <code>null</code>, meaning it
+          points at no object at all. You met <code>null</code> in the arrays lesson as the default for a
+          <code>String</code> slot. A field follows the same rule.</p>
+
+        <h2 id="multiple"><span class="section-h"><span class="num">5</span> Multiple objects, independent data</span></h2>
+        <p>Each call to <code>new</code> builds a separate object with its own fields. Changing one object
+          never touches another, even when both come from the same class.</p>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">Flywheel left = new Flywheel();
+left.canId = 3;
+left.name = "Left Flywheel";
+
+Flywheel right = new Flywheel();
+right.canId = 4;
+right.name = "Right Flywheel";
+
+System.out.println(left.name + " uses CAN " + left.canId);
+System.out.println(right.name + " uses CAN " + right.canId);</code></pre>
+        </div>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">Left Flywheel uses CAN 3
+Right Flywheel uses CAN 4</code></pre>
+        </div>
+
+        <p><code>left</code> and <code>right</code> are two separate objects. Setting <code>left.canId</code>
+          has no effect on <code>right.canId</code>. A real robot with two flywheel motors needs exactly this,
+          one object per motor, each tracking its own CAN ID and name.</p>
+
+        <div class="callout callout--note">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16v-4M12 8h.01"/><circle cx="12" cy="12" r="9"/></svg></div>
+          <div class="c-title">Object and instance mean the same thing</div>
+          <div class="c-body"><p>"Create an object" and "create an instance" describe the same action. Both
+            terms show up constantly in Java documentation and in this course from here on.</p></div>
+        </div>
+
+        <h2 id="run"><span class="section-h"><span class="num">6</span> Run it yourself</span></h2>
+        <p>Press <b style="color:#0a5d70">Run ▶</b>, then add a third <code>Flywheel</code> object and print
+          it.</p>
+
+        <div class="sandbox" data-compiler data-title="Live Java Sandbox" data-lang="java">
+          <script type="text/x-java" class="sb-src">
+class Flywheel {
+    int canId;
+    String name;
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Flywheel left = new Flywheel();
+        left.canId = 3;
+        left.name = "Left Flywheel";
+
+        Flywheel right = new Flywheel();
+        right.canId = 4;
+        right.name = "Right Flywheel";
+
+        System.out.println(left.name + " uses CAN " + left.canId);
+        System.out.println(right.name + " uses CAN " + right.canId);
+
+        // Try it: create a third Flywheel called climber on CAN 6 and print it.
+        // Then create a fourth Flywheel and print its canId and name
+        // before you assign either one, to see the default values.
+    }
+}
+          </script>
+        </div>
+
+        <h2 id="challenges"><span class="section-h"><span class="num">7</span> Practice challenges</span></h2>
+
+        <div class="challenge" data-kind="text"
+             data-win="Correct. Assigning a.canId = b.canId copies the value 2 into a. Both objects end up holding 2."
+             data-lose="Both lines print 2. a.canId = b.canId copies the number 2 into a, it does not link the two objects together.">
+          <div class="challenge-head"><span class="ch-kind">Predict the output</span><span class="ch-title">Copying a field</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Both lines print the same number. What is it?</p>
+            <pre class="fib">Flywheel a = new Flywheel();
+a.canId = 1;
+
+Flywheel b = new Flywheel();
+b.canId = 2;
+
+a.canId = b.canId;
+System.out.println(a.canId);
+System.out.println(b.canId);</pre>
+            <div class="answer-row">
+              <input class="answer-input" type="text" placeholder="Type the number…" data-answer="2" aria-label="Your answer" />
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check answer</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="fib"
+             data-win="Correct. new builds the object, and a dot reaches into it to reach a field."
+             data-lose="new Flywheel() builds the object. A dot after the variable reaches into it to set canId.">
+          <div class="challenge-head"><span class="ch-kind">Fill in the blanks</span><span class="ch-title">Build an object and set a field</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Complete the line that creates a <code>Flywheel</code> and the line
+              that sets its <code>canId</code>.</p>
+<pre class="fib">Flywheel shooter = <span class="blank" data-answer="new"></span> Flywheel();
+shooter<span class="blank" data-answer="."></span>canId = 5;</pre>
+            <div class="challenge-actions">
+              <button class="btn btn--sm check-btn" type="button">Check</button>
+              <button class="btn btn--sm btn--ghost reset-btn" type="button">Reset</button>
+            </div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">Right after new</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt"><code>Flywheel shooter = new Flywheel();</code> just ran, and neither
+              field has been assigned yet. What do <code>shooter.canId</code> and <code>shooter.name</code>
+              hold?</p>
+            <div class="options">
+              <label class="option" data-correct data-explain="Correct. int fields default to 0, and String fields, like any object type, default to null."><input type="radio" name="q-defaults" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>0</code> and <code>null</code></span></label>
+              <label class="option" data-explain="Java always gives every field a default value the instant the object is built. Nothing is left unset."><input type="radio" name="q-defaults" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Whatever memory happened to contain before</span></label>
+              <label class="option" data-explain="This is legal Java. Reading a field before assigning it is not an error, unlike a local variable in a method."><input type="radio" name="q-defaults" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A compiler error, since neither was assigned</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <h2 id="mistakes"><span class="section-h"><span class="num">8</span> Common mistakes</span></h2>
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">Watch out for these</div>
+          <div class="c-body">
+            <ul>
+              <li>Forgetting <code>new</code>. <code>Flywheel shooter = Flywheel();</code> does not compile.</li>
+              <li>Trying to read a field from the class name itself, such as <code>Flywheel.canId</code>,
+                instead of from an object.</li>
+              <li>Assuming a freshly built object has no values at all. Every field already holds its default,
+                <code>0</code>, <code>false</code>, or <code>null</code>, depending on its type.</li>
+              <li>Mixing up "class" and "object". A class is written once. An object is built, possibly many
+                times, from that one class.</li>
+              <li>Expecting two objects built from the same class to share data. They never do.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="exercise" id="exercise">
+          <div class="exercise-head">
+            <div class="ex-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4L12 17l-6.3 4.4L8 14 2 9.4h7.6z"/></svg></div>
+            <div>
+              <div class="ex-kicker">Exercise</div>
+              <h3>Drivetrain Motors</h3>
+            </div>
+          </div>
+          <div class="exercise-body">
+            <p>Build two objects that represent the two motors on a simple drivetrain.</p>
+            <ol class="task-list">
+              <li>Write a class <code>Motor</code> with fields <code>canId</code> (<code>int</code>) and
+                <code>name</code> (<code>String</code>).</li>
+              <li>Create a <code>Motor</code> object named <code>leftDrive</code> on CAN 1 named
+                <code>"Left Drive"</code>.</li>
+              <li>Create a second <code>Motor</code> object named <code>rightDrive</code> on CAN 2 named
+                <code>"Right Drive"</code>.</li>
+              <li>Print a line for each in the form <code>name on CAN canId</code>.</li>
+              <li>Bonus: create a third <code>Motor</code>, set only its <code>canId</code>, and print it to
+                see the default value of the field you left alone.</li>
+            </ol>
+            <div class="sandbox" data-compiler data-title="Project Sandbox" data-lang="java">
+              <script type="text/x-java" class="sb-src">
+class Motor {
+    // TODO: canId and name fields
+}
+
+public class Main {
+    public static void main(String[] args) {
+        // TODO: create leftDrive and rightDrive, then print each
+
+    }
+}
+              </script>
+            </div>
+            <details class="reveal">
+              <summary><svg class="rv-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg> Show one possible solution</summary>
+              <div class="reveal-body">
+                <div class="code">
+                  <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">solution · Main.java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">class Motor {
+    int canId;
+    String name;
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Motor leftDrive = new Motor();
+        leftDrive.canId = 1;
+        leftDrive.name = "Left Drive";
+
+        Motor rightDrive = new Motor();
+        rightDrive.canId = 2;
+        rightDrive.name = "Right Drive";
+
+        System.out.println(leftDrive.name + " on CAN " + leftDrive.canId);
+        System.out.println(rightDrive.name + " on CAN " + rightDrive.canId);
+
+        Motor climber = new Motor();
+        climber.canId = 3;
+        System.out.println(climber.name + " on CAN " + climber.canId);
+    }
+}</code></pre>
+                </div>
+                <div class="code">
+                  <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">Left Drive on CAN 1
+Right Drive on CAN 2
+null on CAN 3</code></pre>
+                </div>
+                <p><code>climber.name</code> prints <code>null</code> because it was never assigned. The
+                  field existed the moment <code>new Motor()</code> ran. It just held its default value.</p>
+              </div>
+            </details>
+          </div>
+        </div>
+
+        <div class="checkpoint" id="checkpoint">
+          <div class="checkpoint-head">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            <h3>Checkpoint</h3>
+            <span class="cp-score">0 / 5</span>
+          </div>
+          <div class="checkpoint-body">
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q1.</span> What is a field?</div>
+              <div class="options">
+                <label class="option" data-explain="A method groups statements. A field is different, it is a variable declared inside a class."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A method that belongs to a class</span></label>
+                <label class="option" data-correct data-explain="Correct. Every object built from the class gets its own copy of that variable."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A variable declared inside a class</span></label>
+                <label class="option" data-explain="A class file can hold several classes, as this lesson's own examples do."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The file a class is written in</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q2.</span> How does an object relate to a class?</div>
+              <div class="options">
+                <label class="option" data-explain="A class does not run on its own and produces nothing by itself."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">They are the same thing, written differently</span></label>
+                <label class="option" data-correct data-explain="Correct. The class describes the fields. new builds an actual object with real values in them."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">An object is an instance built from the class with new</span></label>
+                <label class="option" data-explain="A single class can produce as many objects as the program needs."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A class can only ever produce one object</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q3.</span> What does the dot in <code>shooter.canId</code> do?</div>
+              <div class="options">
+                <label class="option" data-correct data-explain="Correct. It reaches into the object shooter holds and refers to its canId field."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It reaches into the object shooter holds</span></label>
+                <label class="option" data-explain="A dot never multiplies. Java has no operator that looks like this one for arithmetic."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It multiplies shooter by canId</span></label>
+                <label class="option" data-explain="Method calls need parentheses. Reaching a field needs none."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It calls a method named canId</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q4.</span> A fresh <code>Flywheel</code> object has never had its <code>canId</code> assigned. What does it hold?</div>
+              <div class="options">
+                <label class="option" data-explain="Nothing crashes here. Reading an unassigned field is legal, it just gives you the default."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A crash, since it was never assigned</span></label>
+                <label class="option" data-correct data-explain="Correct. int fields default to 0 the instant the object is built."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>0</code></span></label>
+                <label class="option" data-explain="null is the default for object types such as String, not for int."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>null</code></span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q5.</span> <code>left</code> and <code>right</code> are two separate <code>Flywheel</code> objects. Setting <code>left.canId = 9;</code> does what to <code>right.canId</code>?</div>
+              <div class="options">
+                <label class="option" data-correct data-explain="Correct. Every object built with new carries its own separate fields."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Nothing, right.canId is unaffected</span></label>
+                <label class="option" data-explain="Two objects from the same class never share fields, even though the class looks identical."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">right.canId also becomes 9</span></label>
+                <label class="option" data-explain="Assigning a field on one object is ordinary, legal Java with no such error."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A compiler error, fields cannot be reassigned</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check my answers</button></div>
+          </div>
+        </div>
+
+        <div class="mark-complete">
+          <div class="mc-text"><b>Lesson complete.</b><span>Next: constructors, so an object is never built with missing data.</span></div>
+          <button class="complete-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>Mark as complete</span></button>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="/assets/js/course.js"></script>
+  <script src="/assets/js/site.js"></script>
+  <script src="/assets/js/widgets.js"></script>
+</body>
+</html>

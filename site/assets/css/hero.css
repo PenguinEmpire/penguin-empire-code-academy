@@ -1,0 +1,448 @@
+/* ============================================================================
+   hero.css · above-the-fold hero — three layout variants on one shared base.
+   Pick a variant with a modifier on the section: .hero--split | .hero--center
+   | .hero--editorial. Everything below the modifier blocks is shared.
+   ============================================================================ */
+
+/* ========================== SHARED BACKDROP ============================== */
+.hero {
+  position: relative; overflow: hidden; isolation: isolate;
+  color: var(--text-invert);
+  background: linear-gradient(158deg, #0d161a 0%, #0a1216 42%, var(--ocean-900) 100%);
+}
+
+/* Directional key light entering from the upper left, plus a low bounce from
+   the lower right. This replaces the centered radial "glow orb" — an off-axis
+   wedge reads as light falling across a surface rather than as a gradient. */
+.hero::before {
+  content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    linear-gradient(112deg, rgba(0,174,214,.22) 0%, rgba(0,174,214,.06) 30%, transparent 58%),
+    radial-gradient(72% 55% at 88% 112%, rgba(0,174,214,.18), transparent 62%);
+}
+
+/* Faint CAD/blueprint grid. On-theme for a team that designs machines, and it
+   gives the dark field a sense of scale a flat gradient can't. Masked on both
+   axes so it never resolves into an obvious repeating tile. */
+.hero-grid {
+  position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(146,220,229,.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(146,220,229,.07) 1px, transparent 1px);
+  background-size: 72px 72px;
+  -webkit-mask-image: radial-gradient(118% 88% at 16% 0%, #000 0%, rgba(0,0,0,.4) 44%, transparent 74%);
+  mask-image: radial-gradient(118% 88% at 16% 0%, #000 0%, rgba(0,0,0,.4) 44%, transparent 74%);
+}
+
+/* Settles the bottom edge so the cut into the light section reads as a
+   deliberate horizon rather than an abrupt stop. */
+.hero::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 160px;
+  z-index: 1; pointer-events: none;
+  background: linear-gradient(180deg, transparent, rgba(5,10,13,.55));
+}
+
+/* ========================== SHARED CONTENT ============================== */
+
+/* --- brand marker (replaces the pill badge) --- */
+.hero-mark { display: flex; align-items: center; gap: .75em; }
+.hero-mark img {
+  width: 30px; height: 30px; flex: none;
+  filter: drop-shadow(0 2px 10px rgba(0,0,0,.55));
+}
+.hero-mark-txt {
+  font-family: var(--font-accent); font-size: .7rem; letter-spacing: .2em;
+  text-transform: uppercase; color: var(--ice-300); white-space: nowrap;
+}
+.hero-mark-rule {
+  height: 1px; width: clamp(28px, 6vw, 90px); flex: none;
+  background: linear-gradient(90deg, rgba(146,220,229,.5), transparent);
+}
+
+/* --- headline --- */
+.hero h1 { color: #fff; letter-spacing: -.028em; text-wrap: balance; }
+/* Solid ice, not a clipped gradient — the gradient-word treatment is the
+   single most recognisable template tell in this whole section. */
+.hero h1 .accent { color: var(--ice-400); }
+
+/* --- lede --- */
+.hero-lede { color: #b7cdd6; line-height: 1.62; }
+.hero-lede strong { color: #eaf6f9; font-weight: 700; }
+
+/* --- CTAs --- */
+.hero-cta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-3); }
+.hero-btn-ghost {
+  --btn-fg: #cdeef6;
+  border-color: rgba(146,220,229,.34); background: rgba(146,220,229,.05);
+  -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
+}
+.hero-btn-ghost:hover { background: rgba(146,220,229,.15); color: #fff; border-color: var(--ice-400); }
+
+/* --- credibility line (replaces the 4-stat vanity row) --- */
+.hero-cred {
+  list-style: none; padding: 0; margin: 0;
+  display: flex; flex-wrap: wrap; align-items: center; gap: .5em 1.15em;
+  font-size: .87rem; color: #8ba6b0;
+}
+.hero-cred li { display: flex; align-items: center; gap: 1.15em; }
+.hero-cred li + li::before {
+  content: ""; width: 3px; height: 3px; border-radius: 50%; flex: none;
+  background: rgba(146,220,229,.45);
+}
+.hero-cred b { color: #dceff4; font-family: var(--font-accent); font-weight: 400; letter-spacing: .01em; }
+
+/* --- returning-student resume strip (injected by site.js) --- */
+.hero-resume { width: min(420px, 100%); margin-top: var(--s-6); }
+.hero-resume .hr-line { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-4); margin-bottom: .55em; }
+.hero-resume .hr-label { font-family: var(--font-display); font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; color: var(--ice-300); }
+.hero-resume .hr-count { font-size: .82rem; color: #b9d4dc; }
+.hero-resume .hr-count b { font-family: var(--font-accent); color: #fff; font-size: .96rem; }
+.hero-resume .progress-track { background: rgba(146,220,229,.18); }
+
+/* --- photo card ---
+   Real team photography. `is-empty` is a graceful fallback: if the file ever
+   goes missing the slot still draws, so the composition never collapses. */
+.hero-photo {
+  position: relative; margin: 0; overflow: hidden;
+  border-radius: var(--r-md); border: 1px solid rgba(146,220,229,.2);
+  background: #0b1317; box-shadow: var(--shadow-xl);
+}
+.hero-photo img { width: 100%; height: 100%; object-fit: cover; }
+
+/* Per-photo framing. The sources are uncropped, so the subject is kept in
+   frame here rather than baked into the file — retargeting a card is a
+   one-value change and the originals stay reusable. */
+.hero-photo--field img { object-position: 62% 58%; }   /* robot right of centre, bumper low */
+.hero-photo--pit   img { object-position: 52% 50%; }   /* 4:3 into 4:3 — barely crops */
+.hero-photo--tall  img { object-position: 50% 60%; }   /* tall frame, robot sits low */
+.hero-photo figcaption {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  padding: 1.6em .85em .6em;
+  font-family: var(--font-display); font-size: .68rem; letter-spacing: .1em;
+  text-transform: uppercase; color: #d6eef4;
+  background: linear-gradient(180deg, transparent, rgba(4,10,13,.85));
+}
+.hero-photo.is-empty { border-style: dashed; border-color: rgba(146,220,229,.3); background: rgba(146,220,229,.04); }
+.hero-photo.is-empty img, .hero-photo.is-empty figcaption { display: none; }
+.hero-photo.is-empty::after {
+  content: attr(data-slot);
+  position: absolute; inset: 0; display: grid; place-items: center; padding: 1em;
+  text-align: center; font-family: var(--font-display); font-size: .68rem;
+  letter-spacing: .12em; text-transform: uppercase; color: rgba(174,230,237,.55);
+}
+
+/* ===================== VARIANT A · SPLIT ================================= */
+.hero--split .hero-inner {
+  position: relative; z-index: 2;
+  max-width: var(--wide-max); margin-inline: auto;
+  padding: clamp(48px, 6.5vw, 96px) var(--s-6) clamp(60px, 7vw, 100px);
+  display: grid; grid-template-columns: minmax(0, 1.04fr) minmax(0, 1fr);
+  gap: clamp(36px, 5vw, 84px); align-items: center;
+}
+.hero--split .hero-copy { display: flex; flex-direction: column; align-items: flex-start; text-align: left; }
+.hero--split h1 {
+  font-size: clamp(2.35rem, 1.45rem + 2.9vw, 3.65rem);
+  line-height: 1.06; max-width: 15ch; margin: var(--s-6) 0 0;
+}
+.hero--split .hero-lede { margin-top: var(--s-5); max-width: 45ch; font-size: 1.08rem; }
+.hero--split .hero-cta { margin-top: var(--s-7); }
+.hero--split .hero-cred {
+  margin-top: var(--s-8); padding-top: var(--s-5);
+  border-top: 1px solid rgba(146,220,229,.14); width: 100%;
+}
+
+/* The stage: code window with the mechanism it drives tucked in behind it.
+   Code on one side of a corner, hardware on the other, is the whole pitch of
+   this site in a single image. */
+.hero--split .hero-stage { position: relative; }
+.hero--split .hero-stage .win { position: relative; z-index: 2; }
+.hero--split .hero-photo {
+  position: absolute; z-index: 3; right: -24px; bottom: -56px;
+  width: clamp(160px, 18vw, 232px); aspect-ratio: 4 / 3;
+}
+
+/* ===================== VARIANT B · CENTERED ============================== */
+.hero--center .hero-inner {
+  position: relative; z-index: 2;
+  max-width: 1120px; margin-inline: auto;
+  padding: clamp(56px, 7.5vw, 116px) var(--s-6) clamp(64px, 8vw, 112px);
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+}
+.hero--center .hero-mark { justify-content: center; }
+.hero--center h1 {
+  font-size: clamp(2.5rem, 1.5rem + 3.5vw, 4.05rem);
+  line-height: 1.05; max-width: 17ch; margin: var(--s-7) 0 0;
+}
+.hero--center .hero-lede { margin-top: var(--s-5); max-width: 50ch; font-size: 1.14rem; }
+.hero--center .hero-cta { margin-top: var(--s-8); justify-content: center; }
+.hero--center .hero-cred { margin-top: var(--s-6); justify-content: center; }
+.hero--center .hero-stage {
+  position: relative; width: 100%; max-width: 980px;
+  margin-top: clamp(44px, 6vw, 82px);
+}
+/* The code fades out inside its own frame rather than the window being cut off
+   by the section edge — deliberate "there is more here", no colour-matching
+   against the background gradient required. */
+.hero--center .hero-stage .win-code {
+  max-height: 244px;
+  -webkit-mask-image: linear-gradient(180deg, #000 62%, transparent 100%);
+  mask-image: linear-gradient(180deg, #000 62%, transparent 100%);
+}
+/* Hangs off the output pane's dead space, not the code column — overlapping
+   live text reads as a rendering bug rather than as depth. */
+.hero--center .hero-photo {
+  position: absolute; z-index: 3; right: -26px; bottom: -50px;
+  width: clamp(150px, 15vw, 196px); aspect-ratio: 4 / 3;
+}
+
+/* ===================== VARIANT C · EDITORIAL ============================= */
+.hero--editorial .hero-inner {
+  position: relative; z-index: 2;
+  max-width: var(--wide-max); margin-inline: auto;
+  padding: clamp(56px, 7vw, 108px) var(--s-6) clamp(40px, 4.5vw, 60px);
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, .82fr);
+  grid-template-areas: "mark mark" "head side" "cta  side" "cred cred";
+  column-gap: clamp(36px, 5vw, 88px);
+  text-align: left;
+}
+.hero--editorial .hero-mark { grid-area: mark; }
+/* Both columns hang from a common top edge — the shared starting line is what
+   makes an asymmetric two-column block read as editorial rather than as a
+   layout that didn't fill. The type is sized to carry the column on its own. */
+.hero--editorial h1 {
+  grid-area: head; align-self: start;
+  font-size: clamp(2.7rem, 1.1rem + 5.7vw, 6.6rem);
+  line-height: .94; letter-spacing: -.042em;
+  margin: clamp(26px, 3vw, 44px) 0 0; max-width: none; text-wrap: initial;
+}
+.hero--editorial h1 .ln { display: block; }
+.hero--editorial .hero-side {
+  grid-area: side; align-self: start;
+  display: flex; flex-direction: column; gap: var(--s-6);
+  margin-top: clamp(26px, 3vw, 44px);
+}
+.hero--editorial .hero-side .hero-lede {
+  font-size: 1.06rem; max-width: 34ch;
+  padding-top: var(--s-5); border-top: 1px solid rgba(146,220,229,.22);
+}
+/* Square keeps the aside's height close to the headline block's, so both
+   columns can land on a shared baseline instead of one dangling. */
+.hero--editorial .hero-photo { width: 100%; aspect-ratio: 1 / 1; }
+.hero--editorial .hero-cta {
+  grid-area: cta; align-self: end;
+  margin-top: clamp(28px, 3.5vw, 48px);
+}
+.hero--editorial .hero-foot {
+  grid-area: cred; margin-top: clamp(40px, 5vw, 72px);
+  padding-top: var(--s-5); border-top: 1px solid rgba(146,220,229,.16);
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--s-5) var(--s-8); flex-wrap: wrap;
+}
+.hero--editorial .hero-snip {
+  font-family: var(--font-mono); font-size: .82rem; color: #5f7d88; white-space: nowrap;
+}
+.hero--editorial .hero-snip .tok-fn { color: #7f9aa4; }
+.hero--editorial .hero-snip em { font-style: normal; color: #46626c; }
+
+/* Oversized team number bleeding off the lower right — a real brand asset
+   used as composition, in place of a decorative blur. */
+.hero-numeral {
+  position: absolute; z-index: 0; pointer-events: none; user-select: none;
+  right: -.06em; bottom: -.28em;
+  font-family: var(--font-accent); font-size: clamp(9rem, 22vw, 21rem);
+  line-height: .8; letter-spacing: -.02em;
+  color: transparent; -webkit-text-stroke: 1.5px rgba(146,220,229,.12);
+}
+
+/* ======================= STATS BAND (under the hero) =====================
+   A light ice band butted straight against the dark hero — the tonal flip is
+   what makes the counts read as a separate fact strip rather than more hero.
+   Numerals in Russo One (the brand's team-number face), labels in Aldrich.
+   Default state is a static centered row; .is-marquee (added by site.js once
+   it has cloned the set) turns it into a seamless ticker. */
+.statband {
+  position: relative;
+  /* Held a step bluer than the page (--bg is ice-50) so the band stays a
+     distinct surface instead of dissolving into the section beneath it. */
+  background: var(--ice-100);
+  border-bottom: 1px solid var(--line);
+  padding: clamp(20px, 2.6vw, 30px) 0;
+}
+/* Hairline of ocean along the top edge, catching the hero's cut. */
+.statband::before {
+  content: ""; position: absolute; inset: 0 0 auto; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(0,174,214,.45) 22%, rgba(0,174,214,.45) 78%, transparent);
+}
+
+.statband-viewport { overflow: hidden; }
+.statband-track {
+  display: flex; align-items: center; justify-content: center; flex-wrap: wrap;
+  padding-inline: var(--s-6);
+}
+.statband-set {
+  list-style: none; margin: 0; padding: 0;
+  display: flex; align-items: center; justify-content: center; flex-wrap: wrap;
+}
+
+.stat {
+  position: relative; flex: none;
+  display: flex; flex-direction: column; align-items: center; gap: .55em;
+  padding-inline: clamp(24px, 4vw, 58px); text-align: center;
+}
+/* One dot per item, hung in the gutter *after* it — so the join between the
+   two cloned sets is indistinguishable from every other join. */
+.stat::after {
+  content: ""; position: absolute; right: -2.5px; top: 50%; translate: 0 -50%;
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--ocean-600); opacity: .32;
+}
+.statband:not(.is-marquee) .stat:last-child::after { display: none; }
+
+.stat-n {
+  font-family: var(--font-accent);
+  font-size: clamp(1.6rem, 1.05rem + 1.8vw, 2.6rem);
+  line-height: 1; letter-spacing: -.012em; color: var(--ocean-800);
+}
+.stat-l {
+  font-family: var(--font-display); font-size: .67rem;
+  letter-spacing: .17em; text-transform: uppercase;
+  color: var(--slate-600); white-space: nowrap;
+}
+
+/* --- ticker mode --- */
+.statband.is-marquee { --marq-dur: 42s; }
+.statband.is-marquee .statband-viewport {
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
+}
+.statband.is-marquee .statband-track {
+  flex-wrap: nowrap; justify-content: flex-start; width: max-content;
+  padding-inline: 0;
+  animation: statband-scroll var(--marq-dur) linear infinite;
+  will-change: transform;
+}
+.statband.is-marquee .statband-set { flex-wrap: nowrap; flex: none; }
+/* Pausing on hover/focus is the reachable stop control for the moving text;
+   the OS-level one is the reduced-motion block further down. */
+.statband.is-marquee:hover .statband-track,
+.statband.is-marquee:focus-within .statband-track { animation-play-state: paused; }
+
+/* Exactly one set wide — only true because both sets are identical clones. */
+@keyframes statband-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* brand.css zeroes animation *duration* globally, which would snap the track
+   to its end frame. Kill the animation outright and fall back to the static
+   row, dropping the clone so nothing is announced or drawn twice. */
+@media (prefers-reduced-motion: reduce) {
+  .statband .statband-track {
+    animation: none !important;
+    flex-wrap: wrap; width: auto; justify-content: center;
+    padding-inline: var(--s-6);
+  }
+  .statband .statband-set + .statband-set { display: none; }
+  .statband .statband-set { flex-wrap: wrap; row-gap: var(--s-6); }
+  .statband .statband-viewport { -webkit-mask-image: none; mask-image: none; }
+  /* No dots once the row can wrap: CSS can't tell where a row ends, and a
+     separator stranded at the end of a line reads as a typo. */
+  .statband .stat::after { display: none; }
+  /* Tighter gutters than the ticker uses — all six still land on one line on a
+     desktop, so the fallback isn't a five-and-an-orphan row. */
+  .statband .stat { padding-inline: clamp(13px, 1.5vw, 22px); }
+}
+
+@media (max-width: 700px) {
+  .statband { padding: var(--s-5) 0; }
+  .stat { padding-inline: 22px; gap: .45em; }
+  .stat-n { font-size: 1.45rem; }
+  .stat-l { font-size: .6rem; letter-spacing: .14em; }
+}
+
+/* ========================== ENTRANCE ==================================== */
+@media (prefers-reduced-motion: no-preference) {
+  .hero-anim > * { animation: hero-rise .72s var(--ease-out) both; }
+  .hero-anim > *:nth-child(1) { animation-delay: .04s; }
+  .hero-anim > *:nth-child(2) { animation-delay: .11s; }
+  .hero-anim > *:nth-child(3) { animation-delay: .18s; }
+  .hero-anim > *:nth-child(4) { animation-delay: .25s; }
+  .hero-anim > *:nth-child(5) { animation-delay: .32s; }
+  .hero-anim > *:nth-child(6) { animation-delay: .39s; }
+}
+@keyframes hero-rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ========================== RESPONSIVE ================================== */
+@media (max-width: 1040px) {
+  /* minmax(0, …), never a bare 1fr: `auto` as the min lets an unbreakable
+     child (the nowrap marker text) set a floor wider than the viewport, and
+     the whole grid overflows sideways. */
+  .hero--split .hero-inner { grid-template-columns: minmax(0, 1fr); gap: clamp(44px, 7vw, 72px); }
+  .hero--split h1 { max-width: 18ch; }
+  .hero--split .hero-lede { max-width: 56ch; }
+  .hero--split .hero-photo { right: -10px; bottom: -34px; }
+
+  .hero--editorial .hero-inner {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "mark" "head" "side" "cta" "cred";
+  }
+  .hero--editorial .hero-cta { align-self: start; }
+  .hero--editorial .hero-side { padding-bottom: 0; margin-top: var(--s-7); }
+  .hero--editorial .hero-side .hero-lede { max-width: 52ch; }
+  .hero--editorial .hero-photo { max-width: 380px; aspect-ratio: 16 / 10; }
+}
+
+/* Between these widths the centred stage fills the container exactly, so a
+   card hung outside its right edge lands in the gutter and gets clipped by the
+   section. Tuck it back inside the frame. */
+@media (max-width: 1180px) {
+  .hero--center .hero-photo { right: 10px; bottom: -40px; }
+}
+
+@media (max-width: 700px) {
+  .hero::after { height: 100px; }
+  .hero-mark-rule { display: none; }
+
+  /* The marker has to be allowed to break here — held on one line it is the
+     widest thing in the section and drags the layout past the viewport. */
+  .hero-mark { align-items: flex-start; }
+  .hero-mark-txt { white-space: normal; letter-spacing: .15em; line-height: 1.5; }
+
+  /* Hero code is scene-setting, not reading material: shrink it so the opening
+     line fits instead of being cut mid-word. */
+  .hero .win-code { font-size: .68rem; padding: .9em 1em; }
+  .hero .win-out pre, .hero .win-tab { font-size: .72rem; }
+
+  .hero--split .hero-inner,
+  .hero--center .hero-inner,
+  .hero--editorial .hero-inner { padding-inline: var(--s-5); }
+
+  /* Full-width, thumb-reachable CTAs — a 2-up row of pills at 390px is exactly
+     the kind of squeeze that made the old hero feel packed. */
+  .hero-cta { display: grid; grid-template-columns: 1fr; width: 100%; gap: var(--s-3); }
+  .hero-cta .btn { width: 100%; justify-content: center; }
+  .hero--center .hero-cta { max-width: 340px; }
+
+  /* Two counts on one line, the qualifier on its own — a wrapped item dragging
+     its leading separator dot to the start of a new line reads as a typo. */
+  .hero-cred { font-size: .82rem; gap: .45em .9em; }
+  .hero-cred li { gap: .9em; }
+  .hero-cred li:last-child { flex-basis: 100%; }
+  .hero-cred li:last-child::before { display: none; }
+
+  /* The overlapping photo card has nowhere to overlap on a narrow screen. */
+  .hero--split .hero-photo,
+  .hero--center .hero-photo {
+    position: static; width: 100%; aspect-ratio: 16 / 9; margin-top: var(--s-5);
+  }
+  .hero--split .hero-inner { padding-bottom: clamp(48px, 9vw, 72px); }
+
+  .hero--editorial h1 { line-height: 1; letter-spacing: -.03em; }
+  .hero--editorial .hero-foot { gap: var(--s-4); }
+  .hero--editorial .hero-snip { display: none; }
+  .hero-numeral { font-size: 11rem; bottom: -.3em; right: -.1em; }
+}

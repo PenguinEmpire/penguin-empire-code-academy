@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reading Errors &amp; Debugging · Penguin Empire 2551</title>
+  <meta name="description" content="Read a red wall of text and know exactly what to do. Compiler errors, stack traces, and the logic error that costs two days because it never shows you anything at all." />
+  <link rel="icon" href="/assets/img/logo-2551.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Aldrich&family=Russo+One&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/brand.css" />
+  <link rel="stylesheet" href="/assets/css/layout.css" />
+  <link rel="stylesheet" href="/assets/css/lesson.css" />
+</head>
+<body data-page="lesson" data-lesson="j-debugging">
+  <main id="main" class="content">
+    <div class="content-inner">
+
+      <!-- ===================== HEADER ===================== -->
+      <header class="lesson-hero">
+        <nav class="crumbs" aria-label="Breadcrumb">
+          <a href="/">Home</a><span class="sep">/</span>
+          <a href="/syllabus.html">Phase 1 · Java &amp; OOP</a><span class="sep">/</span>
+          <span>Unit J1 · Getting Started</span>
+        </nav>
+        <span class="badge badge--ocean">Lesson 6</span>
+        <h1 class="lesson-title">Reading Errors &amp; Debugging</h1>
+        <p class="lesson-lede">Debugging isn't staring harder at the screen. It's cutting the search space
+          in half, then in half again, until only one thing is left. This lesson gives you the three tools
+          for doing that.</p>
+        <div class="lesson-meta">
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg> 25 min</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h2v-4H3zM9 20h2V10H9zM15 20h2V4h-2z"/></svg> Beginner</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2zM18 3v16"/></svg> Phase 1 · Foundations</span>
+        </div>
+      </header>
+
+      <!-- ===================== GOAL ===================== -->
+      <div class="goal">
+        <div class="goal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div>
+        <div>
+          <h2>Your goal</h2>
+          <p>Look at a red wall of text, say what kind of problem it is, name the line it happened on —
+            and find a wrong answer that produced no error at all.</p>
+        </div>
+      </div>
+
+      <!-- ===================== TOC ===================== -->
+      <nav class="toc" aria-label="On this page">
+        <strong>On this page</strong>
+        <ol>
+          <li><a href="#why">Why this matters</a></li>
+          <li><a href="#kinds">Three kinds of wrong</a></li>
+          <li><a href="#anatomy">Anatomy of a compiler error</a></li>
+          <li><a href="#four">The four you'll actually see</a></li>
+          <li><a href="#first">Fix the first error first</a></li>
+          <li><a href="#runtime">Stack traces</a></li>
+          <li><a href="#logic">The error with no error message</a></li>
+          <li><a href="#print">Print debugging</a></li>
+          <li><a href="#checklist">The checklist</a></li>
+          <li><a href="#run">Run it yourself</a></li>
+          <li><a href="#challenges">Practice challenges</a></li>
+          <li><a href="#mistakes">Common misconceptions</a></li>
+          <li><a href="#exercise">Project: The broken startup report</a></li>
+          <li><a href="#checkpoint">Checkpoint</a></li>
+        </ol>
+      </nav>
+
+      <div class="prose">
+
+        <!-- ===================== WHY ===================== -->
+        <h2 id="why"><span class="section-h"><span class="num">1</span> Why this matters</span></h2>
+
+        <div class="callout callout--why" id="warstory">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></div>
+          <div class="c-title">Stop arguing. Isolate.</div>
+          <div class="c-body">
+            <p>When a mechanism doesn't move, three sub-teams each have an opinion. Software says it's
+              wiring. Electrical says it's code. Build says it's definitely not build. That argument can
+              burn an entire meeting.</p>
+            <p>The team's answer is a procedure, not an opinion: open the vendor's hardware client and
+              <strong>apply a test voltage directly to the motor</strong>, with no robot code involved
+              at all.</p>
+            <ul>
+              <li>Motor spins → wiring and hardware are fine. It's code.</li>
+              <li>Motor doesn't spin → it was never going to be code.</li>
+            </ul>
+            <p>One action, and half the possibilities are gone.</p>
+          </div>
+        </div>
+
+        <p>That is what debugging actually is. Not staring harder at the screen —
+          <strong>halving the search space until only one thing is left.</strong></p>
+        <p>The same team once spent two full days hunting a bug that turned out to be a single number set
+          too high. Two days is what it costs when you search by staring instead of by halving.</p>
+
+        <!-- ===================== KINDS ===================== -->
+        <h2 id="kinds"><span class="section-h"><span class="num">2</span> Three kinds of wrong</span></h2>
+        <p>They are not equally expensive. This table is the spine of the whole lesson.</p>
+
+        <div class="vocab">
+          <div class="vocab-term"><dt>Compiler error</dt><dd>Found <strong>before it ever runs</strong>. Tells you the file, the line, and usually the exact character. Costs <strong>minutes</strong>.</dd></div>
+          <div class="vocab-term"><dt>Runtime error (an exception)</dt><dd>Found <strong>while it's running</strong>, and it stops. Tells you the type, a message, and the line it died on. Costs <strong>minutes to hours</strong>.</dd></div>
+          <div class="vocab-term"><dt>Logic error</dt><dd>Found <strong>never</strong>, unless you notice. Tells you <strong>nothing at all</strong>. Costs <strong>the two days</strong>.</dd></div>
+        </div>
+
+        <p class="lead">A compiler error is the best news you can get.</p>
+        <p>It's the computer refusing to let you make a mistake, for free, before anything moves. The error
+          you should be afraid of is the one that produces no error.</p>
+
+        <div class="callout callout--tip">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12c.7.7 1 1.4 1 2h6c0-.6.3-1.3 1-2a7 7 0 0 0-4-12z"/></svg></div>
+          <div class="c-title">Red squiggle vs yellow squiggle</div>
+          <div class="c-body"><p><strong>Red</strong> = an error; the code will not build.
+            <strong>Yellow</strong> = a warning, usually something declared and never used — annoying, not
+            a blocker. Learn to tell them apart at a glance; you'll see both constantly in Phase 2.</p></div>
+        </div>
+
+        <!-- ===================== ANATOMY ===================== -->
+        <h2 id="anatomy"><span class="section-h"><span class="num">3</span> Anatomy of a compiler error</span></h2>
+        <p>Every compiler error has four parts. Learn them once and you can read all of them.</p>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">compiler output</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">Main.java:3: error: ';' expected
+        int canId = 2
+                     ^
+1 error</code></pre>
+        </div>
+
+        <div class="vocab">
+          <div class="vocab-term"><dt>Main.java</dt><dd>Which file.</dd></div>
+          <div class="vocab-term"><dt>:3</dt><dd>Which line. <strong>Start here.</strong></dd></div>
+          <div class="vocab-term"><dt>error:</dt><dd>This is fatal, not a warning.</dd></div>
+          <div class="vocab-term"><dt>';' expected</dt><dd>What the compiler wanted and didn't get.</dd></div>
+          <div class="vocab-term"><dt>^</dt><dd>The exact character it gave up at.</dd></div>
+        </div>
+
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">When the named line looks fine, check the line above</div>
+          <div class="c-body"><p>The caret points at where the compiler <em>noticed</em>, which is often
+            just past where you went wrong. A missing semicolon on line 3 is frequently reported at line 4,
+            because the compiler kept reading, hoping.</p></div>
+        </div>
+
+        <!-- ===================== FOUR ===================== -->
+        <h2 id="four"><span class="section-h"><span class="num">4</span> The four you'll actually see</span></h2>
+
+        <p><strong>(a) <code>';' expected</code> — the missing semicolon.</strong> Add the <code>;</code>.
+          Note the caret sits at the end of the previous line's content.</p>
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">error</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">Main.java:3: error: ';' expected
+        int canId = 2
+                     ^</code></pre>
+        </div>
+
+        <p><strong>(b) <code>cannot find symbol</code> — a name Java has never heard of.</strong> This is
+          the typo error, and Java tells you exactly which name it looked for.</p>
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">error</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">Main.java:4: error: cannot find symbol
+        System.out.println(canID);
+                           ^
+  symbol:   variable canID
+  location: class Main</code></pre>
+        </div>
+        <p><code>canId</code> was declared; <code>canID</code> was used. One capital letter. The same
+          message appears when you misspell a method, forget to declare a variable at all, or write
+          <code>string</code> instead of <code>String</code>.</p>
+
+        <p><strong>(c) <code>incompatible types</code> — the wrong shape of thing.</strong> The message
+          names <em>both</em> types and which direction the problem runs.</p>
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">error</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">Main.java:3: error: incompatible types: possible lossy conversion from double to int
+        int ticks = 4.0;
+                    ^</code></pre>
+        </div>
+        <p>“Lossy” means something would have to be thrown away, and Java refuses to do that behind your
+          back.</p>
+
+        <p><strong>(d) <code>reached end of file while parsing</code> — a missing <code>}</code>.</strong>
+          This one lies about location: it always points at the <em>last</em> line, because that's where
+          the compiler finally ran out of file still waiting for a closing brace. Count your braces.</p>
+
+        <!-- ===================== FIRST ===================== -->
+        <h2 id="first"><span class="section-h"><span class="num">5</span> Fix the first error first</span></h2>
+        <p>One missing semicolon can produce fifteen errors, because everything after it confused the
+          parser. Students delete code in a panic. Don't.</p>
+        <p class="lead">Fix the topmost error, recompile, and look again.</p>
+        <p>Very often fourteen of the fifteen were never real. You'll see this happen for yourself in this
+          lesson's project.</p>
+
+        <!-- ===================== RUNTIME ===================== -->
+        <h2 id="runtime"><span class="section-h"><span class="num">6</span> Stack traces</span></h2>
+        <p>An <strong>exception</strong> is the program hitting something impossible <em>while running</em>
+          and stopping, rather than continuing with nonsense. Java prints a <strong>stack trace</strong>:</p>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">console</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">Reading sensors...
+Exception in thread "main" java.lang.ArithmeticException: / by zero
+        at Main.main(Main.java:6)</code></pre>
+        </div>
+
+        <p>Read it in three moves:</p>
+        <ol class="task-list">
+          <li><b>What type?</b> <code>ArithmeticException</code> — a maths problem.</li>
+          <li><b>What message?</b> <code>/ by zero</code> — you divided by zero.</li>
+          <li><b>Where?</b> <code>Main.java:6</code> — file, then <strong>line 6</strong>.</li>
+        </ol>
+
+        <p>Notice the first line: <code>Reading sensors...</code> <strong>did</strong> print. Everything
+          before the crash ran normally, and the crash line tells you how far it got. That's information.</p>
+
+        <div class="callout callout--note">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16v-4M12 8h.01"/><circle cx="12" cy="12" r="9"/></svg></div>
+          <div class="c-title">Find your own file name in the trace</div>
+          <div class="c-body"><p>A real stack trace can be a dozen <code>at ...</code> lines deep, most of
+            them inside Java's own code. <strong>The line you care about is the one with your file name in
+            it</strong> — <code>Main.java</code>. Unit J3 explains why the list exists at all.</p></div>
+        </div>
+
+        <p>The three you'll hit first:</p>
+        <div class="vocab">
+          <div class="vocab-term"><dt>100 / 0 with two ints</dt><dd><code>ArithmeticException: / by zero</code></dd></div>
+          <div class="vocab-term"><dt>"Penguin".charAt(7)</dt><dd><code>StringIndexOutOfBoundsException: Index 7 out of bounds for length 7</code></dd></div>
+          <div class="vocab-term"><dt>.length() on a null String</dt><dd><code>NullPointerException</code> — the box is empty, so there's no thing there to ask. Unit J4 gives this its own lesson.</dd></div>
+        </div>
+        <p>The exception <strong>type</strong> is a category; the <strong>message</strong> is the specifics.
+          After ten of these you'll read <code>Index 7 out of bounds for length 7</code> and know the answer
+          before you've found the line.</p>
+
+        <!-- ===================== LOGIC ===================== -->
+        <h2 id="logic"><span class="section-h"><span class="num">7</span> The error with no error message</span></h2>
+        <p>Here's a program that compiles cleanly, runs cleanly, and lies to you:</p>
+
+        <div class="code with-lines">
+          <div class="code-head">
+            <div class="code-dots"><i></i><i></i><i></i></div>
+            <span class="code-file">Main.java</span>
+            <span class="code-lang">Java</span>
+            <span class="code-spacer"></span>
+          </div>
+<pre><code class="language-java">int encoderTicks = 90;
+int ticksPerRotation = 20;
+double rotations = encoderTicks / ticksPerRotation;   // both int - the .5 is discarded
+double degrees = rotations * 360;
+System.out.println("Arm is at " + degrees + " degrees");</code></pre>
+        </div>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">Arm is at 1440.0 degrees</code></pre>
+        </div>
+
+        <p>The right answer is <strong>1620.0</strong>. 90 ÷ 20 is 4.5 rotations, and 4.5 × 360 is 1620.
+          The program said 1440 because <code>90 / 20</code> is integer division — the silent zero from the
+          operators lesson, wearing a different hat.</p>
+        <p>Nothing on your screen is red. On a real robot, this arm stops 180° short and everyone blames
+          the encoder.</p>
+
+        <!-- ===================== PRINT ===================== -->
+        <h2 id="print"><span class="section-h"><span class="num">8</span> Print debugging</span></h2>
+        <p>You can't see inside a running program. So you make it talk. Put a <code>println</code> after
+          every step that produces a value, and <strong>label every one</strong>.</p>
+
+        <ol class="task-list">
+          <li><b>Label them.</b> A bare <code>4.0</code> in the console is worthless.
+            <code>DEBUG rotations = 4.0</code> is an answer.</li>
+          <li><b>Print the inputs too</b>, not just the output. Half the time the bug is that an input
+            isn't what you assumed.</li>
+          <li><b>Print early, print often, delete afterwards.</b> Debug prints are scaffolding.</li>
+        </ol>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">DEBUG encoderTicks    = 90        &lt;- correct
+DEBUG ticksPerRotation= 20        &lt;- correct
+DEBUG rotations       = 4.0       &lt;- WRONG, should be 4.5
+DEBUG degrees         = 1440.0</code></pre>
+        </div>
+
+        <p>Two correct inputs and a wrong output means the bug is <strong>on the line between them</strong>.
+          You didn't find it by being clever — you found it by halving the search, the same move as applying
+          a test voltage.</p>
+
+        <p>The fix is one line:</p>
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">double rotations = (double) encoderTicks / ticksPerRotation;   // now 4.5</code></pre>
+        </div>
+
+        <!-- ===================== CHECKLIST ===================== -->
+        <h2 id="checklist"><span class="section-h"><span class="num">9</span> The checklist</span></h2>
+        <p>Come back to this all season.</p>
+        <ol class="task-list">
+          <li><b>Read the message.</b> Out loud if necessary. Most of them say exactly what is wrong.</li>
+          <li><b>Go to the line it names.</b> If that line looks perfect, check the line above.</li>
+          <li><b>Fix one thing. Re-run.</b> Never change three things at once — then you can't tell which
+            one helped.</li>
+          <li><b>If there's no message, make one.</b> Add labelled prints and find the first value that
+            isn't what you expected.</li>
+          <li><b>Halve the search.</b> Known-good above, known-bad below: the bug is between them.</li>
+          <li><b>Say it to a person.</b> Describing the bug out loud finds an astonishing number of bugs
+            before the other person has spoken.</li>
+        </ol>
+
+        <div class="callout callout--note">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16v-4M12 8h.01"/><circle cx="12" cy="12" r="9"/></svg></div>
+          <div class="c-title">“One change, one run” is a Phase 2 rule too</div>
+          <div class="c-body"><p>When you tune a PID controller in Unit 6, the formal rule is
+            <strong>change one variable at a time</strong> — for exactly this reason. Change two and the
+            result tells you nothing.</p></div>
+        </div>
+
+        <div class="callout callout--tip">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12c.7.7 1 1.4 1 2h6c0-.6.3-1.3 1-2a7 7 0 0 0-4-12z"/></svg></div>
+          <div class="c-title">Errors are not judgement</div>
+          <div class="c-body"><p>Everybody on this team gets errors every single meeting. The difference
+            between a new programmer and an experienced one isn't how many errors they cause — it's how many
+            <em>seconds</em> it takes them to read one.</p></div>
+        </div>
+
+        <!-- ===================== RUN ===================== -->
+        <h2 id="run"><span class="section-h"><span class="num">10</span> Run it yourself</span></h2>
+        <p>Run it once — it works. Now break it, <strong>one change at a time</strong>, and read the message
+          before you undo it.</p>
+
+        <div class="sandbox" data-compiler data-title="Live Java Sandbox" data-lang="java">
+          <script type="text/x-java" class="sb-src">
+public class Main {
+    public static void main(String[] args) {
+        int canId = 2;
+        String name = "Intake";
+        System.out.println(name + " is on CAN " + canId);
+
+        // Run it once -- it works. Now break it, ONE change at a time,
+        // and read the message BEFORE you undo it:
+        //  1. delete the ; at the end of line 3
+        //  2. change canId on line 5 to canID
+        //  3. change int on line 3 to String
+        //  4. delete the very last }
+    }
+}
+          </script>
+        </div>
+
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">Undo before the next one</div>
+          <div class="c-body"><p>Two breaks at once and you can't tell which message came from which —
+            which is the same mistake as changing two PID gains at once.</p></div>
+        </div>
+
+        <details class="reveal">
+          <summary><svg class="rv-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg> Check your four messages against these</summary>
+          <div class="reveal-body">
+            <div class="code">
+              <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">the four messages</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">1.  Main.java:3: error: ';' expected
+
+2.  Main.java:5: error: cannot find symbol
+      symbol:   variable canID
+
+3.  Main.java:3: error: incompatible types: int cannot be converted to String
+
+4.  Main.java:N: error: reached end of file while parsing</code></pre>
+            </div>
+            <p>Number 4 points at the last line of the file, not at the brace you deleted — that's the liar
+              from section 4.</p>
+          </div>
+        </details>
+
+        <!-- ===================== CHALLENGES ===================== -->
+        <h2 id="challenges"><span class="section-h"><span class="num">11</span> Practice challenges</span></h2>
+
+        <div class="challenge" data-kind="fib"
+             data-win="That's the whole skill. File, line, and the exact symbol it went looking for."
+             data-lose="The number after the file name is the line — 6. And 'symbol: variable speeed' names exactly what it couldn't find. Three e's.">
+          <div class="challenge-head"><span class="ch-kind">Fill in the blanks</span><span class="ch-title">Read the message</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Here is a real compiler error:</p>
+            <div class="code">
+              <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">error</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">Main.java:6: error: cannot find symbol
+        System.out.println(speeed);
+                           ^
+  symbol:   variable speeed</code></pre>
+            </div>
+<pre class="fib">The problem is on line <span class="blank" data-answer="6"></span>, and the name
+Java could not find is <span class="blank" data-answer="speeed"></span>.</pre>
+            <div class="challenge-actions">
+              <button class="btn btn--sm check-btn" type="button">Check</button>
+              <button class="btn btn--sm btn--ghost reset-btn" type="button">Reset</button>
+            </div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">The expensive one</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Which of these is the <strong>most expensive</strong> kind of bug?</p>
+            <div class="options">
+              <label class="option" data-explain="The cheapest kind. It's caught before anything runs, and it names the line."><input type="radio" name="q-cost" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A compiler error</span></label>
+              <label class="option" data-explain="Costly, but it hands you a type, a message and a line number. You have a starting point."><input type="radio" name="q-cost" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A runtime exception</span></label>
+              <label class="option" data-correct data-explain="Right. No message, no line, no clue. This is the one that costs two days, because you have to notice it before you can even start looking."><input type="radio" name="q-cost" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A logic error — it compiles, runs, and gives the wrong answer</span></label>
+              <label class="option" data-explain="Usually just an unused variable. Worth tidying, almost never the reason a mechanism doesn't move."><input type="radio" name="q-cost" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A yellow warning squiggle</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="text"
+             data-win="Yes — line 6 is where the division actually happens. Lines 4 and 5 are innocent; they just set up the values."
+             data-lose="It's line 6. Setting b = 0 on line 5 is perfectly legal — nothing goes wrong until something divides by it on line 6.">
+          <div class="challenge-head"><span class="ch-kind">Predict the output</span><span class="ch-title">Which line dies?</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">This program crashes. Which line number appears in the stack trace?</p>
+            <pre class="fib">1  public class Main {
+2      public static void main(String[] args) {
+3          System.out.println("start");
+4          int a = 10;
+5          int b = 0;
+6          System.out.println(a / b);
+7      }
+8  }</pre>
+            <div class="answer-row">
+              <input class="answer-input" type="text" placeholder="Type the line number…" data-answer="6" aria-label="Your answer" />
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check answer</button></div>
+            <div class="feedback"></div>
+            <details class="reveal">
+              <summary><svg class="rv-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg> Show explanation</summary>
+              <div class="reveal-body"><p>The trace reads
+                <code>java.lang.ArithmeticException: / by zero</code> then
+                <code>at Main.main(Main.java:6)</code>. Also note that <code>start</code> <em>does</em>
+                print first — everything up to the crash ran normally.</p></div>
+            </details>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">The line looks fine</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">The compiler reports <code>';' expected</code> on line 12. Line 12
+              looks completely fine. What now?</p>
+            <div class="options">
+              <label class="option" data-explain="You'd be retyping a line that isn't wrong, and you'd still have the error."><input type="radio" name="q-above" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Delete line 12 and retype it</span></label>
+              <label class="option" data-correct data-explain="Correct. The compiler reads until it's confused, so a missing semicolon at the end of line 11 is usually reported at line 12. When the named line is fine, look up."><input type="radio" name="q-above" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Check line 11</span></label>
+              <label class="option" data-explain="The message is deterministic — you'll get exactly the same one."><input type="radio" name="q-above" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Restart the compiler</span></label>
+              <label class="option" data-explain="Now you have two problems. Guessing at fixes is how a one-line bug becomes a three-line bug."><input type="radio" name="q-above" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Add a semicolon to line 12 to be safe</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">Wrong number, no error</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Your program produces the wrong number and no error. What's the
+              <strong>first</strong> thing to do?</p>
+            <div class="options">
+              <label class="option" data-explain="You'd very likely rewrite the same misunderstanding, and now you have no working reference to compare against."><input type="radio" name="q-nomsg" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Rewrite it from scratch</span></label>
+              <label class="option" data-correct data-explain="Yes. That's print debugging, and it turns an invisible problem into a visible one. The first surprising value tells you which line to look at."><input type="radio" name="q-nomsg" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Add labelled <code>println</code> lines after each value and find the first one that's wrong</span></label>
+              <label class="option" data-explain="Then you can't tell which change helped, and you may have added a second bug. One change, one run."><input type="radio" name="q-nomsg" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Change several things and see if it fixes itself</span></label>
+              <label class="option" data-explain="It didn't. It did exactly what the code said — that's the whole premise of lesson 1."><input type="radio" name="q-nomsg" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Assume the computer made a mistake</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="fib"
+             data-win="All three. Type, line, and the fact that a length of 7 means valid positions 0 through 6."
+             data-lose="The type is StringIndexOutOfBoundsException, the line is 4 (from Main.java:4), and since length is 7 the last valid index is 7 - 1 = 6.">
+          <div class="challenge-head"><span class="ch-kind">Fill in the blanks</span><span class="ch-title">Read the trace in three moves</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Complete the three-part reading of this stack trace.</p>
+            <div class="code">
+              <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">console</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">Exception in thread "main" java.lang.StringIndexOutOfBoundsException:
+        Index 7 out of bounds for length 7
+        at Main.main(Main.java:4)</code></pre>
+            </div>
+<pre class="fib">Type: <span class="blank" data-answer="StringIndexOutOfBounds"></span>Exception
+Line: <span class="blank" data-answer="4"></span>
+Largest valid index: <span class="blank" data-answer="6"></span></pre>
+            <div class="challenge-actions">
+              <button class="btn btn--sm check-btn" type="button">Check</button>
+              <button class="btn btn--sm btn--ghost reset-btn" type="button">Reset</button>
+            </div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <!-- ===================== MISCONCEPTIONS ===================== -->
+        <h2 id="mistakes"><span class="section-h"><span class="num">12</span> Common misconceptions</span></h2>
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">Get these out of the way</div>
+          <div class="c-body">
+            <ul>
+              <li><strong>“An error means I'm bad at this.”</strong> It means the compiler is doing its
+                job. The only variable is how fast you read them.</li>
+              <li><strong>“Fifteen errors means fifteen problems.”</strong> Usually one problem and
+                fourteen consequences. Fix the top one and recompile before you believe the rest.</li>
+              <li><strong>“The line number is always where the mistake is.”</strong> It's where the
+                compiler <em>noticed</em>. For missing semicolons and braces, the mistake is usually
+                earlier.</li>
+              <li><strong>“If it runs, it's right.”</strong> <code>1440.0</code> ran perfectly. Running and
+                being correct are unrelated properties.</li>
+              <li><strong>“I should read the whole stack trace.”</strong> Read the first line and the first
+                <code>at</code> line containing <em>your</em> file. The rest is Java's plumbing.</li>
+              <li><strong>“Print debugging is what you do when you don't know the real tools.”</strong>
+                It's a real tool — and on a robot forty feet away with no debugger attached, frequently the
+                only one.</li>
+              <li><strong>“I'll just change a few things and see.”</strong> Change one thing, run, look.
+                Otherwise you learn nothing from the result.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- ===================== EXERCISE ===================== -->
+        <div class="exercise" id="exercise">
+          <div class="exercise-head">
+            <div class="ex-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4L12 17l-6.3 4.4L8 14 2 9.4h7.6z"/></svg></div>
+            <div>
+              <div class="ex-kicker">Mini-project</div>
+              <h3>The Broken Startup Report</h3>
+            </div>
+          </div>
+          <div class="exercise-body">
+            <p>Someone left a status report in the repo that doesn't build — and once it builds, it lies.
+              Get it working, then get it <em>correct</em>.</p>
+            <ol class="task-list">
+              <li><b>Make it compile.</b> There are three compiler errors. Fix the <strong>first</strong>
+                one, re-run, and only then look at what's left. Note each message you see.</li>
+              <li><b>Make it correct.</b> Once it runs, one printed number is wrong. Find it with labelled
+                <code>DEBUG</code> prints — don't fix anything until you can point at the line.</li>
+              <li><b>Fix that one line.</b></li>
+              <li><b>Bonus:</b> remove your DEBUG prints and leave the report clean.</li>
+            </ol>
+            <div class="sandbox" data-compiler data-title="Project Sandbox" data-lang="java">
+              <script type="text/x-java" class="sb-src">
+public class Main {
+    public static void main(String[] args) {
+        String subsystem = "Arm"
+        int encoderTicks = 90;
+        int ticksPerRotation = 20;
+
+        double rotations = encoderTicks / ticksPerRotation;
+        double degrees = rotation * 360;
+
+        int ticks = 4.0;
+
+        System.out.println(subsystem + " startup report");
+        System.out.println("  rotations: " + rotations);
+        System.out.println("  degrees:   " + degrees);
+        System.out.println("  ticks:     " + ticks);
+    }
+}
+              </script>
+            </div>
+            <details class="reveal">
+              <summary><svg class="rv-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg> The error sequence, run by run</summary>
+              <div class="reveal-body">
+                <p><strong>Run 1</strong> — one error only:</p>
+                <div class="code">
+                  <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">run 1</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">Main.java:3: error: ';' expected
+        String subsystem = "Arm"
+                                ^
+1 error</code></pre>
+                </div>
+                <p><strong>Run 2</strong>, after adding the semicolon — now <em>two</em> errors appear that
+                  were hidden behind the first one:</p>
+                <div class="code">
+                  <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">run 2</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">Main.java:8: error: cannot find symbol
+        double degrees = rotation * 360;
+                         ^
+  symbol:   variable rotation
+  location: class Main
+Main.java:10: error: incompatible types: possible lossy conversion from double to int
+        int ticks = 4.0;
+                    ^
+2 errors</code></pre>
+                </div>
+                <p><strong>Run 3</strong>, after fixing <code>rotation</code> to <code>rotations</code>:</p>
+                <div class="code">
+                  <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">run 3</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">Main.java:10: error: incompatible types: possible lossy conversion from double to int
+        int ticks = 4.0;
+                    ^
+1 error</code></pre>
+                </div>
+                <p><strong>Run 4</strong>, after <code>int ticks = 4;</code> — it compiles, and prints
+                  <code>rotations: 4.0</code>. That's the lie. 90 ÷ 20 is 4.5.</p>
+                <p class="lead">The compiler could not even <em>see</em> errors 2 and 3 until error 1 was
+                  fixed. That's why you fix the top one and re-run.</p>
+                <div class="code">
+                  <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">solution · Main.java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">public class Main {
+    public static void main(String[] args) {
+        String subsystem = "Arm";
+        int encoderTicks = 90;
+        int ticksPerRotation = 20;
+
+        double rotations = (double) encoderTicks / ticksPerRotation;
+        double degrees = rotations * 360;
+
+        int ticks = 4;
+
+        System.out.println(subsystem + " startup report");
+        System.out.println("  rotations: " + rotations);
+        System.out.println("  degrees:   " + degrees);
+        System.out.println("  ticks:     " + ticks);
+    }
+}</code></pre>
+                </div>
+                <div class="code">
+                  <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">Arm startup report
+  rotations: 4.5
+  degrees:   1620.0
+  ticks:     4</code></pre>
+                </div>
+                <p>Three errors cost you about ninety seconds, because each one named its own line. The
+                  fourth problem — the one with no error message — is the one you had to go looking for.
+                  Now you know which kind to be afraid of.</p>
+              </div>
+            </details>
+          </div>
+        </div>
+
+        <!-- ===================== CHECKPOINT ===================== -->
+        <div class="checkpoint" id="checkpoint">
+          <div class="checkpoint-head">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            <h3>Checkpoint</h3>
+            <span class="cp-score">0 / 5</span>
+          </div>
+          <div class="checkpoint-body">
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q1.</span> <code>cannot find symbol</code> usually means…</div>
+              <div class="options">
+                <label class="option" data-explain="The compiler found the file fine — it's reading line 12 of it. It's a name inside the file it can't resolve."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The file is missing</span></label>
+                <label class="option" data-correct data-explain="Exactly, and the message even prints 'symbol: variable ...' telling you which name."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">You used a name Java has never seen declared — often a typo or a capitalisation slip</span></label>
+                <label class="option" data-explain="Length is never the problem. Java compiles files thousands of lines long without complaint."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Your program is too long</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q2.</span> What's the difference between a compiler error and a runtime exception?</div>
+              <div class="options">
+                <label class="option" data-correct data-explain="Right. One stops it from ever starting; the other stops it partway through, which is why you also get output up to the crash."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Compiler errors happen before the program runs; exceptions happen while it's running</span></label>
+                <label class="option" data-explain="Different timing and different information. A compiler error has no stack trace; an exception has no caret."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">They're the same thing with different names</span></label>
+                <label class="option" data-explain="Not necessarily — and the least serious-looking bug, the one with no message at all, is usually the most expensive."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Exceptions are more serious</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q3.</span> A trace ends with <code>at Main.main(Main.java:6)</code>. Which line does it point at?</div>
+              <div class="options">
+                <label class="option" data-explain="Line 1 is where the class is declared; nothing can go wrong there at runtime."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Line 1</span></label>
+                <label class="option" data-correct data-explain="Correct — the number after the colon is the line."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Line 6</span></label>
+                <label class="option" data-explain="The trace always names a file and a line. That's what it's for."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">There's no way to tell</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q4.</span> Your debug prints show a correct input on one line and a wrong value on the next. Where's the bug?</div>
+              <div class="options">
+                <label class="option" data-explain="Everything earlier already printed correctly, so it isn't earlier. That's exactly what the prints ruled out."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Somewhere earlier in the program</span></label>
+                <label class="option" data-correct data-explain="Yes. Known-good above, known-bad below: the bug is between them. That's the halving move."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">On the line that produced the wrong value</span></label>
+                <label class="option" data-explain="Later lines are consuming an already-wrong value. Fixing them would just hide the problem."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Later, once it finishes</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q5.</span> You get fifteen compiler errors after adding one line. What do you do?</div>
+              <div class="options">
+                <label class="option" data-correct data-explain="Right — one missing brace or semicolon confuses everything after it. Very often fourteen of the fifteen vanish."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Fix the first error and recompile</span></label>
+                <label class="option" data-explain="The later ones are usually consequences of the first. You'd be fixing imaginary problems."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Fix them from the bottom up</span></label>
+                <label class="option" data-explain="You'd lose working code to avoid reading one message. Read the top one first."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Undo everything and start the file again</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check my answers</button></div>
+          </div>
+        </div>
+
+        <!-- ===================== COMPLETE ===================== -->
+        <div class="mark-complete">
+          <div class="mc-text"><b>That's Unit J1 complete.</b><span>You can write, run, and now <em>fix</em> a Java program. Next unit: making decisions and repeating work — <code>if</code>, loops, and the comparison symbol the strings lesson warned you about.</span></div>
+          <button class="complete-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>Mark as complete</span></button>
+        </div>
+
+      </div><!-- /prose -->
+    </div><!-- /content-inner -->
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="/assets/js/course.js"></script>
+  <script src="/assets/js/site.js"></script>
+  <script src="/assets/js/widgets.js"></script>
+</body>
+</html>

@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Encapsulation (public / private) · Penguin Empire 2551</title>
+  <meta name="description" content="private hides a field so nothing outside the class can set it directly. public methods become the only way in, and a setter can reject a bad value before it is ever stored." />
+  <link rel="icon" href="/assets/img/logo-2551.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Aldrich&family=Russo+One&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/brand.css" />
+  <link rel="stylesheet" href="/assets/css/layout.css" />
+  <link rel="stylesheet" href="/assets/css/lesson.css" />
+</head>
+<body data-page="lesson" data-lesson="j-encapsulation">
+  <main id="main" class="content">
+    <div class="content-inner">
+
+      <header class="lesson-hero">
+        <nav class="crumbs" aria-label="Breadcrumb">
+          <a href="/">Home</a><span class="sep">/</span>
+          <a href="/syllabus.html">Phase 1 · Java &amp; OOP</a><span class="sep">/</span>
+          <span>Unit J5 · Object-Oriented Programming</span>
+        </nav>
+        <span class="badge badge--ocean">Lesson 24</span>
+        <h1 class="lesson-title">Encapsulation (public / private)</h1>
+        <p class="lesson-lede"><code>private</code> hides a field so nothing outside the class can set it
+          directly. <code>public</code> methods become the only way in, and a method can check a value before
+          it is ever stored.</p>
+        <div class="lesson-meta">
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg> 20 min</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h2v-4H3zM9 20h2V10H9zM15 20h2V4h-2z"/></svg> Beginner</span>
+        </div>
+      </header>
+
+      <div class="goal">
+        <div class="goal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div>
+        <div>
+          <h2>Your goal</h2>
+          <p>Mark fields <code>private</code>, expose <code>public</code> methods to read and change them, and
+            write a setter that rejects a bad value.</p>
+        </div>
+      </div>
+
+      <nav class="toc" aria-label="On this page">
+        <strong>On this page</strong>
+        <ol>
+          <li><a href="#why">Why hide fields</a></li>
+          <li><a href="#private">private keeps a field inside the class</a></li>
+          <li><a href="#public">public methods are the only way in</a></li>
+          <li><a href="#getters">Getters return a value</a></li>
+          <li><a href="#setters">A setter can check before assigning</a></li>
+          <li><a href="#run">Run it yourself</a></li>
+          <li><a href="#challenges">Practice challenges</a></li>
+          <li><a href="#mistakes">Common mistakes</a></li>
+          <li><a href="#exercise">Exercise</a></li>
+          <li><a href="#checkpoint">Checkpoint</a></li>
+        </ol>
+      </nav>
+
+      <div class="prose">
+
+        <h2 id="why"><span class="section-h"><span class="num">1</span> Why hide fields</span></h2>
+        <p>Every field in the last four lessons could be set directly from outside the class, to any value
+          at all, with no check. Nothing stops a caller from setting a target speed the flywheel could never
+          safely reach.</p>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">Flywheel shooter = new Flywheel();
+shooter.canId = 5;
+shooter.name = "Shooter Flywheel";
+shooter.targetRPM = 5000;
+
+shooter.targetRPM = -500;
+System.out.println(shooter.targetRPM);</code></pre>
+        </div>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">-500.0</code></pre>
+        </div>
+
+        <p>The program compiles and runs without complaint. A negative target speed makes no physical sense,
+          and Java has no way to know that unless the class itself refuses to store it.</p>
+
+        <h2 id="private"><span class="section-h"><span class="num">2</span> private keeps a field inside the class</span></h2>
+        <p>Adding <code>private</code> to a field means only code written inside that same class can read or
+          assign it. Every other class, including <code>Main</code>, loses direct access completely.</p>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">class Flywheel {
+    private int canId;
+    private String name;
+    private double targetRPM;
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Flywheel shooter = new Flywheel();
+        shooter.targetRPM = -500;
+        System.out.println(shooter.targetRPM);
+    }
+}</code></pre>
+        </div>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">error: targetRPM has private access in Flywheel</code></pre>
+        </div>
+
+        <p>The line that used to compile now fails before the program ever runs. <code>Main</code> is
+          outside <code>Flywheel</code>, so <code>shooter.targetRPM</code> is no longer reachable from
+          there.</p>
+
+        <h2 id="public"><span class="section-h"><span class="num">3</span> public methods are the only way in</span></h2>
+        <p>A private field still needs some way to be set and read. The constructor and the methods a class
+          exposes as <code>public</code> become the only door in. Everything you wrote in lessons 21 and 22,
+          the constructor, <code>spinUp()</code>, <code>stop()</code>, <code>isAtSpeed()</code>, keeps
+          working, since code inside <code>Flywheel</code> can always reach its own private fields.</p>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">class Flywheel {
+    private static final double MAX_RPM = 6000;
+
+    private int canId;
+    private String name;
+    private double targetRPM;
+    private double currentRPM;
+
+    public Flywheel(int canId, String name, double targetRPM) {
+        this.canId = canId;
+        this.name = name;
+        this.targetRPM = Math.min(targetRPM, MAX_RPM);
+        this.currentRPM = 0;
+    }
+
+    public void spinUp() {
+        currentRPM = targetRPM;
+    }
+
+    public void stop() {
+        currentRPM = 0;
+    }
+
+    public boolean isAtSpeed() {
+        return Math.abs(currentRPM - targetRPM) &lt;= 50;
+    }
+}</code></pre>
+        </div>
+
+        <p>The constructor is <code>public</code> so any other class can still build a
+          <code>Flywheel</code>. The fields underneath it are <code>private</code>, so no other class can
+          reach past the constructor and the methods to touch them directly.</p>
+
+        <div class="callout callout--note">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16v-4M12 8h.01"/><circle cx="12" cy="12" r="9"/></svg></div>
+          <div class="c-title">This pattern has a name</div>
+          <div class="c-body"><p>Hiding a class's fields behind its own methods is called
+            <strong>encapsulation</strong>. The class decides exactly what the outside world is allowed to do
+            to its data.</p></div>
+        </div>
+
+        <h2 id="getters"><span class="section-h"><span class="num">4</span> Getters return a value</span></h2>
+        <p>A private field with no way to read it is close to useless outside the class. A
+          <strong>getter</strong> is a small public method whose only job is returning one field's value.</p>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">public double getCurrentRPM() {
+    return currentRPM;
+}
+
+public double getTargetRPM() {
+    return targetRPM;
+}</code></pre>
+        </div>
+
+        <p>The naming pattern is always <code>get</code> followed by the field name with a capital letter.
+          <code>shooter.getTargetRPM()</code> reads the field from outside the class without ever exposing it
+          to direct assignment.</p>
+
+        <h2 id="setters"><span class="section-h"><span class="num">5</span> A setter can check before assigning</span></h2>
+        <p>A <strong>setter</strong> is a public method that assigns a private field, and unlike a plain
+          field it can check the value first.</p>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">public void setTargetRPM(double targetRPM) {
+    this.targetRPM = Math.min(targetRPM, MAX_RPM);
+}</code></pre>
+        </div>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">Flywheel shooter = new Flywheel(5, "Shooter Flywheel", 5000);
+
+System.out.println(shooter.getTargetRPM());
+shooter.setTargetRPM(9000);
+System.out.println(shooter.getTargetRPM());</code></pre>
+        </div>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">5000.0
+6000.0</code></pre>
+        </div>
+
+        <p><code>setTargetRPM(9000)</code> never lets <code>targetRPM</code> exceed <code>MAX_RPM</code>. A
+          plain public field could never do that. It only ever stores exactly what it is given.</p>
+
+        <h2 id="run"><span class="section-h"><span class="num">6</span> Run it yourself</span></h2>
+        <p>Call <code>setTargetRPM</code> with a negative number and see what the getter reports.</p>
+
+        <div class="sandbox" data-compiler data-title="Live Java Sandbox" data-lang="java">
+          <script type="text/x-java" class="sb-src">
+class Flywheel {
+    private static final double MAX_RPM = 6000;
+
+    private int canId;
+    private String name;
+    private double targetRPM;
+    private double currentRPM;
+
+    public Flywheel(int canId, String name, double targetRPM) {
+        this.canId = canId;
+        this.name = name;
+        this.targetRPM = Math.min(targetRPM, MAX_RPM);
+        this.currentRPM = 0;
+    }
+
+    public void spinUp() {
+        currentRPM = targetRPM;
+    }
+
+    public void stop() {
+        currentRPM = 0;
+    }
+
+    public boolean isAtSpeed() {
+        return Math.abs(currentRPM - targetRPM) <= 50;
+    }
+
+    public double getCurrentRPM() {
+        return currentRPM;
+    }
+
+    public double getTargetRPM() {
+        return targetRPM;
+    }
+
+    public void setTargetRPM(double targetRPM) {
+        this.targetRPM = Math.min(targetRPM, MAX_RPM);
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Flywheel shooter = new Flywheel(5, "Shooter Flywheel", 5000);
+
+        System.out.println(shooter.getTargetRPM());
+        shooter.setTargetRPM(9000);
+        System.out.println(shooter.getTargetRPM());
+
+        shooter.spinUp();
+        System.out.println(shooter.getCurrentRPM());
+        System.out.println(shooter.isAtSpeed());
+
+        // Try it: call setTargetRPM with a negative number.
+        // MAX_RPM only ever clamps the top end, so watch what happens.
+    }
+}
+          </script>
+        </div>
+
+        <h2 id="challenges"><span class="section-h"><span class="num">7</span> Practice challenges</span></h2>
+
+        <div class="challenge" data-kind="text"
+             data-win="Correct. setTargetRPM clamps 9000 down to the shared MAX_RPM of 6000 before storing it."
+             data-lose="It is 6000.0. setTargetRPM never lets the stored value exceed MAX_RPM, no matter what is passed in.">
+          <div class="challenge-head"><span class="ch-kind">Predict the output</span><span class="ch-title">A clamped setter</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">What does the second line print?</p>
+            <pre class="fib">Flywheel shooter = new Flywheel(5, "Shooter Flywheel", 5000);
+shooter.setTargetRPM(9000);
+System.out.println(shooter.getTargetRPM());</pre>
+            <div class="answer-row">
+              <input class="answer-input" type="text" placeholder="Type the output…" data-answer="6000.0|6000" aria-label="Your answer" />
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check answer</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="fib"
+             data-win="Correct. private hides the field, and public exposes the getter to every other class."
+             data-lose="The field needs private, and the getter needs public so other classes can still call it.">
+          <div class="challenge-head"><span class="ch-kind">Fill in the blanks</span><span class="ch-title">Hide a field, expose a getter</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Complete the access modifiers.</p>
+<pre class="fib"><span class="blank" data-answer="private"></span> double targetRPM;
+
+<span class="blank" data-answer="public"></span> double getTargetRPM() {
+    return targetRPM;
+}</pre>
+            <div class="challenge-actions">
+              <button class="btn btn--sm check-btn" type="button">Check</button>
+              <button class="btn btn--sm btn--ghost reset-btn" type="button">Reset</button>
+            </div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">Why bother with a setter</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">What can <code>setTargetRPM(double targetRPM)</code> do that a plain
+              public field never could?</p>
+            <div class="options">
+              <label class="option" data-correct data-explain="Correct. A setter runs code before the assignment, so it can clamp or reject a value. A field just stores whatever it is given."><input type="radio" name="q-setter" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Check or clamp the value before storing it</span></label>
+              <label class="option" data-explain="Access modifiers have nothing to do with execution speed."><input type="radio" name="q-setter" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Store the value faster</span></label>
+              <label class="option" data-explain="A public field can be reassigned as many times as you like."><input type="radio" name="q-setter" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Allow the value to change more than once</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <h2 id="mistakes"><span class="section-h"><span class="num">8</span> Common mistakes</span></h2>
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">Watch out for these</div>
+          <div class="c-body">
+            <ul>
+              <li>Marking a field <code>private</code> and never adding a getter or setter, leaving nothing
+                outside the class able to reach it at all.</li>
+              <li>Writing a setter that assigns the field with no check, which brings back the exact problem
+                encapsulation was meant to fix.</li>
+              <li>Trying to read or set a private field from another class, which gives
+                <code>field has private access in ClassName</code>.</li>
+              <li>Marking the constructor <code>private</code> by mistake, which stops every other class from
+                ever building the object with <code>new</code>.</li>
+              <li>Naming a getter something other than <code>get</code> plus the field name, which breaks
+                the convention every other Java class expects.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="exercise" id="exercise">
+          <div class="exercise-head">
+            <div class="ex-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4L12 17l-6.3 4.4L8 14 2 9.4h7.6z"/></svg></div>
+            <div>
+              <div class="ex-kicker">Exercise</div>
+              <h3>Locking Down Motor</h3>
+            </div>
+          </div>
+          <div class="exercise-body">
+            <p>Encapsulate the <code>Motor</code> class from earlier lessons.</p>
+            <ol class="task-list">
+              <li>Make <code>canId</code> and <code>name</code> <code>private</code>.</li>
+              <li>Make the constructor <code>public</code>, assigning both fields as before.</li>
+              <li>Add public getters <code>getCanId()</code> and <code>getName()</code>.</li>
+              <li>Add <code>public void setCanId(int newCanId)</code> that only assigns when
+                <code>newCanId</code> is <code>0</code> or greater, and otherwise leaves <code>canId</code>
+                unchanged.</li>
+              <li>Bonus: create a <code>Motor</code>, print it through the getters, call
+                <code>setCanId</code> with a negative number, and print it again to confirm nothing
+                changed.</li>
+            </ol>
+            <div class="sandbox" data-compiler data-title="Project Sandbox" data-lang="java">
+              <script type="text/x-java" class="sb-src">
+class Motor {
+    // TODO: private fields, public constructor, getCanId, getName, setCanId
+
+}
+
+public class Main {
+    public static void main(String[] args) {
+        // TODO: create a Motor, print it, setCanId, print it again
+
+    }
+}
+              </script>
+            </div>
+            <details class="reveal">
+              <summary><svg class="rv-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg> Show one possible solution</summary>
+              <div class="reveal-body">
+                <div class="code">
+                  <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">solution · Main.java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">class Motor {
+    private int canId;
+    private String name;
+
+    public Motor(int canId, String name) {
+        this.canId = canId;
+        this.name = name;
+    }
+
+    public int getCanId() {
+        return canId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setCanId(int newCanId) {
+        if (newCanId &gt;= 0) {
+            canId = newCanId;
+        }
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Motor leftDrive = new Motor(1, "Left Drive");
+
+        System.out.println(leftDrive.getName() + " on CAN " + leftDrive.getCanId());
+
+        leftDrive.setCanId(3);
+        System.out.println(leftDrive.getName() + " on CAN " + leftDrive.getCanId());
+
+        leftDrive.setCanId(-7);
+        System.out.println(leftDrive.getName() + " on CAN " + leftDrive.getCanId());
+    }
+}</code></pre>
+                </div>
+                <div class="code">
+                  <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">Left Drive on CAN 1
+Left Drive on CAN 3
+Left Drive on CAN 3</code></pre>
+                </div>
+                <p><code>setCanId(-7)</code> changes nothing, because the check inside the method rejects it
+                  before <code>canId</code> is ever touched. A plain public field has no way to refuse a
+                  value like that.</p>
+              </div>
+            </details>
+          </div>
+        </div>
+
+        <div class="checkpoint" id="checkpoint">
+          <div class="checkpoint-head">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            <h3>Checkpoint</h3>
+            <span class="cp-score">0 / 5</span>
+          </div>
+          <div class="checkpoint-body">
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q1.</span> What does marking a field <code>private</code> do?</div>
+              <div class="options">
+                <label class="option" data-explain="A private field can change as often as any other field. private only controls who is allowed to reach it."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Stops it from ever changing</span></label>
+                <label class="option" data-correct data-explain="Correct. Only code written inside the same class can reach a private field directly."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Stops other classes from reaching it directly</span></label>
+                <label class="option" data-explain="private has nothing to do with default values. Those still follow the ordinary field rules."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Gives it a different default value</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q2.</span> A class has a private field and a public getter. Which class can call the getter?</div>
+              <div class="options">
+                <label class="option" data-correct data-explain="Correct. public means any other class is free to call it."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Any class, including Main</span></label>
+                <label class="option" data-explain="private on the field only hides the field itself. The getter is what makes the value reachable again, from anywhere."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Only the class that declares the field</span></label>
+                <label class="option" data-explain="A getter is an ordinary method, callable as many times as the program needs."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">No class, since the field behind it is private</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q3.</span> What is the main advantage of a setter over a public field?</div>
+              <div class="options">
+                <label class="option" data-correct data-explain="Correct. A setter runs code first, so it can clamp or refuse a bad value before it is ever stored."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It can check the value before storing it</span></label>
+                <label class="option" data-explain="A setter is an ordinary method call, with the same cost as any other method."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It runs faster than a field assignment</span></label>
+                <label class="option" data-explain="A getter is what returns the value. A setter's job is assigning it."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It can return the value as well as store it</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q4.</span> <code>Main</code> tries <code>shooter.targetRPM = -500;</code> where <code>targetRPM</code> is private. What happens?</div>
+              <div class="options">
+                <label class="option" data-correct data-explain="Correct. The field is only reachable from inside Flywheel, so this is a compiler error, not a runtime one."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It fails to compile</span></label>
+                <label class="option" data-explain="private is checked before the program ever runs, not while it runs."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It compiles and crashes when it runs</span></label>
+                <label class="option" data-explain="private specifically blocks this assignment from outside the class. It has no silent fallback."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It compiles and silently does nothing</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q5.</span> Why is the constructor left <code>public</code> while the fields become <code>private</code>?</div>
+              <div class="options">
+                <label class="option" data-correct data-explain="Correct. Other classes still need to build the object with new. Only the fields underneath are meant to be hidden."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Other classes still need to create the object with new</span></label>
+                <label class="option" data-explain="A private constructor would stop every other class from ever building the object at all."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Constructors are always public in Java, with no exceptions</span></label>
+                <label class="option" data-explain="A constructor with parameters can be private too, in classes designed that way. This class simply chooses not to."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A constructor cannot be marked private</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check my answers</button></div>
+          </div>
+        </div>
+
+        <div class="mark-complete">
+          <div class="mc-text"><b>Lesson complete.</b><span>Next: inheritance, building new classes from existing ones.</span></div>
+          <button class="complete-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>Mark as complete</span></button>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="/assets/js/course.js"></script>
+  <script src="/assets/js/site.js"></script>
+  <script src="/assets/js/widgets.js"></script>
+</body>
+</html>

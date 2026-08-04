@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fields, Constructors &amp; this · Penguin Empire 2551</title>
+  <meta name="description" content="A constructor runs automatically when new builds an object, so every field gets set in one place. The keyword this, and why parameter names that match field names need it." />
+  <link rel="icon" href="/assets/img/logo-2551.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Aldrich&family=Russo+One&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/brand.css" />
+  <link rel="stylesheet" href="/assets/css/layout.css" />
+  <link rel="stylesheet" href="/assets/css/lesson.css" />
+</head>
+<body data-page="lesson" data-lesson="j-fields-constructors">
+  <main id="main" class="content">
+    <div class="content-inner">
+
+      <header class="lesson-hero">
+        <nav class="crumbs" aria-label="Breadcrumb">
+          <a href="/">Home</a><span class="sep">/</span>
+          <a href="/syllabus.html">Phase 1 · Java &amp; OOP</a><span class="sep">/</span>
+          <span>Unit J5 · Object-Oriented Programming</span>
+        </nav>
+        <span class="badge badge--ocean">Lesson 21</span>
+        <h1 class="lesson-title">Fields, Constructors &amp; this</h1>
+        <p class="lesson-lede">A constructor runs automatically the moment <code>new</code> builds an object,
+          so every field can be set in one call instead of several separate lines.</p>
+        <div class="lesson-meta">
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg> 25 min</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h2v-4H3zM9 20h2V10H9zM15 20h2V4h-2z"/></svg> Beginner</span>
+        </div>
+      </header>
+
+      <div class="goal">
+        <div class="goal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div>
+        <div>
+          <h2>Your goal</h2>
+          <p>Write a constructor that sets every field, use <code>this</code> correctly, and overload a
+            constructor the way you already overload methods.</p>
+        </div>
+      </div>
+
+      <nav class="toc" aria-label="On this page">
+        <strong>On this page</strong>
+        <ol>
+          <li><a href="#problem">The problem with plain fields</a></li>
+          <li><a href="#constructor">A constructor runs when new does</a></li>
+          <li><a href="#this">The keyword this</a></li>
+          <li><a href="#overload">Multiple constructors</a></li>
+          <li><a href="#run">Run it yourself</a></li>
+          <li><a href="#challenges">Practice challenges</a></li>
+          <li><a href="#mistakes">Common mistakes</a></li>
+          <li><a href="#exercise">Exercise</a></li>
+          <li><a href="#checkpoint">Checkpoint</a></li>
+        </ol>
+      </nav>
+
+      <div class="prose">
+
+        <h2 id="problem"><span class="section-h"><span class="num">1</span> The problem with plain fields</span></h2>
+        <p>Lesson 20 built an object, then set each field with a separate dot-assignment line. Forgetting one
+          of those lines is easy, and Java never warns you. The field just keeps its default value.</p>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">Flywheel shooter = new Flywheel();
+shooter.canId = 5;
+// name never set
+
+System.out.println(shooter.name + " on CAN " + shooter.canId);</code></pre>
+        </div>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">null on CAN 5</code></pre>
+        </div>
+
+        <p>The program compiles and runs. It just carries a bug that shows up later, usually far from this
+          line. A constructor closes that gap by setting every field at the same instant the object is
+          built.</p>
+
+        <h2 id="constructor"><span class="section-h"><span class="num">2</span> A constructor runs when new does</span></h2>
+        <p>A constructor is a block of code that runs automatically every time <code>new</code> builds an
+          object. It looks like a method with two differences. It has no return type, not even
+          <code>void</code>, and its name must match the class name exactly.</p>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">class Flywheel {
+    int canId;
+    String name;
+
+    Flywheel(int id, String flywheelName) {
+        canId = id;
+        name = flywheelName;
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Flywheel shooter = new Flywheel(5, "Shooter Flywheel");
+        System.out.println(shooter.name + " on CAN " + shooter.canId);
+    }
+}</code></pre>
+        </div>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">Shooter Flywheel on CAN 5</code></pre>
+        </div>
+
+        <p>Both fields are set in one call. There is no way to build a <code>Flywheel</code> without
+          supplying an <code>id</code> and a <code>flywheelName</code>, because those are exactly the values
+          the constructor asks for.</p>
+
+        <div class="callout callout--note">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16v-4M12 8h.01"/><circle cx="12" cy="12" r="9"/></svg></div>
+          <div class="c-title">Writing any constructor removes the empty one</div>
+          <div class="c-body"><p>Before you write a constructor, <code>new Flywheel()</code> with no
+            arguments compiles on its own. Once you declare
+            <code>Flywheel(int id, String flywheelName)</code>, that empty version is gone. Calling
+            <code>new Flywheel()</code> now gives a compiler error, because no constructor matches zero
+            arguments.</p></div>
+        </div>
+
+        <h2 id="this"><span class="section-h"><span class="num">3</span> The keyword this</span></h2>
+        <p>A common style names constructor parameters exactly the same as the fields they fill. That reads
+          well, but it creates a name clash inside the constructor body.</p>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">class Flywheel {
+    int canId;
+    String name;
+
+    Flywheel(int canId, String name) {
+        canId = canId;   // assigns the parameter to itself
+        name = name;     // same problem
+    }
+}</code></pre>
+        </div>
+
+        <p>Inside the constructor body, a plain <code>canId</code> means the parameter, since it is the
+          closer variable. This is the same rule the scope lesson covered for any two variables that share a
+          name. <code>canId = canId;</code> assigns the parameter to itself and never touches the field.
+          Building a <code>Flywheel</code> this way leaves both fields at their default values.</p>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">null on CAN 0</code></pre>
+        </div>
+
+        <p><code>this</code> refers to the object currently being built. Writing <code>this.canId</code>
+          reaches the field, no matter what the parameter is called.</p>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">class Flywheel {
+    int canId;
+    String name;
+
+    Flywheel(int canId, String name) {
+        this.canId = canId;
+        this.name = name;
+    }
+}</code></pre>
+        </div>
+
+        <p>Now <code>this.canId</code> names the field on the left, and the plain <code>canId</code> on the
+          right names the parameter that was just passed in. The value moves from parameter into field, and
+          <code>new Flywheel(5, "Shooter Flywheel")</code> produces the same object as the version in section
+          2.</p>
+
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">this is only needed when names clash</div>
+          <div class="c-body"><p>Section 2 used <code>id</code> and <code>flywheelName</code> as parameter
+            names and never needed <code>this</code>. It only matters when a parameter shares a name with a
+            field. Either style compiles. Matching names plus <code>this</code> is the more common style in
+            real Java code.</p></div>
+        </div>
+
+        <h2 id="overload"><span class="section-h"><span class="num">4</span> Multiple constructors</span></h2>
+        <p>You already overload methods, same name, different parameter lists. A constructor overloads the
+          same way, since its name is fixed to the class name anyway.</p>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">class Flywheel {
+    int canId;
+    String name;
+    double targetRPM;
+
+    Flywheel(int canId, String name, double targetRPM) {
+        this.canId = canId;
+        this.name = name;
+        this.targetRPM = targetRPM;
+    }
+
+    Flywheel(int canId, String name) {
+        this.canId = canId;
+        this.name = name;
+        this.targetRPM = 4000;
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Flywheel shooter = new Flywheel(5, "Shooter Flywheel", 5200);
+        Flywheel climber = new Flywheel(6, "Climber Flywheel");
+
+        System.out.println(shooter.name + " target " + shooter.targetRPM);
+        System.out.println(climber.name + " target " + climber.targetRPM);
+    }
+}</code></pre>
+        </div>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">Shooter Flywheel target 5200.0
+Climber Flywheel target 4000.0</code></pre>
+        </div>
+
+        <p>Java picks the constructor whose parameter list matches the call. Three arguments call the first
+          constructor. Two arguments call the second, which fills <code>targetRPM</code> with a sensible
+          default instead of leaving it at <code>0.0</code>.</p>
+
+        <h2 id="run"><span class="section-h"><span class="num">5</span> Run it yourself</span></h2>
+        <p>Add a third <code>Flywheel</code>, built with whichever constructor you like, and print its
+          <code>targetRPM</code>.</p>
+
+        <div class="sandbox" data-compiler data-title="Live Java Sandbox" data-lang="java">
+          <script type="text/x-java" class="sb-src">
+class Flywheel {
+    int canId;
+    String name;
+    double targetRPM;
+
+    Flywheel(int canId, String name, double targetRPM) {
+        this.canId = canId;
+        this.name = name;
+        this.targetRPM = targetRPM;
+    }
+
+    Flywheel(int canId, String name) {
+        this.canId = canId;
+        this.name = name;
+        this.targetRPM = 4000;
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Flywheel shooter = new Flywheel(5, "Shooter Flywheel", 5200);
+        Flywheel climber = new Flywheel(6, "Climber Flywheel");
+
+        System.out.println(shooter.name + " target " + shooter.targetRPM);
+        System.out.println(climber.name + " target " + climber.targetRPM);
+
+        // Try it: build a third Flywheel with the three-argument constructor
+        // and give it a targetRPM of your choice.
+    }
+}
+          </script>
+        </div>
+
+        <h2 id="challenges"><span class="section-h"><span class="num">6</span> Practice challenges</span></h2>
+
+        <div class="challenge" data-kind="text"
+             data-win="Correct. canId = canId assigns the parameter to itself, so the field stays at its default 0, and name = name does the same with null."
+             data-lose="It is null on CAN 0. Neither line reaches the field. Without this, canId = canId only assigns the parameter to itself.">
+          <div class="challenge-head"><span class="ch-kind">Predict the output</span><span class="ch-title">A constructor without this</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">What is printed?</p>
+            <pre class="fib">class Flywheel {
+    int canId;
+    String name;
+
+    Flywheel(int canId, String name) {
+        canId = canId;
+        name = name;
+    }
+}
+
+Flywheel shooter = new Flywheel(5, "Shooter Flywheel");
+System.out.println(shooter.name + " on CAN " + shooter.canId);</pre>
+            <div class="answer-row">
+              <input class="answer-input" type="text" placeholder="Type the output…" data-answer="null on CAN 0" aria-label="Your answer" />
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check answer</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="fib"
+             data-win="Correct. this.canId is the field, and the plain canId on the right is the parameter."
+             data-lose="Use this.canId and this.name on the left so the field is the one being assigned, not the parameter.">
+          <div class="challenge-head"><span class="ch-kind">Fill in the blanks</span><span class="ch-title">Fix the constructor</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Make the constructor actually reach the fields.</p>
+<pre class="fib">Flywheel(int canId, String name) {
+    <span class="blank" data-answer="this"></span>.canId = canId;
+    <span class="blank" data-answer="this"></span>.name = name;
+}</pre>
+            <div class="challenge-actions">
+              <button class="btn btn--sm check-btn" type="button">Check</button>
+              <button class="btn btn--sm btn--ghost reset-btn" type="button">Reset</button>
+            </div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">The vanished empty constructor</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">A class declares only
+              <code>Flywheel(int canId, String name)</code>. What happens when the program calls
+              <code>new Flywheel()</code>?</p>
+            <div class="options">
+              <label class="option" data-explain="That empty constructor only exists automatically when the class declares no constructor at all."><input type="radio" name="q-noarg" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It builds a Flywheel with both fields at their defaults</span></label>
+              <label class="option" data-correct data-explain="Correct. Declaring any constructor removes the automatic empty one. No constructor matches zero arguments, so this is a compiler error."><input type="radio" name="q-noarg" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It does not compile</span></label>
+              <label class="option" data-explain="Nothing here throws at run time. The problem is caught before the program ever starts."><input type="radio" name="q-noarg" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It compiles and crashes when the fields are read</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <h2 id="mistakes"><span class="section-h"><span class="num">7</span> Common mistakes</span></h2>
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">Watch out for these</div>
+          <div class="c-body">
+            <ul>
+              <li>Giving a constructor a return type. Even <code>void</code> turns it into an ordinary
+                method that never runs automatically.</li>
+              <li>Spelling the constructor name differently from the class name, even by one letter.</li>
+              <li>Writing <code>canId = canId;</code> when the parameter and field share a name, instead of
+                <code>this.canId = canId;</code>.</li>
+              <li>Calling <code>new ClassName()</code> after adding a constructor with parameters, and being
+                surprised it no longer compiles.</li>
+              <li>Writing two constructors with the exact same parameter types, which the compiler rejects
+                as a duplicate.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="exercise" id="exercise">
+          <div class="exercise-head">
+            <div class="ex-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4L12 17l-6.3 4.4L8 14 2 9.4h7.6z"/></svg></div>
+            <div>
+              <div class="ex-kicker">Exercise</div>
+              <h3>A Constructor For Motor</h3>
+            </div>
+          </div>
+          <div class="exercise-body">
+            <p>Rebuild the <code>Motor</code> class from lesson 20 so it can never be created with missing
+              data.</p>
+            <ol class="task-list">
+              <li>Give <code>Motor</code> a constructor that takes <code>canId</code> and <code>name</code>
+                and assigns both fields using <code>this</code>.</li>
+              <li>Create <code>leftDrive</code> and <code>rightDrive</code> with a single constructor call
+                each, no separate assignment lines.</li>
+              <li>Print both in the form <code>name on CAN canId</code>.</li>
+              <li>Bonus: add a second constructor that takes only <code>canId</code> and sets
+                <code>name</code> to <code>"Unnamed Motor"</code>.</li>
+            </ol>
+            <div class="sandbox" data-compiler data-title="Project Sandbox" data-lang="java">
+              <script type="text/x-java" class="sb-src">
+class Motor {
+    int canId;
+    String name;
+
+    // TODO: constructor(s)
+
+}
+
+public class Main {
+    public static void main(String[] args) {
+        // TODO: create leftDrive and rightDrive, then print each
+
+    }
+}
+              </script>
+            </div>
+            <details class="reveal">
+              <summary><svg class="rv-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg> Show one possible solution</summary>
+              <div class="reveal-body">
+                <div class="code">
+                  <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">solution · Main.java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">class Motor {
+    int canId;
+    String name;
+
+    Motor(int canId, String name) {
+        this.canId = canId;
+        this.name = name;
+    }
+
+    Motor(int canId) {
+        this.canId = canId;
+        this.name = "Unnamed Motor";
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Motor leftDrive = new Motor(1, "Left Drive");
+        Motor rightDrive = new Motor(2, "Right Drive");
+
+        System.out.println(leftDrive.name + " on CAN " + leftDrive.canId);
+        System.out.println(rightDrive.name + " on CAN " + rightDrive.canId);
+
+        Motor spare = new Motor(9);
+        System.out.println(spare.name + " on CAN " + spare.canId);
+    }
+}</code></pre>
+                </div>
+                <div class="code">
+                  <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">Left Drive on CAN 1
+Right Drive on CAN 2
+Unnamed Motor on CAN 9</code></pre>
+                </div>
+                <p>Neither object can exist with a missing <code>canId</code>. The one-argument constructor
+                  still guarantees a sensible <code>name</code> instead of leaving it <code>null</code>.</p>
+              </div>
+            </details>
+          </div>
+        </div>
+
+        <div class="checkpoint" id="checkpoint">
+          <div class="checkpoint-head">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            <h3>Checkpoint</h3>
+            <span class="cp-score">0 / 5</span>
+          </div>
+          <div class="checkpoint-body">
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q1.</span> When does a constructor run?</div>
+              <div class="options">
+                <label class="option" data-explain="Declaring a class does not run any code. A constructor only runs while an object is being built."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">As soon as the class is declared</span></label>
+                <label class="option" data-correct data-explain="Correct. It runs once, automatically, every time new builds an object of that class."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Every time new builds an object</span></label>
+                <label class="option" data-explain="Constructors are never called with a dot the way ordinary methods are."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Only when you call it with a dot, like any method</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q2.</span> What return type does a constructor declare?</div>
+              <div class="options">
+                <label class="option" data-explain="void marks an ordinary method that returns nothing. A constructor has no return type at all, not even that one."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>void</code></span></label>
+                <label class="option" data-correct data-explain="Correct. No return type is written at all, not even void."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">None at all</span></label>
+                <label class="option" data-explain="A constructor does not hand back a value the way a method with a return type does."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The same type as the class</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q3.</span> Inside a constructor, what does a plain <code>canId</code> refer to when the parameter is also named <code>canId</code>?</div>
+              <div class="options">
+                <label class="option" data-correct data-explain="Correct. The parameter is the closer variable, so the plain name refers to it, not the field."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The parameter</span></label>
+                <label class="option" data-explain="Reaching the field when a parameter shares its name needs this.canId, not the plain name."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The field</span></label>
+                <label class="option" data-explain="Java always resolves the name to one variable or the other. It is never ambiguous."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A compiler error, since the name is ambiguous</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q4.</span> What does <code>this</code> refer to inside a constructor?</div>
+              <div class="options">
+                <label class="option" data-correct data-explain="Correct. this always points at the object the constructor is currently building."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The object currently being built</span></label>
+                <label class="option" data-explain="this refers to a single object, the one under construction, not to the class as a whole."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The class itself</span></label>
+                <label class="option" data-explain="A constructor parameter is referred to by its own name. this specifically means the object."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The first parameter in the list</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q5.</span> A class has two constructors with different parameter lists. What decides which one runs for a given <code>new</code> call?</div>
+              <div class="options">
+                <label class="option" data-correct data-explain="Correct. Java matches the number and types of arguments in the call to the matching constructor, the same rule used for overloaded methods."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The number and types of arguments in the call</span></label>
+                <label class="option" data-explain="Constructors have no name of their own to choose between. Both share the class name."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Whichever one is written first in the file</span></label>
+                <label class="option" data-explain="Both are equally callable. Order in the file changes nothing about which one Java picks."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Random selection at run time</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check my answers</button></div>
+          </div>
+        </div>
+
+        <div class="mark-complete">
+          <div class="mc-text"><b>Lesson complete.</b><span>Next: writing methods that act on an object's own fields.</span></div>
+          <button class="complete-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>Mark as complete</span></button>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="/assets/js/course.js"></script>
+  <script src="/assets/js/site.js"></script>
+  <script src="/assets/js/widgets.js"></script>
+</body>
+</html>

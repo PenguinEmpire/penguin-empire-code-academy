@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Alice's Kitchen 4 · Recipes &amp; Health · Penguin Empire 2551</title>
+  <meta name="description" content="Stage 4 of the capstone project. Build meals out of ingredients, add a health bar, and run the whole story from start to finish." />
+  <link rel="icon" href="/assets/img/logo-2551.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Aldrich&family=Russo+One&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/brand.css" />
+  <link rel="stylesheet" href="/assets/css/layout.css" />
+  <link rel="stylesheet" href="/assets/css/lesson.css" />
+</head>
+<body data-page="lesson" data-lesson="j-kitchen-4">
+  <main id="main" class="content">
+    <div class="content-inner">
+
+      <header class="lesson-hero">
+        <nav class="crumbs" aria-label="Breadcrumb">
+          <a href="/">Home</a><span class="sep">/</span>
+          <a href="/syllabus.html">Phase 1 · Java &amp; OOP</a><span class="sep">/</span>
+          <span>Unit J6 · Capstone Project</span>
+        </nav>
+        <span class="badge badge--ocean">Lesson 33</span>
+        <h1 class="lesson-title">Alice's Kitchen 4 · Recipes &amp; Health</h1>
+        <p class="lesson-lede">The last stage. A meal is made from ingredients, behaves like any other
+          food, and fills a health bar. Then you run the whole story.</p>
+        <div class="lesson-meta">
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg> 60 min</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h2v-4H3zM9 20h2V10H9zM15 20h2V4h-2z"/></svg> Project</span>
+        </div>
+      </header>
+
+      <div class="goal">
+        <div class="goal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div>
+        <div>
+          <h2>Your goal</h2>
+          <p>Make a class that is both a product and an ingredient, and finish the program.</p>
+        </div>
+      </div>
+
+      <nav class="toc" aria-label="On this page">
+        <strong>On this page</strong>
+        <ol>
+          <li><a href="#start">Where you start</a></li>
+          <li><a href="#meal">A meal is a food</a></li>
+          <li><a href="#health">The health bar</a></li>
+          <li><a href="#tasks">Your tasks</a></li>
+          <li><a href="#done">What you built</a></li>
+          <li><a href="#checkpoint">Checkpoint</a></li>
+        </ol>
+      </nav>
+
+      <div class="prose">
+
+        <h2 id="start"><span class="section-h"><span class="num">1</span> Where you start</span></h2>
+        <p>Begin from your stage 3 solution. You have <code>Item</code>, <code>Appliance</code>,
+          <code>Food</code>, <code>Person</code> and <code>Kitchen</code>, with a proximity rule and a
+          working inventory.</p>
+
+        <h2 id="meal"><span class="section-h"><span class="num">2</span> A meal is a food</span></h2>
+        <p>The project requires that a meal behaves the same way as the other foods, so it can be eaten and
+          used in further recipes. That is a single decision in the code.</p>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">static class Meal extends Food {</code></pre>
+        </div>
+
+        <p><code>Meal</code> extends <code>Food</code>, not <code>Item</code>. Because of that, everything
+          that already accepts a <code>Food</code> accepts a <code>Meal</code> with no changes at all.
+          <code>eat</code> works on it immediately. That is polymorphism from lesson 26 paying off.</p>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">static class Meal extends Food {
+    private ArrayList&lt;String&gt; ingredients;
+
+    public Meal(String name, ArrayList&lt;String&gt; ingredients) {
+        super(name);
+        this.ingredients = ingredients;
+        wash();
+    }
+
+    public ArrayList&lt;String&gt; getIngredients() { return ingredients; }
+}</code></pre>
+        </div>
+
+        <p>The constructor calls <code>wash()</code>, which it inherited from <code>Food</code>. A cooked
+          meal counts as clean, so <code>eat</code> will accept it without the student having to remember
+          to wash it.</p>
+
+        <h2 id="health"><span class="section-h"><span class="num">3</span> The health bar</span></h2>
+        <p>Add a health field to <code>Person</code> and raise it when something is eaten. Clamp it at 100
+          using <code>Math.min</code> from lesson 4, or with an <code>if</code>.</p>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">private int health = 0;
+
+public int getHealth() { return health; }
+
+public void eat(Food food) {
+    if (!food.isClean()) {
+        System.out.println(getName() + " will not eat a dirty " + food.getName());
+        return;
+    }
+    inventory.remove(food);
+    health += 25;
+    if (health &gt; 100) health = 100;
+    System.out.println(getName() + " ate the " + food.getName() + ". Health is now " + health);
+}</code></pre>
+        </div>
+
+        <h2 id="tasks"><span class="section-h"><span class="num">4</span> Your tasks</span></h2>
+
+        <div class="exercise" id="exercise">
+          <div class="exercise-head">
+            <div class="ex-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4L12 17l-6.3 4.4L8 14 2 9.4h7.6z"/></svg></div>
+            <div>
+              <div class="ex-kicker">Stage 4</div>
+              <h3>Recipes &amp; Health</h3>
+            </div>
+          </div>
+          <div class="exercise-body">
+            <ol class="task-list">
+              <li>Add a <code>Meal</code> class extending <code>Food</code>, holding its ingredient list.</li>
+              <li>Add a health field to <code>Person</code>, raised on eating and capped at 100.</li>
+              <li>Make a meal from at least two ingredients and confirm Alice can eat it.</li>
+              <li>String it all together in <code>main</code>. Alice moves, uses an appliance, collects
+                food, washes it, cooks a meal, and eats it.</li>
+              <li>Bonus: make a recipe that uses a meal as one of its ingredients.</li>
+            </ol>
+            <div class="sandbox" data-compiler data-title="Project Sandbox" data-lang="java">
+              <script type="text/x-java" class="sb-src">
+import java.util.ArrayList;
+
+public class Main {
+    // Your stage 3 classes go here: Item, Appliance, Food, Person, Kitchen
+
+    // TODO: static class Meal extends Food
+
+    // TODO: add health to Person
+
+    public static void main(String[] args) {
+        // TODO: the whole story
+    }
+}
+              </script>
+            </div>
+            <details class="reveal">
+              <summary><svg class="rv-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg> Show the complete program</summary>
+              <div class="reveal-body">
+                <div class="code">
+                  <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">solution · Main.java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">import java.util.ArrayList;
+
+public class Main {
+
+    static class Item {
+        private String name;
+        private int row = -1, col = -1;
+        public Item(String name) { this.name = name; }
+        public String getName() { return name; }
+        public int getRow() { return row; }
+        public int getCol() { return col; }
+        public void setPosition(int row, int col) { this.row = row; this.col = col; }
+        public String symbol() { return name.substring(0, 1).toUpperCase(); }
+    }
+
+    static class Food extends Item {
+        private boolean clean = false;
+        public Food(String name) { super(name); }
+        public boolean isClean() { return clean; }
+        public void wash() { clean = true; }
+    }
+
+    static class Meal extends Food {
+        private ArrayList&lt;String&gt; ingredients;
+        public Meal(String name, ArrayList&lt;String&gt; ingredients) {
+            super(name);
+            this.ingredients = ingredients;
+            wash();
+        }
+        public ArrayList&lt;String&gt; getIngredients() { return ingredients; }
+    }
+
+    static class Appliance extends Item {
+        public Appliance(String name) { super(name); }
+    }
+
+    static class Person extends Item {
+        private ArrayList&lt;Item&gt; inventory = new ArrayList&lt;&gt;();
+        private int health = 0;
+        public Person(String name) { super(name); }
+        public ArrayList&lt;Item&gt; getInventory() { return inventory; }
+        public int getHealth() { return health; }
+
+        public void eat(Food food) {
+            if (!food.isClean()) {
+                System.out.println(getName() + " will not eat a dirty " + food.getName());
+                return;
+            }
+            inventory.remove(food);
+            health += 25;
+            if (health &gt; 100) health = 100;
+            System.out.println(getName() + " ate the " + food.getName()
+                    + ". Health is now " + health);
+        }
+    }
+
+    static class Kitchen {
+        private Item[][] floor;
+        public Kitchen(int rows, int cols) { floor = new Item[rows][cols]; }
+
+        public void placeObject(Item item, int row, int col) {
+            if (row &lt; 0 || row &gt;= floor.length || col &lt; 0 || col &gt;= floor[0].length) {
+                System.out.println("Cannot place " + item.getName() + " outside the kitchen");
+                return;
+            }
+            floor[row][col] = item;
+            item.setPosition(row, col);
+        }
+
+        public void moveObject(Item item, String direction) {
+            int r = item.getRow();
+            int c = item.getCol();
+            if (direction.equals("up")) r--;
+            else if (direction.equals("down")) r++;
+            else if (direction.equals("left")) c--;
+            else if (direction.equals("right")) c++;
+            else { System.out.println("Unknown direction: " + direction); return; }
+
+            if (r &lt; 0 || r &gt;= floor.length || c &lt; 0 || c &gt;= floor[0].length) {
+                System.out.println(item.getName() + " cannot move " + direction + ", that is a wall");
+                return;
+            }
+            floor[item.getRow()][item.getCol()] = null;
+            floor[r][c] = item;
+            item.setPosition(r, c);
+        }
+
+        public boolean isNextTo(Item a, Item b) {
+            int dr = Math.abs(a.getRow() - b.getRow());
+            int dc = Math.abs(a.getCol() - b.getCol());
+            return dr + dc == 1;
+        }
+
+        public void printKitchen() {
+            System.out.print("   ");
+            for (int c = 0; c &lt; floor[0].length; c++) System.out.print(c + " ");
+            System.out.println();
+            for (int r = 0; r &lt; floor.length; r++) {
+                System.out.print(r + "  ");
+                for (int c = 0; c &lt; floor[r].length; c++) {
+                    System.out.print((floor[r][c] == null ? "." : floor[r][c].symbol()) + " ");
+                }
+                System.out.println();
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        Kitchen kitchen = new Kitchen(5, 7);
+        Person alice = new Person("Alice");
+        Appliance fridge = new Appliance("Fridge");
+        Appliance sink = new Appliance("Sink");
+
+        kitchen.placeObject(alice, 3, 2);
+        kitchen.placeObject(fridge, 0, 6);
+        kitchen.placeObject(sink, 4, 0);
+        kitchen.printKitchen();
+
+        System.out.println();
+        kitchen.moveObject(alice, "up");
+        kitchen.moveObject(alice, "right");
+        kitchen.printKitchen();
+
+        System.out.println();
+        Food tomato = new Food("tomato");
+        alice.getInventory().add(tomato);
+        System.out.println("Alice picked up a " + tomato.getName());
+        alice.eat(tomato);
+        tomato.wash();
+        alice.getInventory().add(tomato);
+        alice.eat(tomato);
+
+        System.out.println();
+        ArrayList&lt;String&gt; recipe = new ArrayList&lt;&gt;();
+        recipe.add("tomato");
+        recipe.add("cucumber");
+        Meal atrocity = new Meal("atrocity", recipe);
+        alice.getInventory().add(atrocity);
+        System.out.println("Made a meal called " + atrocity.getName()
+                + " from " + atrocity.getIngredients());
+        alice.eat(atrocity);
+        System.out.println("Final health: " + alice.getHealth());
+    }
+}</code></pre>
+                </div>
+                <div class="code">
+                  <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">   0 1 2 3 4 5 6
+0  . . . . . . F
+1  . . . . . . .
+2  . . . . . . .
+3  . . A . . . .
+4  S . . . . . .
+
+   0 1 2 3 4 5 6
+0  . . . . . . F
+1  . . . . . . .
+2  . . . A . . .
+3  . . . . . . .
+4  S . . . . . .
+
+Alice picked up a tomato
+Alice will not eat a dirty tomato
+Alice ate the tomato. Health is now 25
+
+Made a meal called atrocity from [tomato, cucumber]
+Alice ate the atrocity. Health is now 50
+Final health: 50</code></pre>
+                </div>
+                <p>Look at the last <code>eat</code> call. It was written for <code>Food</code> and was
+                  never changed, yet it accepted a <code>Meal</code> and worked. Nothing in
+                  <code>Person</code> knows meals exist.</p>
+              </div>
+            </details>
+          </div>
+        </div>
+
+        <h2 id="done"><span class="section-h"><span class="num">5</span> What you built</span></h2>
+        <p>The finished program uses most of the Java track.</p>
+        <ul>
+          <li>Variables, types and operators for positions, health and the clean flag.</li>
+          <li><code>if</code> and <code>else</code> for bounds checks and the guard in <code>eat</code>.</li>
+          <li>Nested loops for filling and printing the grid.</li>
+          <li>Methods with parameters and return values throughout.</li>
+          <li>A 2D array for the floor and an <code>ArrayList</code> for the inventory.</li>
+          <li>Classes, constructors, <code>this</code>, private fields and getters.</li>
+          <li>Inheritance for the item family and polymorphism so <code>eat</code> accepts a meal.</li>
+        </ul>
+        <p>That is the whole of Phase 1 working together. Phase 2 applies the same structure to a robot,
+          where <code>Kitchen</code> becomes <code>RobotContainer</code> and <code>Item</code> becomes
+          <code>Subsystem</code>.</p>
+
+        <div class="challenge" data-kind="text"
+             data-win="Correct. Eating twice at 25 each gives 50."
+             data-lose="It is 50. Each successful eat adds 25, and two of them succeeded. The dirty tomato was refused.">
+          <div class="challenge-head"><span class="ch-kind">Predict the output</span><span class="ch-title">Final health</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Alice tries to eat a dirty tomato, washes it and eats it, then eats
+              a meal. Each successful meal adds 25. What is her final health?</p>
+            <div class="answer-row">
+              <input class="answer-input" type="text" placeholder="Type a number…" data-answer="50" aria-label="Your answer" />
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check answer</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">Why eat accepts a Meal</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt"><code>eat</code> takes a <code>Food</code> and was never changed.
+              Why does it accept a <code>Meal</code>?</p>
+            <div class="options">
+              <label class="option" data-correct data-explain="Correct. Meal extends Food, so a Meal fits anywhere a Food is expected."><input type="radio" name="q-meal" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Because <code>Meal</code> extends <code>Food</code></span></label>
+              <label class="option" data-explain="Java is strict about types. It accepts a Meal only because of the inheritance relationship."><input type="radio" name="q-meal" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Because Java ignores parameter types</span></label>
+              <label class="option" data-explain="There is only one eat method here. No overloading is involved."><input type="radio" name="q-meal" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Because <code>eat</code> is overloaded</span></label>
+              <label class="option" data-explain="Nothing is converted. The Meal stays a Meal and is simply treated as the Food it also is."><input type="radio" name="q-meal" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Because the meal is converted into a food</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="fib"
+             data-win="Correct. Extend Food, pass the name up with super, and mark it clean so it can be eaten."
+             data-lose="Meal extends Food so it can be eaten, passes the name to super, and calls wash so it counts as clean.">
+          <div class="challenge-head"><span class="ch-kind">Fill in the blanks</span><span class="ch-title">Build the Meal class</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Complete the class so a meal can be eaten like any other food.</p>
+<pre class="fib">static class Meal extends <span class="blank" data-answer="Food"></span> {
+    public Meal(String name, ArrayList&lt;String&gt; ingredients) {
+        <span class="blank" data-answer="super"></span>(name);
+        this.ingredients = ingredients;
+        <span class="blank" data-answer="wash"></span>();
+    }
+}</pre>
+            <div class="challenge-actions">
+              <button class="btn btn--sm check-btn" type="button">Check</button>
+              <button class="btn btn--sm btn--ghost reset-btn" type="button">Reset</button>
+            </div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="checkpoint" id="checkpoint">
+          <div class="checkpoint-head">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            <h3>Checkpoint</h3>
+            <span class="cp-score">0 / 4</span>
+          </div>
+          <div class="checkpoint-body">
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q1.</span> Why does <code>Meal</code> extend <code>Food</code> rather than <code>Item</code>?</div>
+              <div class="options">
+                <label class="option" data-correct data-explain="Correct. Extending Food means every method that already accepts a Food accepts a Meal with no change."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">So it can be eaten and used in recipes like any other food</span></label>
+                <label class="option" data-explain="Meal could extend Item and compile. It just would not work with eat."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Because <code>Item</code> cannot be extended twice</span></label>
+                <label class="option" data-explain="The depth of the chain has no effect on speed."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Because it is faster</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q2.</span> Why does the <code>Meal</code> constructor call <code>wash()</code>?</div>
+              <div class="options">
+                <label class="option" data-correct data-explain="Correct. A cooked meal counts as clean, so eat will accept it without an extra step."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">So <code>eat</code> does not refuse it as dirty</span></label>
+                <label class="option" data-explain="wash sets a flag. It has nothing to do with the ingredient list."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">To empty the ingredient list</span></label>
+                <label class="option" data-explain="Java requires super first, but not wash. That call is a design decision."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Because Java requires it</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q3.</span> Which structure holds the kitchen floor, and which holds the inventory?</div>
+              <div class="options">
+                <label class="option" data-correct data-explain="Correct. The floor is a fixed size grid and the inventory changes as Alice collects and eats."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A 2D array for the floor, an <code>ArrayList</code> for the inventory</span></label>
+                <label class="option" data-explain="It is the other way round. The floor has a fixed size and the inventory does not."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">An <code>ArrayList</code> for the floor, a 2D array for the inventory</span></label>
+                <label class="option" data-explain="Each one uses the structure that fits its behaviour, which is the point of the exercise."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Both use a 2D array</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q4.</span> What is the clearest sign that the item family was designed well?</div>
+              <div class="options">
+                <label class="option" data-correct data-explain="Correct. Adding Meal required no change to eat, to the inventory, or to the kitchen."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A whole new kind of item was added without editing existing methods</span></label>
+                <label class="option" data-explain="Line count is not the measure. The measure is how much had to change."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The program is short</span></label>
+                <label class="option" data-explain="Compiling is the minimum bar, not a sign of good design."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It compiles</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check my answers</button></div>
+          </div>
+        </div>
+
+        <div class="mark-complete">
+          <div class="mc-text"><b>Phase 1 complete.</b><span>You can read and write Java. Phase 2 puts it on the robot, starting with the hardware the code runs on.</span></div>
+          <button class="complete-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>Mark as complete</span></button>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="/assets/js/course.js"></script>
+  <script src="/assets/js/site.js"></script>
+  <script src="/assets/js/widgets.js"></script>
+</body>
+</html>

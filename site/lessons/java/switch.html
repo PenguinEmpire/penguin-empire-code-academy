@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>switch Statements · Penguin Empire 2551</title>
+  <meta name="description" content="Pick one branch out of many fixed values. case, break, default, deliberate fall-through, and the newer arrow form." />
+  <link rel="icon" href="/assets/img/logo-2551.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Aldrich&family=Russo+One&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/brand.css" />
+  <link rel="stylesheet" href="/assets/css/layout.css" />
+  <link rel="stylesheet" href="/assets/css/lesson.css" />
+</head>
+<body data-page="lesson" data-lesson="j-switch">
+  <main id="main" class="content">
+    <div class="content-inner">
+
+      <header class="lesson-hero">
+        <nav class="crumbs" aria-label="Breadcrumb">
+          <a href="/">Home</a><span class="sep">/</span>
+          <a href="/syllabus.html">Phase 1 · Java &amp; OOP</a><span class="sep">/</span>
+          <span>Unit J2 · Logic &amp; Flow</span>
+        </nav>
+        <span class="badge badge--ocean">Lesson 9</span>
+        <h1 class="lesson-title">switch Statements</h1>
+        <p class="lesson-lede">A <code>switch</code> compares one value against a list of fixed options and
+          runs the matching branch. It does the same job as a long <code>else if</code> chain when every
+          test is “does this equal that”.</p>
+        <div class="lesson-meta">
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg> 15 min</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h2v-4H3zM9 20h2V10H9zM15 20h2V4h-2z"/></svg> Beginner</span>
+        </div>
+      </header>
+
+      <div class="goal">
+        <div class="goal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div>
+        <div>
+          <h2>Your goal</h2>
+          <p>Write a switch with a default branch, and know why a missing <code>break</code> changes the
+            result.</p>
+        </div>
+      </div>
+
+      <nav class="toc" aria-label="On this page">
+        <strong>On this page</strong>
+        <ol>
+          <li><a href="#basic">The basic form</a></li>
+          <li><a href="#break">break and fall-through</a></li>
+          <li><a href="#grouping">Grouping cases on purpose</a></li>
+          <li><a href="#arrow">The arrow form</a></li>
+          <li><a href="#when">When to use which</a></li>
+          <li><a href="#run">Run it yourself</a></li>
+          <li><a href="#challenges">Practice challenges</a></li>
+          <li><a href="#mistakes">Common mistakes</a></li>
+          <li><a href="#exercise">Exercise</a></li>
+          <li><a href="#checkpoint">Checkpoint</a></li>
+        </ol>
+      </nav>
+
+      <div class="prose">
+
+        <h2 id="basic"><span class="section-h"><span class="num">1</span> The basic form</span></h2>
+        <p>You give <code>switch</code> a value. Each <code>case</code> lists one option to match. The
+          <code>default</code> branch runs when nothing matched.</p>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">String mode = "teleop";
+
+switch (mode) {
+    case "auto":
+        System.out.println("Running autonomous");
+        break;
+    case "teleop":
+        System.out.println("Driver in control");
+        break;
+    default:
+        System.out.println("Disabled");
+}</code></pre>
+        </div>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">Driver in control</code></pre>
+        </div>
+
+        <p>A switch works on <code>int</code>, <code>char</code>, <code>String</code> and enums, which you
+          will meet in Unit J5. It only tests equality, so it cannot replace a condition like
+          <code>voltage &gt; 12.0</code>.</p>
+
+        <div class="callout callout--note">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16v-4M12 8h.01"/><circle cx="12" cy="12" r="9"/></svg></div>
+          <div class="c-title">Text works here without .equals</div>
+          <div class="c-body"><p>A <code>switch</code> on a <code>String</code> compares the characters,
+            not the stored object. This is the one place text comparison behaves the way you would expect
+            without calling <code>.equals(...)</code>.</p></div>
+        </div>
+
+        <h2 id="break"><span class="section-h"><span class="num">2</span> break and fall-through</span></h2>
+        <p><code>break</code> leaves the switch. Without it, Java keeps running straight into the next
+          case even though that case did not match. This is called fall-through.</p>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">missing break</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">switch (mode) {
+    case "auto":
+        System.out.println("Running autonomous");
+    case "teleop":
+        System.out.println("Driver in control");
+}</code></pre>
+        </div>
+
+        <p>With <code>mode</code> set to <code>auto</code>, that prints both lines. The first case matched,
+          and with no <code>break</code> execution continued into the second one.</p>
+
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">A forgotten break is not an error</div>
+          <div class="c-body"><p>The compiler accepts it. The program runs. Extra branches simply execute.
+            When a switch does more than you expected, a missing <code>break</code> is the first thing to
+            check.</p></div>
+        </div>
+
+        <h2 id="grouping"><span class="section-h"><span class="num">3</span> Grouping cases on purpose</span></h2>
+        <p>Fall-through is useful when several values should do the same thing. Stack the cases with no
+          code between them.</p>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">int level = 2;
+
+switch (level) {
+    case 1:
+    case 2:
+        System.out.println("low or mid");
+        break;
+    case 3:
+        System.out.println("high");
+        break;
+}</code></pre>
+        </div>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">low or mid</code></pre>
+        </div>
+
+        <p>Levels 1 and 2 share one block. Level 3 has its own.</p>
+
+        <h2 id="arrow"><span class="section-h"><span class="num">4</span> The arrow form</span></h2>
+        <p>Newer Java offers an arrow form. Each branch is self contained, so there is no
+          <code>break</code> and no fall-through.</p>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">switch (mode) {
+    case "auto" -&gt; System.out.println("Running autonomous");
+    case "teleop" -&gt; System.out.println("Driver in control");
+    default -&gt; System.out.println("Disabled");
+}</code></pre>
+        </div>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">Driver in control</code></pre>
+        </div>
+
+        <p>Prefer this form in new code. Learn the older form as well, because existing robot code uses it
+          and you will need to read it.</p>
+
+        <h2 id="when"><span class="section-h"><span class="num">5</span> When to use which</span></h2>
+        <p>Use <code>switch</code> when one value is compared against several fixed options. Use
+          <code>if</code> and <code>else if</code> when the conditions are ranges, comparisons, or involve
+          more than one variable.</p>
+        <p>A switch is not faster in any way that matters. It is easier to read when it fits, and unusable
+          when it does not.</p>
+
+        <h2 id="run"><span class="section-h"><span class="num">6</span> Run it yourself</span></h2>
+        <p>Change <code>mode</code> to <code>auto</code>, then to <code>test</code>, and run again.</p>
+
+        <div class="sandbox" data-compiler data-title="Live Java Sandbox" data-lang="java">
+          <script type="text/x-java" class="sb-src">
+public class Main {
+    public static void main(String[] args) {
+        String mode = "teleop";
+
+        switch (mode) {
+            case "auto":
+                System.out.println("Running autonomous");
+                break;
+            case "teleop":
+                System.out.println("Driver in control");
+                break;
+            default:
+                System.out.println("Disabled");
+        }
+
+        // Try it: set mode to "auto", then to "test", and run again.
+        // Then delete a break and set mode to "auto" to see fall-through.
+    }
+}
+          </script>
+        </div>
+
+        <h2 id="challenges"><span class="section-h"><span class="num">7</span> Practice challenges</span></h2>
+
+        <div class="challenge" data-kind="text"
+             data-win="Correct. Case 1 has no code of its own, so a value of 2 runs the shared block."
+             data-lose="It prints low or mid. Cases 1 and 2 are stacked with no code between them, so both use the same block.">
+          <div class="challenge-head"><span class="ch-kind">Predict the output</span><span class="ch-title">Stacked cases</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Type the exact line that gets printed.</p>
+            <pre class="fib">int level = 2;
+switch (level) {
+    case 1:
+    case 2:
+        System.out.println("low or mid");
+        break;
+    case 3:
+        System.out.println("high");
+        break;
+}</pre>
+            <div class="answer-row">
+              <input class="answer-input" type="text" placeholder="Type the output…" data-answer="low or mid" aria-label="Your answer" />
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check answer</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">The missing break</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">A case matches and its <code>break</code> is missing. What happens?</p>
+            <div class="options">
+              <label class="option" data-explain="The compiler accepts a missing break. It is legal Java and sometimes intentional."><input type="radio" name="q-brk" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A compiler error</span></label>
+              <label class="option" data-correct data-explain="Correct. Execution continues into the following cases until it hits a break or the end of the switch."><input type="radio" name="q-brk" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The next cases run as well</span></label>
+              <label class="option" data-explain="That is what break does. Without it the switch keeps going."><input type="radio" name="q-brk" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The switch ends after the matching case</span></label>
+              <label class="option" data-explain="The default branch only runs when no case matched at all."><input type="radio" name="q-brk" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The default branch runs instead</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="fib"
+             data-win="Correct. case for each option, break to leave, default for everything else."
+             data-lose="Each option starts with case. break leaves the switch. default catches anything that did not match.">
+          <div class="challenge-head"><span class="ch-kind">Fill in the blanks</span><span class="ch-title">Complete the switch</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Fill in the three missing keywords.</p>
+<pre class="fib">switch (mode) {
+    <span class="blank" data-answer="case"></span> "auto":
+        System.out.println("Autonomous");
+        <span class="blank" data-answer="break"></span>;
+    <span class="blank" data-answer="default"></span>:
+        System.out.println("Disabled");
+}</pre>
+            <div class="challenge-actions">
+              <button class="btn btn--sm check-btn" type="button">Check</button>
+              <button class="btn btn--sm btn--ghost reset-btn" type="button">Reset</button>
+            </div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">Which tool fits?</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Which of these can a <code>switch</code> not do?</p>
+            <div class="options">
+              <label class="option" data-explain="Matching a String against fixed options is exactly what switch is for."><input type="radio" name="q-fit" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Match a mode name against <code>auto</code> and <code>teleop</code></span></label>
+              <label class="option" data-correct data-explain="Correct. A switch only tests equality against fixed values. A range needs if and else if."><input type="radio" name="q-fit" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Check whether a voltage is above 12.0</span></label>
+              <label class="option" data-explain="An int is one of the types a switch accepts."><input type="radio" name="q-fit" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Pick a branch from a level number of 1, 2 or 3</span></label>
+              <label class="option" data-explain="Stacking cases with no code between them is the normal way to share a block."><input type="radio" name="q-fit" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Give two values the same block</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <h2 id="mistakes"><span class="section-h"><span class="num">8</span> Common mistakes</span></h2>
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">Watch out for these</div>
+          <div class="c-body">
+            <ul>
+              <li>Forgetting <code>break</code>, so later branches run too.</li>
+              <li>Leaving out <code>default</code>, so an unexpected value does nothing at all.</li>
+              <li>Trying to test a range. A switch only compares for equality.</li>
+              <li>Using a variable as a case label. Case values must be fixed at compile time.</li>
+              <li>Mixing the colon form and the arrow form in one switch. Pick one.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="exercise" id="exercise">
+          <div class="exercise-head">
+            <div class="ex-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4L12 17l-6.3 4.4L8 14 2 9.4h7.6z"/></svg></div>
+            <div>
+              <div class="ex-kicker">Exercise</div>
+              <h3>Robot Mode Router</h3>
+            </div>
+          </div>
+          <div class="exercise-body">
+            <p>A robot runs in one of four modes. Print what each one does.</p>
+            <ol class="task-list">
+              <li>Write a switch on <code>mode</code> handling <code>auto</code>, <code>teleop</code> and
+                <code>test</code>.</li>
+              <li>Add a <code>default</code> branch that prints <code>Unknown mode</code>.</li>
+              <li>Give <code>teleop</code> and <code>test</code> the same block, since both are driver
+                controlled.</li>
+              <li>Bonus: rewrite the whole thing in the arrow form.</li>
+            </ol>
+            <div class="sandbox" data-compiler data-title="Project Sandbox" data-lang="java">
+              <script type="text/x-java" class="sb-src">
+public class Main {
+    public static void main(String[] args) {
+        String mode = "test";
+
+        // TODO: switch on mode
+
+    }
+}
+              </script>
+            </div>
+            <details class="reveal">
+              <summary><svg class="rv-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg> Show one possible solution</summary>
+              <div class="reveal-body">
+                <div class="code">
+                  <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">solution · Main.java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">public class Main {
+    public static void main(String[] args) {
+        String mode = "test";
+
+        switch (mode) {
+            case "auto":
+                System.out.println("Running the autonomous routine");
+                break;
+            case "teleop":
+            case "test":
+                System.out.println("Driver in control");
+                break;
+            default:
+                System.out.println("Unknown mode");
+        }
+    }
+}</code></pre>
+                </div>
+                <div class="code">
+                  <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">Driver in control</code></pre>
+                </div>
+                <p>The arrow form of the same routing:</p>
+                <div class="code">
+                  <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">arrow form</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">switch (mode) {
+    case "auto" -&gt; System.out.println("Running the autonomous routine");
+    case "teleop", "test" -&gt; System.out.println("Driver in control");
+    default -&gt; System.out.println("Unknown mode");
+}</code></pre>
+                </div>
+              </div>
+            </details>
+          </div>
+        </div>
+
+        <div class="checkpoint" id="checkpoint">
+          <div class="checkpoint-head">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            <h3>Checkpoint</h3>
+            <span class="cp-score">0 / 4</span>
+          </div>
+          <div class="checkpoint-body">
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q1.</span> What does <code>break</code> do inside a switch?</div>
+              <div class="options">
+                <label class="option" data-correct data-explain="Correct. It jumps out so the following cases are not executed."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Leaves the switch immediately</span></label>
+                <label class="option" data-explain="It does not end the program. Execution continues after the closing brace of the switch."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Stops the whole program</span></label>
+                <label class="option" data-explain="A switch never loops. break here has nothing to repeat."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Repeats the case</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q2.</span> When does <code>default</code> run?</div>
+              <div class="options">
+                <label class="option" data-explain="It is skipped whenever some case matched and reached a break."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Every time, after the matching case</span></label>
+                <label class="option" data-correct data-explain="Correct. It is the catch all for values no case listed."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Only when no case matched</span></label>
+                <label class="option" data-explain="default is optional. Leaving it out means an unmatched value simply does nothing."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It is required in every switch</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q3.</span> Why can a switch not replace <code>if (voltage &gt; 12.0)</code>?</div>
+              <div class="options">
+                <label class="option" data-correct data-explain="Correct. Cases match one exact value each, so ranges need if and else if."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A switch only tests equality, not greater or less than</span></label>
+                <label class="option" data-explain="Types are not the problem. Even with an int, a switch still cannot express greater than."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A switch cannot use numbers at all</span></label>
+                <label class="option" data-explain="Speed has nothing to do with it. The two forms express different questions."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A switch is slower</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q4.</span> What is the advantage of the arrow form?</div>
+              <div class="options">
+                <label class="option" data-correct data-explain="Correct. Each branch stands alone, so a forgotten break cannot cause fall-through."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">No <code>break</code> is needed and fall-through cannot happen</span></label>
+                <label class="option" data-explain="Both forms accept the same types."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It works on types the older form cannot</span></label>
+                <label class="option" data-explain="It compiles to the same kind of decision. The benefit is safety and readability."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It runs faster</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check my answers</button></div>
+          </div>
+        </div>
+
+        <div class="mark-complete">
+          <div class="mc-text"><b>Lesson complete.</b><span>Next: repeating work with loops.</span></div>
+          <button class="complete-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>Mark as complete</span></button>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="/assets/js/course.js"></script>
+  <script src="/assets/js/site.js"></script>
+  <script src="/assets/js/widgets.js"></script>
+</body>
+</html>

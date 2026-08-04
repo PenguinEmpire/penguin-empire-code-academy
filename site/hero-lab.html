@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hero lab · three options — Penguin Empire 2551</title>
+  <meta name="robots" content="noindex" />
+  <link rel="icon" href="/assets/img/logo-2551.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Aldrich&family=Russo+One&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/brand.css" />
+  <link rel="stylesheet" href="/assets/css/layout.css" />
+  <link rel="stylesheet" href="/assets/css/pages.css" />
+  <link rel="stylesheet" href="/assets/css/hero.css" />
+  <script>document.documentElement.classList.add("js");</script>
+  <style>
+    /* Lab chrome only — none of this ships with the chosen hero. */
+    .lab-switch {
+      position: fixed; z-index: 120; left: 50%; bottom: 22px; transform: translateX(-50%);
+      display: flex; align-items: center; gap: 4px; padding: 5px;
+      background: rgba(14,20,24,.86); border: 1px solid rgba(146,220,229,.22);
+      border-radius: var(--r-pill); box-shadow: 0 18px 44px -12px rgba(0,0,0,.6);
+      -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+    }
+    .lab-switch button {
+      font-family: var(--font-display); font-size: .84rem; color: #b6d3dc;
+      background: none; border: 0; cursor: pointer;
+      padding: .55em 1.1em; border-radius: var(--r-pill);
+      transition: background var(--t-fast), color var(--t-fast);
+    }
+    .lab-switch button:hover { color: #fff; background: rgba(146,220,229,.12); }
+    .lab-switch button[aria-pressed="true"] { color: #06323d; background: linear-gradient(180deg, var(--ocean-300), var(--ocean-500)); }
+    .lab-switch .lab-sep { width: 1px; height: 20px; background: rgba(146,220,229,.2); margin: 0 4px; }
+    .lab-note {
+      font-family: var(--font-mono); font-size: .7rem; color: #7f97a1;
+      padding-right: .7em; padding-left: .3em; white-space: nowrap;
+    }
+    .hero[hidden] { display: none; }
+    @media (max-width: 560px) {
+      .lab-switch { bottom: 12px; gap: 2px; }
+      .lab-switch button { padding: .5em .75em; font-size: .78rem; }
+      .lab-note { display: none; }
+    }
+  </style>
+</head>
+<body data-page="home">
+  <main id="main">
+
+    <!-- ==================================================================
+         VARIANT A · SPLIT — copy left, code + the machine it drives right
+         ================================================================== -->
+    <section class="hero hero--split" data-variant="a">
+      <div class="hero-grid" aria-hidden="true"></div>
+
+      <div class="hero-inner">
+        <div class="hero-copy hero-anim">
+          <p class="hero-mark">
+            <img src="/assets/img/logo-2551.png" alt="" width="30" height="30" />
+            <span class="hero-mark-txt">Penguin Empire · Team 2551</span>
+            <span class="hero-mark-rule" aria-hidden="true"></span>
+          </p>
+
+          <h1>From <span class="accent">zero code</span> to driving a&nbsp;robot.</h1>
+
+          <p class="hero-lede">
+            The exact path every new Penguin Empire programmer takes — from your
+            first line of <strong>Java</strong> to code running on the competition
+            robot.
+          </p>
+
+          <div class="hero-cta">
+            <a class="btn btn--primary btn--lg" href="/lessons/java/first-program.html">Start Lesson 1 →</a>
+            <a class="btn btn--ghost btn--lg hero-btn-ghost" href="/syllabus.html">See the curriculum</a>
+          </div>
+
+          <ul class="hero-cred">
+            <li><b>19</b>&nbsp;units</li>
+            <li><b>56</b>&nbsp;lessons</li>
+            <li>Nothing to install to start</li>
+          </ul>
+        </div>
+
+        <div class="hero-stage">
+          <div class="win">
+            <div class="win-bar">
+              <span class="win-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="win-tab">IntakeSubsystem.java</span>
+              <span class="win-run">▶ Run</span>
+            </div>
+            <div class="win-body">
+              <div class="win-code">
+                <div class="cl"><span class="tok-key">public class</span> <span class="tok-cls">IntakeSubsystem</span> <span class="tok-key">extends</span> <span class="tok-cls">SubsystemBase</span> {</div>
+                <div class="cl">  <span class="tok-key">private final</span> <span class="tok-cls">CANSparkMax</span> motor =</div>
+                <div class="cl">      <span class="tok-key">new</span> <span class="tok-cls">CANSparkMax</span>(<span class="tok-num">9</span>, <span class="tok-cls">MotorType</span>.kBrushless);</div>
+                <div class="cl">&nbsp;</div>
+                <div class="cl">  <span class="tok-key">public void</span> <span class="tok-fn">runIntake</span>(<span class="tok-key">double</span> speed) {</div>
+                <div class="cl">    motor.<span class="tok-fn">set</span>(speed);</div>
+                <div class="cl">  }</div>
+                <div class="cl">}</div>
+              </div>
+              <div class="win-out win-out--row">
+                <div class="oh">Output</div>
+                <pre>[WPILib] IntakeSubsystem registered.
+[REV] CANSparkMax ID 9 — ready.
+<span class="ok">Robot enabled — Teleop.</span></pre>
+              </div>
+            </div>
+          </div>
+
+          <figure class="hero-photo hero-photo--field" data-slot="Robot photo · 4:3">
+            <img src="/assets/img/robot-field.jpg" alt="Team 2551's robot on the field during a match" width="1000" height="562" fetchpriority="high" />
+            <figcaption>Where the code ends up</figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================================================================
+         VARIANT B · CENTERED — same axis as the original, decompressed
+         ================================================================== -->
+    <section class="hero hero--center" data-variant="b" hidden>
+      <div class="hero-grid" aria-hidden="true"></div>
+
+      <div class="hero-inner hero-anim">
+        <p class="hero-mark">
+          <img src="/assets/img/logo-2551.png" alt="" width="30" height="30" />
+          <span class="hero-mark-txt">Penguin Empire · Team 2551</span>
+        </p>
+
+        <h1>From <span class="accent">zero code</span> to driving a&nbsp;robot.</h1>
+
+        <p class="hero-lede">
+          The exact path every new Penguin Empire programmer takes — from your first
+          line of <strong>Java</strong> to code running on the competition robot.
+        </p>
+
+        <div class="hero-cta">
+          <a class="btn btn--primary btn--lg" href="/lessons/java/first-program.html">Start Lesson 1 →</a>
+          <a class="btn btn--ghost btn--lg hero-btn-ghost" href="/syllabus.html">See the curriculum</a>
+        </div>
+
+        <ul class="hero-cred">
+          <li><b>19</b>&nbsp;units</li>
+          <li><b>56</b>&nbsp;lessons</li>
+          <li>Nothing to install to start</li>
+        </ul>
+
+        <div class="hero-stage">
+          <div class="win">
+            <div class="win-bar">
+              <span class="win-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="win-tab">IntakeSubsystem.java</span>
+              <span class="win-run">▶ Run</span>
+            </div>
+            <div class="win-body split">
+              <div class="win-code">
+                <div class="cl"><span class="tok-key">public class</span> <span class="tok-cls">IntakeSubsystem</span> <span class="tok-key">extends</span> <span class="tok-cls">SubsystemBase</span> {</div>
+                <div class="cl">  <span class="tok-key">private final</span> <span class="tok-cls">CANSparkMax</span> motor =</div>
+                <div class="cl">      <span class="tok-key">new</span> <span class="tok-cls">CANSparkMax</span>(<span class="tok-num">9</span>, <span class="tok-cls">MotorType</span>.kBrushless);</div>
+                <div class="cl">&nbsp;</div>
+                <div class="cl">  <span class="tok-key">public void</span> <span class="tok-fn">runIntake</span>(<span class="tok-key">double</span> speed) {</div>
+                <div class="cl">    motor.<span class="tok-fn">set</span>(speed);</div>
+                <div class="cl">  }</div>
+                <div class="cl">&nbsp;</div>
+                <div class="cl">  <span class="tok-key">public void</span> <span class="tok-fn">stop</span>() {</div>
+                <div class="cl">    motor.<span class="tok-fn">stopMotor</span>();</div>
+                <div class="cl">  }</div>
+                <div class="cl">}</div>
+              </div>
+              <div class="win-out">
+                <div class="oh">Output</div>
+                <pre>[WPILib] IntakeSubsystem registered.
+[REV] CANSparkMax ID 9 — ready.
+<span class="ok">Robot enabled — Teleop.</span></pre>
+              </div>
+            </div>
+          </div>
+
+          <figure class="hero-photo hero-photo--pit" data-slot="Pit photo · 4:3">
+            <img src="/assets/img/pit-build.jpg" alt="Team 2551 members working on the robot in the pit" width="900" height="675" loading="lazy" />
+            <figcaption>Build season, 2551 pit</figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================================================================
+         VARIANT C · EDITORIAL — oversized type, no badge, brand numeral
+         ================================================================== -->
+    <section class="hero hero--editorial" data-variant="c" hidden>
+      <div class="hero-grid" aria-hidden="true"></div>
+
+      <div class="hero-inner">
+        <p class="hero-mark">
+          <img src="/assets/img/logo-2551.png" alt="" width="30" height="30" />
+          <span class="hero-mark-txt">Penguin Empire Robotics · Code Academy</span>
+          <span class="hero-mark-rule" aria-hidden="true"></span>
+        </p>
+
+        <h1>
+          <span class="ln">From</span>
+          <span class="ln accent">zero code</span>
+          <span class="ln">to driving</span>
+          <span class="ln">a robot.</span>
+        </h1>
+
+        <div class="hero-side">
+          <p class="hero-lede">
+            The exact path every new Penguin Empire programmer takes — from your
+            first line of <strong>Java</strong> to code running on the competition
+            robot.
+          </p>
+          <figure class="hero-photo hero-photo--tall" data-slot="Robot photo · 4:5">
+            <img src="/assets/img/robot-tall.jpg" alt="Team 2551's robot lined up on the field" width="759" height="1350" fetchpriority="high" />
+            <figcaption>2551 on the field</figcaption>
+          </figure>
+        </div>
+
+        <div class="hero-cta">
+          <a class="btn btn--primary btn--lg" href="/lessons/java/first-program.html">Start Lesson 1 →</a>
+          <a class="btn btn--ghost btn--lg hero-btn-ghost" href="/syllabus.html">See the curriculum</a>
+        </div>
+
+        <div class="hero-foot">
+          <ul class="hero-cred">
+            <li><b>19</b>&nbsp;units</li>
+            <li><b>56</b>&nbsp;lessons</li>
+            <li>Nothing to install to start</li>
+          </ul>
+          <p class="hero-snip">motor.<span class="tok-fn">set</span>(0.8); <em>// and it moves</em></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- The real next section, so the hand-off from dark to light is visible. -->
+    <section class="section">
+      <div class="container">
+        <div class="section-kicker"><span class="badge badge--dot">Both phases required</span></div>
+        <div class="section-head reveal-on-scroll">
+          <h2>Two phases. Both required. One working robot.</h2>
+          <p>You can't skip either phase — Phase 1 teaches you the language, Phase 2 puts it
+             on the robot. Complete them in order and you'll have everything you need to
+             program a real FRC robot from scratch.</p>
+        </div>
+        <div class="tracks" data-stagger>
+          <a class="track-card java reveal-on-scroll" href="/lessons/java/first-program.html">
+            <span class="tc-glyph">{ }</span>
+            <span class="tc-num">Phase 1 · Foundations</span>
+            <h3>Java &amp; Object-Oriented Programming</h3>
+            <p>Variables, loops, methods, arrays, and the big one — classes &amp; objects.
+               Every concept runs live in your browser. Capped by the Alice's Kitchen project.</p>
+            <div class="tc-meta">
+              <div><b>6</b>units</div>
+              <div><b>27</b>lessons</div>
+              <div><b>Live</b>compiler</div>
+            </div>
+            <span class="btn btn--primary btn--sm">Begin Phase 1 →</span>
+          </a>
+          <a class="track-card frc reveal-on-scroll" href="/lessons/frc/moving-a-motor.html">
+            <span class="tc-glyph">2551</span>
+            <span class="tc-num">Phase 2 · The Robot</span>
+            <h3>FRC Robot Programming</h3>
+            <p>Motors, encoders, PID, command-based structure, swerve drive, Limelight
+               vision, and PathPlanner autonomous — built on real Team 2551 hardware.</p>
+            <div class="tc-meta">
+              <div><b>13</b>units</div>
+              <div><b>WPILib</b>verified</div>
+              <div><b>Real</b>mechanisms</div>
+            </div>
+            <span class="btn btn--primary btn--sm">Preview Phase 2 →</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <div class="lab-switch" role="group" aria-label="Hero variant">
+    <span class="lab-note">hero</span>
+    <button type="button" data-pick="a" aria-pressed="true">A · Split</button>
+    <button type="button" data-pick="b" aria-pressed="false">B · Centered</button>
+    <button type="button" data-pick="c" aria-pressed="false">C · Editorial</button>
+  </div>
+
+  <script src="/assets/js/course.js"></script>
+  <script src="/assets/js/site.js" defer></script>
+  <script>
+    (function () {
+      var heroes = document.querySelectorAll(".hero[data-variant]");
+      var picks = document.querySelectorAll(".lab-switch [data-pick]");
+
+      function show(id) {
+        heroes.forEach(function (h) {
+          var on = h.dataset.variant === id;
+          h.hidden = !on;
+          // Re-run the entrance animation so each variant is judged on the
+          // motion a first-time visitor actually sees.
+          if (on) h.querySelectorAll(".hero-anim").forEach(function (n) {
+            n.classList.remove("hero-anim");
+            void n.offsetWidth;
+            n.classList.add("hero-anim");
+          });
+        });
+        picks.forEach(function (b) { b.setAttribute("aria-pressed", b.dataset.pick === id); });
+        if (location.hash.slice(1) !== id) history.replaceState(null, "", "#" + id);
+      }
+
+      picks.forEach(function (b) {
+        b.addEventListener("click", function () { show(b.dataset.pick); });
+      });
+      window.addEventListener("hashchange", function () {
+        var h = location.hash.slice(1);
+        if (/^[abc]$/.test(h)) show(h);
+      });
+
+      var start = location.hash.slice(1);
+      show(/^[abc]$/.test(start) ? start : "a");
+
+      // If a photo file ever goes missing, draw the slot instead of a broken image.
+      document.querySelectorAll(".hero-photo img").forEach(function (img) {
+        img.addEventListener("error", function () {
+          img.closest(".hero-photo").classList.add("is-empty");
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

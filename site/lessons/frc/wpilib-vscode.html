@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WPILib + VS Code · Penguin Empire 2551</title>
+  <meta name="description" content="Install WPILib, create a command-based robot project, and deploy it to a roboRIO. What every field in the project creator does and what BUILD SUCCESSFUL actually proves." />
+  <link rel="icon" href="/assets/img/logo-2551.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Aldrich&family=Russo+One&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/brand.css" />
+  <link rel="stylesheet" href="/assets/css/layout.css" />
+  <link rel="stylesheet" href="/assets/css/lesson.css" />
+</head>
+<body data-page="lesson" data-lesson="frc-wpilib-vscode">
+  <main id="main" class="content">
+    <div class="content-inner">
+
+      <!-- ===================== HEADER ===================== -->
+      <header class="lesson-hero">
+        <nav class="crumbs" aria-label="Breadcrumb">
+          <a href="/">Home</a><span class="sep">/</span>
+          <a href="/syllabus.html">Phase 2 · FRC</a><span class="sep">/</span>
+          <span>Unit 2 · The Toolchain</span>
+        </nav>
+        <span class="badge badge--ocean">Unit 2</span>
+        <h1 class="lesson-title">WPILib + VS Code</h1>
+        <p class="lesson-lede">Game Tools runs the robot. WPILib is where you write the code that runs on it. This
+          lesson creates the project every remaining lesson in this phase adds to.</p>
+        <div class="lesson-meta">
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg> 20 min</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h2v-4H3zM9 20h2V10H9zM15 20h2V4h-2z"/></svg> Beginner</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2zM18 3v16"/></svg> Needs: FRC Game Tools</span>
+        </div>
+      </header>
+
+      <!-- ===================== GOAL ===================== -->
+      <div class="goal">
+        <div class="goal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div>
+        <div>
+          <h2>Your goal</h2>
+          <p>Create a new command-based robot project from the WPILib template and deploy it to a roboRIO, knowing
+            what each field in the project creator does.</p>
+        </div>
+      </div>
+
+      <nav class="toc" aria-label="On this page">
+        <strong>On this page</strong>
+        <ol>
+          <li><a href="#why">Why this matters</a></li>
+          <li><a href="#install">WPILib installs its own VS Code</a></li>
+          <li><a href="#palette">The WPILib commands</a></li>
+          <li><a href="#create">Creating a project</a></li>
+          <li><a href="#templates">Command based or timed</a></li>
+          <li><a href="#builddeploy">Build and deploy</a></li>
+          <li><a href="#challenges">Practice challenges</a></li>
+          <li><a href="#mistakes">Common mistakes</a></li>
+          <li><a href="#exercise">Project: Create the PenguinBot project</a></li>
+          <li><a href="#checkpoint">Checkpoint</a></li>
+        </ol>
+      </nav>
+
+      <div class="prose">
+
+        <!-- ===================== WHY ===================== -->
+        <h2 id="why"><span class="section-h"><span class="num">1</span> Why this matters</span></h2>
+
+        <div class="callout callout--why">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></div>
+          <div class="c-title">The captain's laptop died</div>
+          <div class="c-body">
+            <p>Halfway through one season the team captain's personal computer broke. He spent the rest of the year
+              writing robot code on the driver station laptop, the same Windows machine that goes to the field. The
+              robot never noticed and neither did the code.</p>
+            <p>New members worry they do not have a good enough machine for this. WPILib's VS Code, Gradle, and a
+              deploy over Wi-Fi run on ordinary hardware. What you need is a laptop that turns on.</p>
+          </div>
+        </div>
+
+        <p>A second expectation to set. One season the team tried to get robot code simulation working so software
+          could make progress before the robot was built. It never became reliable, so they went back to waiting for
+          real hardware. Tooling does not always cooperate, and that is not a reflection of your ability.</p>
+
+        <!-- ===================== INSTALL ===================== -->
+        <h2 id="install"><span class="section-h"><span class="num">2</span> WPILib installs its own VS Code</span></h2>
+        <p>This is the single most common source of confusion in Unit 2. WPILib is not an extension you add to a copy
+          of VS Code you already have. WPILib's own documentation puts it plainly:</p>
+
+        <div class="callout callout--verified">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4 12 14.01l-3-3"/></svg></div>
+          <div class="c-title">From the WPILib installation guide</div>
+          <div class="c-body"><p>"WPILib installs a separate version of VS Code. It does not use an already existing
+            installation. Each year has it's own copy of the tools appended with the year."</p></div>
+        </div>
+
+        <p>So after installing you will have two VS Code applications, and only one of them knows what a robot is.
+          Open the one named for this season. A student who opens their normal VS Code and cannot find the WPILib
+          commands has not broken anything. They are in the wrong application.</p>
+
+        <p>The installer brings more than the editor. It carries Gradle, a Java JDK, and the dashboards you meet
+          later in this unit, including Glass, Elastic, and AdvantageScope. You do not install Java separately.</p>
+
+        <p>Unlike Game Tools, WPILib itself is cross platform. Its stated requirements are Windows 10 or 11 (64 bit),
+          Ubuntu 22.04 or 24.04 (64 bit), and macOS 13.3 or higher on both Intel and Arm. So a Mac can write and
+          deploy robot code. It still cannot enable the robot.</p>
+
+        <!-- ===================== PALETTE ===================== -->
+        <h2 id="palette"><span class="section-h"><span class="num">3</span> The WPILib commands</span></h2>
+        <p>Every FRC action lives in one place. You can reach it three ways:</p>
+        <ul>
+          <li>The <strong>command palette</strong>, with <code>Ctrl+Shift+P</code> on Windows or
+            <code>Cmd+Shift+P</code> on macOS, then typing <code>WPILib</code>.</li>
+          <li>The <strong>WPILib icon</strong> in the top right of the editor window, which the team calls the red W.</li>
+          <li>Right clicking <code>build.gradle</code>, which offers the build and deploy actions directly.</li>
+        </ul>
+
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">The W icon is missing</div>
+          <div class="c-body"><p>Two causes, in order of likelihood. First, you are in your normal VS Code rather than
+            the WPILib copy. Second, you have no file open, so there is no editor for the icon to attach to. Open any
+            file in the project and look again.</p></div>
+        </div>
+
+        <!-- ===================== CREATE ===================== -->
+        <h2 id="create"><span class="section-h"><span class="num">4</span> Creating a project</span></h2>
+        <p>Run <strong>Create a new project</strong> from the palette. The project creator asks for these:</p>
+
+        <div class="tablewrap">
+          <table class="data">
+            <thead><tr><th>Field</th><th>What to pick</th><th>Why</th></tr></thead>
+            <tbody>
+              <tr><td>Project type</td><td>Template, then Java, then Command Robot</td><td>The structure Units 3, 7 and 8 are built around</td></tr>
+              <tr><td>Base folder</td><td>The template category, filled in by the previous choice</td><td>It follows from the project type</td></tr>
+              <tr><td>Project location</td><td>A local folder that is not synced by OneDrive or iCloud</td><td>A sync service writing files mid build corrupts the project</td></tr>
+              <tr><td>Project name</td><td><code>PenguinBot</code> for this course</td><td>It becomes the folder name</td></tr>
+              <tr><td>Team number</td><td><strong>2551</strong></td><td>Used for the package name and to find the robot when deploying</td></tr>
+              <tr><td>Enable desktop support</td><td>Leave it off</td><td>It exists for simulation and unit testing, which this course does not use</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>Generate the project, open it, and then wait. The first Gradle build takes a while and downloads
+          dependencies. Waiting for it to finish is a real step, not a formality. Editing files while it is running
+          is how people end up with confusing errors on a project they have not written anything in.</p>
+
+        <!-- ===================== TEMPLATES ===================== -->
+        <h2 id="templates"><span class="section-h"><span class="num">5</span> Command based or timed</span></h2>
+        <p>Two templates matter for a beginner.</p>
+        <div class="vocab">
+          <div class="vocab-term"><dt>Timed robot</dt><dd>Gives you one method per mode and expects you to write the logic yourself. Simpler to read on day one and more limiting once a robot has several mechanisms.</dd></div>
+          <div class="vocab-term"><dt>Command robot</dt><dd>The command based framework. Behaviours are objects with a defined end, mechanisms are subsystems that own their hardware, and buttons are bound to behaviours. This is what Team 2551 uses.</dd></div>
+        </div>
+        <p>Choose Command Robot deliberately rather than accepting a default. Unit 3 maps the files it generates and
+          Unit 7 teaches what they are for.</p>
+
+        <!-- ===================== BUILD DEPLOY ===================== -->
+        <h2 id="builddeploy"><span class="section-h"><span class="num">6</span> Build and deploy</span></h2>
+        <p>Two commands, and the difference between them matters.</p>
+
+        <div class="tablewrap">
+          <table class="data">
+            <thead><tr><th>Command</th><th>What it does</th><th>Needs a robot?</th></tr></thead>
+            <tbody>
+              <tr><td>Build Robot Code</td><td>Compiles your project locally</td><td>No</td></tr>
+              <tr><td>Deploy Robot Code</td><td>Builds if needed, then copies the program to the roboRIO and starts it</td><td>Yes</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>WPILib describes a successful deploy as printing "Build Successful" and then opening the RioLog, which
+          shows console output from the running robot program. That is the same output stream you saw in the Driver
+          Station's Messages tab last lesson.</p>
+
+        <div class="callout callout--verified">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4 12 14.01l-3-3"/></svg></div>
+          <div class="c-title">Never power off during a deploy</div>
+          <div class="c-body"><p>WPILib's warning is worth repeating exactly: "Avoid powering off the robot while
+            deploying robot code. Interrupting the deployment process can corrupt the roboRIO filesystem and prevent
+            your code from working until the roboRIO is re-imaged."</p></div>
+        </div>
+
+        <p>The practical consequence of the build and deploy split: a build failure is a code problem, and a deploy
+          failure on code that builds is almost always a connection problem. Check Communications on the Driver
+          Station before you touch a line of Java.</p>
+
+        <div class="callout callout--season">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
+          <div class="c-title">Verify for current season</div>
+          <div class="c-body"><p>Everything about the install moves between seasons: the download location, the
+            installer steps, where the WPILib icon sits, the exact wording of the palette commands, and the list of
+            project templates. Follow the current season's WPILib documentation rather than a screenshot from last
+            year.</p></div>
+        </div>
+
+        <!-- ===================== CHALLENGES ===================== -->
+        <h2 id="challenges"><span class="section-h"><span class="num">7</span> Practice challenges</span></h2>
+
+        <!-- order -->
+        <div class="challenge" data-kind="order">
+          <div class="challenge-head"><span class="ch-kind">Put them in order</span><span class="ch-title">From nothing to a running robot</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Drag these into the order you would actually do them.</p>
+            <ul class="order-list">
+              <li class="order-item" data-pos="5"><span class="grip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h16M4 16h16"/></svg></span><span>Wait for the first Gradle build to finish</span></li>
+              <li class="order-item" data-pos="7"><span class="grip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h16M4 16h16"/></svg></span><span>Deploy Robot Code</span></li>
+              <li class="order-item" data-pos="1"><span class="grip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h16M4 16h16"/></svg></span><span>Open the WPILib copy of VS Code</span></li>
+              <li class="order-item" data-pos="3"><span class="grip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h16M4 16h16"/></svg></span><span>Pick Template, then Java, then Command Robot</span></li>
+              <li class="order-item" data-pos="6"><span class="grip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h16M4 16h16"/></svg></span><span>Write your code</span></li>
+              <li class="order-item" data-pos="2"><span class="grip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h16M4 16h16"/></svg></span><span>Run "Create a new project"</span></li>
+              <li class="order-item" data-pos="4"><span class="grip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h16M4 16h16"/></svg></span><span>Choose a folder outside OneDrive and name the project</span></li>
+            </ul>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <!-- mcq missing W -->
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">No W icon</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">You open VS Code and there is no WPILib icon in the top right. Most likely
+              reason?</p>
+            <div class="options">
+              <label class="option" data-explain="Possible, and check the two likelier things first before reinstalling anything."><input type="radio" name="q-w" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">WPILib failed to install</span></label>
+              <label class="option" data-correct data-explain="Both halves are common. WPILib installs its own copy of VS Code, and the icon only appears once there is an open editor."><input type="radio" name="q-w" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">You are in your normal VS Code, or you have not opened a file yet</span></label>
+              <label class="option" data-explain="The Driver Station has nothing to do with the editor."><input type="radio" name="q-w" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">You need to enable the robot first</span></label>
+              <label class="option" data-explain="WPILib brings its own Java. Installing another one usually causes problems rather than fixing them."><input type="radio" name="q-w" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">You need to install Java separately</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <!-- mcq build vs deploy -->
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">No robot in the room</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">You are at home with no robot. Which of these can you still do?</p>
+            <div class="options">
+              <label class="option" data-explain="Deploy pushes the program to the roboRIO over the network. No robot, no deploy."><input type="radio" name="q-bd" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Deploy</span></label>
+              <label class="option" data-correct data-explain="Yes. Build compiles locally. Write and compile all you like. You only need the robot to watch it move."><input type="radio" name="q-bd" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Build</span></label>
+              <label class="option" data-explain="You can absolutely build. Most of a season's code is written away from the robot."><input type="radio" name="q-bd" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Neither</span></label>
+              <label class="option" data-explain="Deploy needs a real roboRIO to push to."><input type="radio" name="q-bd" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Both</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <!-- fib -->
+        <div class="challenge" data-kind="fib"
+             data-win="Those three answers are the ones people get wrong on their first project."
+             data-lose="Command Robot is the team's template. Desktop support is only for simulation. And a sync service editing your files mid build will corrupt the project.">
+          <div class="challenge-head"><span class="ch-kind">Fill in the blanks</span><span class="ch-title">Project creator settings</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Fill in the three settings for a new PenguinBot project.</p>
+<pre class="fib">Template:        <span class="blank" data-answer="Command Robot|command-based|command robot|Command|command based"></span>
+Desktop support: <span class="blank" data-answer="off|no|unchecked|false|disabled"></span>
+Folder:          anywhere except inside <span class="blank" data-answer="OneDrive|onedrive|a synced folder|iCloud|Dropbox"></span></pre>
+            <div class="challenge-actions">
+              <button class="btn btn--sm check-btn" type="button">Check</button>
+              <button class="btn btn--sm btn--ghost reset-btn" type="button">Reset</button>
+            </div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <!-- ===================== MISTAKES ===================== -->
+        <h2 id="mistakes"><span class="section-h"><span class="num">8</span> Common mistakes</span></h2>
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">Watch out for these</div>
+          <div class="c-body">
+            <ul>
+              <li><strong>Adding a WPILib extension to your existing VS Code.</strong> WPILib ships its own copy,
+                already set up. Open that one.</li>
+              <li><strong>Ticking desktop support because it sounds useful.</strong> It is for simulation and unit
+                testing. Leave it off.</li>
+              <li><strong>Treating yellow squiggles as errors.</strong> Red stops the build. Yellow is a warning,
+                usually something declared and not used yet, and the project still builds and deploys.</li>
+              <li><strong>Reading a failed deploy as a code problem.</strong> If it builds and will not deploy, look
+                at Communications on the Driver Station.</li>
+              <li><strong>Keeping the project in a synced folder.</strong> OneDrive and iCloud rewrite files while
+                Gradle is using them, which produces errors that look like nothing you did.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- ===================== EXERCISE ===================== -->
+        <div class="exercise" id="exercise">
+          <div class="exercise-head">
+            <div class="ex-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4L12 17l-6.3 4.4L8 14 2 9.4h7.6z"/></svg></div>
+            <div>
+              <div class="ex-kicker">Build it · PenguinBot</div>
+              <h3>Create the PenguinBot project</h3>
+            </div>
+          </div>
+          <div class="exercise-body">
+            <p>You know what the hardware is and how to enable the robot. Now make the place all of it will live.
+              This is a real task on your own machine. Your ticks are saved, so you can come back to it.</p>
+            <p class="cl-count"></p>
+            <ol class="checklist" data-key="penguinbot-project">
+              <li>Open the <b>WPILib</b> copy of VS Code, not your normal one.</li>
+              <li>Run <b>Create a new project</b> from the command palette.</li>
+              <li>Choose <b>Template</b>, then <b>Java</b>, then <b>Command Robot</b>.</li>
+              <li>Pick a local folder that is not synced, and name the project <b>PenguinBot</b>.</li>
+              <li>Enter team number <b>2551</b>. Leave <b>desktop support off</b>. Generate the project.</li>
+              <li>Open the project and wait for the first Gradle build to finish.</li>
+              <li>Run <b>Build Robot Code</b> and confirm it succeeds with zero changes from you.</li>
+              <li>Write down the files and folders you see under <code>src/main/java/frc/robot</code>.</li>
+            </ol>
+            <details class="reveal">
+              <summary><svg class="rv-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg> What you should end up with</summary>
+              <div class="reveal-body">
+                <p>A <code>PenguinBot</code> folder holding a Gradle project. Under
+                  <code>src/main/java/frc/robot</code> you will find <code>Main.java</code>, <code>Robot.java</code>,
+                  <code>RobotContainer.java</code>, <code>Constants.java</code>, and the folders
+                  <code>subsystems/</code> and <code>commands/</code> with example files in them.</p>
+                <p>Build Robot Code reports success. You have not written a line and the project already compiles.
+                  That baseline matters: if a build fails later, you changed something, and you know what.</p>
+                <p>If you cannot do this yet, because you have no Windows machine or no install, keep reading anyway.
+                  Unit 3 maps every one of those files, and everything from Unit 4 onward can be practised in this
+                  site's sandboxes without a robot.</p>
+              </div>
+            </details>
+            <p>That project is missing one thing before it can talk to a SparkMax. The REV library is not in it. That
+              is the next lesson.</p>
+          </div>
+        </div>
+
+        <!-- ===================== CHECKPOINT ===================== -->
+        <div class="checkpoint" id="checkpoint">
+          <div class="checkpoint-head">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            <h3>Checkpoint</h3>
+            <span class="cp-score">0 / 4</span>
+          </div>
+          <div class="checkpoint-body">
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q1.</span> What does the WPILib installer give you?</div>
+              <div class="options">
+                <label class="option" data-explain="It gives you a whole dedicated copy instead, one per season."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">An extension for your existing VS Code</span></label>
+                <label class="option" data-correct data-explain="Right, along with Gradle, a JDK, and the dashboards. That is the copy you open."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Its own copy of VS Code with the FRC tooling built in</span></label>
+                <label class="option" data-explain="The Driver Station comes from FRC Game Tools, which is a separate Windows only install."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The Driver Station</span></label>
+                <label class="option" data-explain="Vendor libraries are added per project, which is the next lesson."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The REV and CTRE libraries</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q2.</span> Which template does this team use, and why?</div>
+              <div class="options">
+                <label class="option" data-explain="Timed is simpler on day one and more limiting once a robot has several mechanisms."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Timed, because it is simpler</span></label>
+                <label class="option" data-correct data-explain="Yes. That structure is what Units 3, 7 and 8 of this course are about."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Command Robot, because sequencing and button bindings are built in</span></label>
+                <label class="option" data-explain="Choose deliberately. The default may not be the one you want."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Whichever the creator defaults to</span></label>
+                <label class="option" data-explain="You would spend the season rebuilding the framework by hand."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A blank project</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q3.</span> Your project will not deploy but it builds fine. Where do you look?</div>
+              <div class="options">
+                <label class="option" data-explain="A successful build already proved the syntax is fine."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Your Java syntax</span></label>
+                <label class="option" data-correct data-explain="Correct. Build is local and deploy needs the network. Communications is the first light to read."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The connection to the robot</span></label>
+                <label class="option" data-explain="The template compiled successfully, so it is not the problem."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The template you chose</span></label>
+                <label class="option" data-explain="Wrong CAN IDs stop a motor from moving. They do not stop a deploy."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The CAN IDs</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q4.</span> Why keep the project out of OneDrive?</div>
+              <div class="options">
+                <label class="option" data-explain="There is no rule about it. It is a practical hazard."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It is against the rules</span></label>
+                <label class="option" data-explain="Robot projects are small. Size is not the issue."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The files are too large</span></label>
+                <label class="option" data-correct data-explain="Yes. Two processes writing the same files produces failures that look like nothing you did."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A sync service writing files during a build can corrupt the project</span></label>
+                <label class="option" data-explain="It can store them fine. Storing is not the problem, rewriting during a build is."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">OneDrive cannot store .java files</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check my answers</button></div>
+          </div>
+        </div>
+
+        <!-- ===================== COMPLETE ===================== -->
+        <div class="mark-complete">
+          <div class="mc-text"><b>You have a project that builds.</b><span>Next: adding the vendor library that makes <code>SparkMax</code> a real class.</span></div>
+          <button class="complete-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>Mark as complete</span></button>
+        </div>
+
+      </div><!-- /prose -->
+    </div><!-- /content-inner -->
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="/assets/js/course.js"></script>
+  <script src="/assets/js/site.js"></script>
+  <script src="/assets/js/widgets.js"></script>
+</body>
+</html>

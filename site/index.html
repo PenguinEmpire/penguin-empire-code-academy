@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Penguin Empire 2551 · Code Academy — Learn FRC Java from Zero</title>
+  <meta name="description" content="The Penguin Empire Robotics 2551 programming academy. Go from zero coding experience to programming a competition FRC robot in Java with WPILib — interactive lessons, a live Java compiler, and real-mechanism projects." />
+  <link rel="icon" href="/assets/img/logo-2551.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Aldrich&family=Russo+One&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/brand.css" />
+  <link rel="stylesheet" href="/assets/css/layout.css" />
+  <link rel="stylesheet" href="/assets/css/pages.css" />
+  <link rel="stylesheet" href="/assets/css/hero.css" />
+  <link rel="preload" href="/assets/img/robot-field.jpg" as="image" fetchpriority="high" />
+  <!-- Runs before first paint so the scroll-reveal hidden state never flashes.
+       Without JS this class is absent and all content renders normally. -->
+  <script>document.documentElement.classList.add("js");</script>
+</head>
+<body data-page="home">
+  <main id="main">
+
+    <!-- ============================ HERO ============================ -->
+    <section class="hero hero--split">
+      <div class="hero-grid" aria-hidden="true"></div>
+
+      <div class="hero-inner">
+        <div class="hero-copy hero-anim">
+          <p class="hero-mark">
+            <img src="/assets/img/logo-2551.png" alt="" width="30" height="30" />
+            <span class="hero-mark-txt">Penguin Empire · Team 2551</span>
+            <span class="hero-mark-rule" aria-hidden="true"></span>
+          </p>
+
+          <h1>From <span class="accent">zero code</span> to driving a&nbsp;robot.</h1>
+
+          <p class="hero-lede">
+            The exact path every new Penguin Empire programmer takes — from your
+            first line of <strong>Java</strong> to code running on the competition
+            robot.
+          </p>
+
+          <div class="hero-cta">
+            <a class="btn btn--primary btn--lg" href="/lessons/java/what-is-programming.html">Start Lesson 1 →</a>
+            <a class="btn btn--ghost btn--lg hero-btn-ghost" href="/syllabus.html">See the curriculum</a>
+          </div>
+        </div>
+
+        <div class="hero-stage">
+          <div class="win">
+            <div class="win-bar">
+              <span class="win-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="win-tab">IntakeSubsystem.java</span>
+              <span class="win-run">▶ Run</span>
+            </div>
+            <div class="win-body">
+              <div class="win-code">
+                <div class="cl"><span class="tok-key">public class</span> <span class="tok-cls">IntakeSubsystem</span> <span class="tok-key">extends</span> <span class="tok-cls">SubsystemBase</span> {</div>
+                <div class="cl">  <span class="tok-key">private final</span> <span class="tok-cls">CANSparkMax</span> motor =</div>
+                <div class="cl">      <span class="tok-key">new</span> <span class="tok-cls">CANSparkMax</span>(<span class="tok-num">9</span>, <span class="tok-cls">MotorType</span>.kBrushless);</div>
+                <div class="cl">&nbsp;</div>
+                <div class="cl">  <span class="tok-key">public void</span> <span class="tok-fn">runIntake</span>(<span class="tok-key">double</span> speed) {</div>
+                <div class="cl">    motor.<span class="tok-fn">set</span>(speed);</div>
+                <div class="cl">  }</div>
+                <div class="cl">}</div>
+              </div>
+              <div class="win-out win-out--row">
+                <div class="oh">Output</div>
+                <pre>[WPILib] IntakeSubsystem registered.
+[REV] CANSparkMax ID 9 — ready.
+<span class="ok">Robot enabled — Teleop.</span></pre>
+              </div>
+            </div>
+          </div>
+
+          <figure class="hero-photo hero-photo--field" data-slot="Robot photo · 4:3">
+            <img src="/assets/img/robot-field.jpg" alt="Team 2551's robot on the field during a match" width="1000" height="562" fetchpriority="high" />
+            <figcaption>Where the code ends up</figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================== STATS BAND ==========================
+         The counts that used to sit in the hero credibility line, given
+         their own light band flush under the dark hero. site.js clones the
+         set into a seamless ticker; without JS (or with reduced motion) it
+         stays a plain centered row, which is why only one set is authored. -->
+    <section class="statband" aria-label="The academy at a glance">
+      <div class="statband-viewport">
+        <div class="statband-track">
+          <ul class="statband-set">
+            <li class="stat"><span class="stat-n">19</span><span class="stat-l">Units</span></li>
+            <li class="stat"><span class="stat-n">64</span><span class="stat-l">Lessons, zero to robot</span></li>
+            <li class="stat"><span class="stat-n">2</span><span class="stat-l">Phases · Java, then the robot</span></li>
+            <li class="stat"><span class="stat-n">0</span><span class="stat-l">Installs to get started</span></li>
+            <li class="stat"><span class="stat-n">Live</span><span class="stat-l">Java compiler in the page</span></li>
+            <li class="stat"><span class="stat-n">2551</span><span class="stat-l">Penguin Empire Robotics</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================ PHASES ============================ -->
+    <section class="section">
+      <div class="container">
+        <div class="section-kicker"><span class="badge badge--dot">Both phases required</span></div>
+        <div class="section-head reveal-on-scroll">
+          <h2>Two phases. Both required. One working robot.</h2>
+          <p>You can't skip either phase — Phase 1 teaches you the language, Phase 2 puts it
+             on the robot. Complete them in order and you'll have everything you need to
+             program a real FRC robot from scratch.</p>
+        </div>
+        <div class="tracks" data-stagger>
+          <a class="track-card java reveal-on-scroll" href="/lessons/java/what-is-programming.html">
+            <span class="tc-glyph">{ }</span>
+            <span class="tc-num">Phase 1 · Foundations</span>
+            <h3>Java &amp; Object-Oriented Programming</h3>
+            <p>Variables, loops, methods, arrays, and the big one — classes &amp; objects.
+               Every concept runs live in your browser. Capped by the Alice's Kitchen project.</p>
+            <div class="tc-meta">
+              <div><b>6</b>units</div>
+              <div><b>33</b>lessons</div>
+              <div><b>Live</b>compiler</div>
+            </div>
+            <span class="btn btn--primary btn--sm">Begin Phase 1 →</span>
+          </a>
+          <a class="track-card frc reveal-on-scroll" href="/lessons/frc/moving-a-motor.html">
+            <span class="tc-glyph">2551</span>
+            <span class="tc-num">Phase 2 · The Robot</span>
+            <h3>FRC Robot Programming</h3>
+            <p>Motors, encoders, PID, command-based structure, swerve drive, Limelight
+               vision, and PathPlanner autonomous — built on real Team 2551 hardware.</p>
+            <div class="tc-meta">
+              <div><b>13</b>units</div>
+              <div><b>31</b>lessons</div>
+              <div><b>WPILib</b>verified</div>
+            </div>
+            <span class="btn btn--primary btn--sm">Preview Phase 2 →</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================== FEATURE SHOWCASES ======================= -->
+    <!-- wope's alternating image + text feature blocks. -->
+    <section class="section alt">
+      <div class="container">
+        <div class="section-kicker"><span class="badge badge--dot">Not a textbook</span></div>
+        <div class="section-head reveal-on-scroll">
+          <h2>Built to be done, not just read.</h2>
+          <p>Every lesson follows the same rhythm — read a little, then do something — so a
+             concept sticks before the next one builds on it.</p>
+        </div>
+
+        <!-- Showcase 1 · Live compiler -->
+        <div class="showcase reveal-on-scroll">
+          <div class="sc-text">
+            <span class="badge badge--ocean">Live Java compiler</span>
+            <h3>Write real Java. Run it on the page.</h3>
+            <p>Every Phase 1 lesson has a compiler built right in. Type real Java, hit Run,
+               and watch it execute — no installs, no setup. You see your code work long
+               before you ever touch a robot.</p>
+            <ul class="sc-list">
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Runs a real JDK, right in the browser</li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Edit the example and re-run it instantly</li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> The same language the robot is programmed in</li>
+            </ul>
+          </div>
+          <div class="sc-media">
+            <div class="win">
+              <div class="win-bar">
+                <span class="win-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+                <span class="win-tab">Greeting.java</span>
+                <span class="win-run">▶ Run</span>
+              </div>
+              <div class="win-body">
+                <div class="win-code">
+                  <div class="cl"><span class="tok-key">String</span> team = <span class="tok-str">"Penguin Empire"</span>;</div>
+                  <div class="cl"><span class="tok-key">int</span> number = <span class="tok-num">2551</span>;</div>
+                  <div class="cl"><span class="tok-cls">System</span>.out.<span class="tok-fn">println</span>(team + <span class="tok-str">" "</span> + number);</div>
+                </div>
+                <div class="win-out win-out--row">
+                  <div class="oh">Output</div>
+                  <pre><span class="ok">Penguin Empire 2551</span></pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Showcase 2 · Challenges -->
+        <div class="showcase flip reveal-on-scroll">
+          <div class="sc-text">
+            <span class="badge badge--ocean">Hands-on challenges</span>
+            <h3>Don't just read it — prove you've got it.</h3>
+            <p>Fill-in-the-blank code, predict-the-output puzzles, and quick checkpoints with
+               instant feedback. Each one has to click before the lesson moves on, so nothing
+               gets quietly skipped.</p>
+            <ul class="sc-list">
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Fill-in-the-blank &amp; predict-the-output</li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Instant right/wrong feedback with hints</li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Reveal the worked solution when you're ready</li>
+            </ul>
+          </div>
+          <div class="sc-media">
+            <div class="mock">
+              <div class="mock-head"><span class="mock-kind">Fill in the blank</span><span class="mock-num">Checkpoint 3 / 4</span></div>
+              <p class="mock-prompt">Complete the line so it prints a greeting to the console:</p>
+              <div class="mock-codeline"><code><span class="tok-cls">System</span>.out.<span class="mb">_______</span>(<span class="tok-str">"Hello, 2551!"</span>);</code></div>
+              <div class="mock-row">
+                <span class="mock-input">println</span>
+                <span class="mock-check">Check ✓</span>
+              </div>
+              <div class="mock-feedback ok">✓ Correct — <code>println</code> prints a line, then moves to the next.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Showcase 3 · Real-mechanism projects -->
+        <div class="showcase reveal-on-scroll">
+          <div class="sc-text">
+            <span class="badge badge--ocean">Real-mechanism projects</span>
+            <h3>Build the actual robot, one subsystem at a time.</h3>
+            <p>Each unit ends with a buildable project tied to a real mechanism — an intake, a
+               flywheel, an arm, the drivetrain. The code you write maps directly to hardware
+               that goes on the field, with the team's war stories and pitfalls baked in.</p>
+            <ul class="sc-list">
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Verified against WPILib, REV, CTRE &amp; Limelight docs</li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Real Team 2551 CAN IDs and wiring</li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> "The fried motor" war stories so you don't repeat them</li>
+            </ul>
+          </div>
+          <div class="sc-media">
+            <div class="mock mock-project">
+              <div class="mock-proj-head">
+                <span class="mock-proj-icon" aria-hidden="true">⚙</span>
+                <div>
+                  <div class="mock-proj-title">Project · Intake Subsystem</div>
+                  <div class="mock-proj-sub">Unit 7 · Structuring Behavior</div>
+                </div>
+                <span class="mock-proj-tag">Buildable</span>
+              </div>
+              <ul class="mock-checklist">
+                <li class="done">Create the <code>IntakeSubsystem</code> class</li>
+                <li class="done">Wire the roller motor (CAN ID 21)</li>
+                <li class="done">Add <code>runIntake()</code> / <code>stop()</code></li>
+                <li>Bind it to the operator's right trigger</li>
+              </ul>
+              <div class="mock-progress"><div style="width:75%"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================= FEATURE GRID ========================= -->
+    <section class="section">
+      <div class="container">
+        <div class="section-head reveal-on-scroll">
+          <h2>Plus everything you'd expect from a real course</h2>
+        </div>
+        <div class="features features--3" data-stagger>
+          <div class="feature reveal-on-scroll">
+            <div class="f-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></div>
+            <h3>War stories &amp; pitfalls</h3>
+            <p>The fried motor. The two-day voltage bug. We keep the team's hard-won lessons so you don't repeat them.</p>
+          </div>
+          <div class="feature reveal-on-scroll">
+            <div class="f-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4 12 14.01l-3-3"/></svg></div>
+            <h3>Verified WPILib syntax</h3>
+            <p>Code samples are checked against the official WPILib, REV, CTRE and Limelight docs — not someone's memory.</p>
+          </div>
+          <div class="feature reveal-on-scroll">
+            <div class="f-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 14l3-3 3 3 5-5"/></svg></div>
+            <h3>Saved progress</h3>
+            <p>Check off lessons as you finish. The site remembers where you are so you can pick up next meeting.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================ PATH ============================ -->
+    <section class="section alt">
+      <div class="container">
+        <div class="section-kicker"><span class="badge badge--dot">The journey</span></div>
+        <div class="section-head reveal-on-scroll">
+          <h2>How a Penguin programmer is made</h2>
+          <p>The order matters. You can't build autonomous until the mechanics and vision work —
+             so we teach in the right sequence.</p>
+        </div>
+        <div class="path">
+          <div class="path-step reveal-on-scroll"><div class="ps-n">1</div><div><h4>Learn to think in code</h4><p>Java fundamentals — variables, logic, loops, and methods — all runnable in your browser.</p></div></div>
+          <div class="path-step reveal-on-scroll"><div class="ps-n">2</div><div><h4>Learn to think in objects</h4><p>Classes, objects, encapsulation, and inheritance: the model the entire WPILib library is built on.</p></div></div>
+          <div class="path-step reveal-on-scroll"><div class="ps-n">3</div><div><h4>Meet the robot</h4><p>RoboRIO, CAN bus, motors, the toolchain, and the project anatomy that everything hangs on.</p></div></div>
+          <div class="path-step reveal-on-scroll"><div class="ps-n">4</div><div><h4>Make it move &amp; sense</h4><p>Spin a motor, read an encoder, and tame it with PID closed-loop control.</p></div></div>
+          <div class="path-step reveal-on-scroll"><div class="ps-n">5</div><div><h4>Structure real behavior</h4><p>Commands, subsystems, button bindings, swerve driving, and Limelight vision.</p></div></div>
+          <div class="path-step reveal-on-scroll"><div class="ps-n">6</div><div><h4>Run it yourself</h4><p>PathPlanner autonomous and a game-day playbook. Now you can program the robot.</p></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================ FAQ ============================ -->
+    <section class="section">
+      <div class="container">
+        <div class="section-kicker"><span class="badge badge--dot">Questions</span></div>
+        <div class="section-head reveal-on-scroll">
+          <h2>Frequently asked questions</h2>
+          <p>New to the team or new to code? Start here.</p>
+        </div>
+        <div class="faq">
+          <details class="reveal-on-scroll">
+            <summary>Do I need any coding experience?</summary>
+            <div class="faq-a">None at all. The academy starts at absolute zero — Phase 1 assumes you've
+              never written a line of code and builds up step by step, from variables all the way to
+              full object-oriented programming.</div>
+          </details>
+          <details class="reveal-on-scroll">
+            <summary>Do I have to install anything to start?</summary>
+            <div class="faq-a">No. All of Phase 1 runs in your browser through an embedded Java compiler, so
+              you can write and run real code with nothing installed. When you reach Phase 2, the course
+              walks you through setting up the FRC toolchain (WPILib + VS Code) so you can deploy to a robot.</div>
+          </details>
+          <details class="reveal-on-scroll">
+            <summary>How long does it take?</summary>
+            <div class="faq-a">It's self-paced. The course splits into Phase 1 (Java &amp; OOP, 6 units) and
+              Phase 2 (FRC robot programming, 13 units), and the site saves your progress automatically — so
+              you can do a few lessons each meeting and pick up exactly where you left off.</div>
+          </details>
+          <details class="reveal-on-scroll">
+            <summary>Do I need a robot to learn?</summary>
+            <div class="faq-a">No. You learn all of Java and most robot concepts without any hardware. The
+              Phase 2 code samples are verified against the official WPILib, REV, CTRE, and Limelight docs,
+              and each unit ends with a buildable project you can apply to a real subsystem when hardware is available.</div>
+          </details>
+          <details class="reveal-on-scroll">
+            <summary>What will I be able to do when I finish?</summary>
+            <div class="faq-a">Program a competition FRC robot in Java from scratch — motors, encoders, PID,
+              command-based structure, swerve drive, Limelight vision, and PathPlanner autonomous.</div>
+          </details>
+          <details class="reveal-on-scroll">
+            <summary>Is this only for Team 2551 members?</summary>
+            <div class="faq-a">It's built as the programming onboarding path for Penguin Empire Robotics 2551,
+              with our real hardware and conventions. But anyone learning to program an FRC robot in Java is
+              welcome to follow along.</div>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================ CTA ============================ -->
+    <section class="section">
+      <div class="container">
+        <div class="cta-band reveal-on-scroll">
+          <h2>Ready? It starts with one line of code.</h2>
+          <p>No setup, no installs, no experience. Open Lesson 1 and make the computer say hello.</p>
+          <a class="btn btn--lg" href="/lessons/java/what-is-programming.html" style="--btn-bg:#fff;--btn-fg:#06768f">Start learning now →</a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="/assets/js/course.js"></script>
+  <script src="/assets/js/site.js" defer></script>
+</body>
+</html>

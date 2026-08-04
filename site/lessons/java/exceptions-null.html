@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Exceptions &amp; the Null Trap · Penguin Empire 2551</title>
+  <meta name="description" content="What null means, why NullPointerException happens, and how try and catch let a program survive an error instead of stopping." />
+  <link rel="icon" href="/assets/img/logo-2551.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Aldrich&family=Russo+One&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/brand.css" />
+  <link rel="stylesheet" href="/assets/css/layout.css" />
+  <link rel="stylesheet" href="/assets/css/lesson.css" />
+</head>
+<body data-page="lesson" data-lesson="j-exceptions-null">
+  <main id="main" class="content">
+    <div class="content-inner">
+
+      <header class="lesson-hero">
+        <nav class="crumbs" aria-label="Breadcrumb">
+          <a href="/">Home</a><span class="sep">/</span>
+          <a href="/syllabus.html">Phase 1 · Java &amp; OOP</a><span class="sep">/</span>
+          <span>Unit J4 · Data Structures</span>
+        </nav>
+        <span class="badge badge--ocean">Lesson 19</span>
+        <h1 class="lesson-title">Exceptions &amp; the Null Trap</h1>
+        <p class="lesson-lede">Lesson 6 taught you to read a crash. This lesson is about the two crashes
+          you will cause most often, and what to do about them.</p>
+        <div class="lesson-meta">
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg> 25 min</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h2v-4H3zM9 20h2V10H9zM15 20h2V4h-2z"/></svg> Beginner</span>
+        </div>
+      </header>
+
+      <div class="goal">
+        <div class="goal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div>
+        <div>
+          <h2>Your goal</h2>
+          <p>Explain what <code>null</code> is, avoid a <code>NullPointerException</code>, and catch an
+            exception so the program keeps running.</p>
+        </div>
+      </div>
+
+      <nav class="toc" aria-label="On this page">
+        <strong>On this page</strong>
+        <ol>
+          <li><a href="#null">What null means</a></li>
+          <li><a href="#npe">NullPointerException</a></li>
+          <li><a href="#guard">Checking before you use</a></li>
+          <li><a href="#bounds">Out of bounds</a></li>
+          <li><a href="#trycatch">try and catch</a></li>
+          <li><a href="#finally">finally</a></li>
+          <li><a href="#which">Catch or fix</a></li>
+          <li><a href="#run">Run it yourself</a></li>
+          <li><a href="#challenges">Practice challenges</a></li>
+          <li><a href="#mistakes">Common mistakes</a></li>
+          <li><a href="#exercise">Exercise</a></li>
+          <li><a href="#checkpoint">Checkpoint</a></li>
+        </ol>
+      </nav>
+
+      <div class="prose">
+
+        <h2 id="null"><span class="section-h"><span class="num">1</span> What null means</span></h2>
+        <p><code>null</code> means a variable holds no object. It is not zero and it is not an empty
+          string. It is the absence of a thing.</p>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">String name = null;
+System.out.println("name is " + name);       // name is null
+System.out.println(name == null);            // true</code></pre>
+        </div>
+
+        <p>You have already produced <code>null</code> without meaning to. An array of
+          <code>String</code> starts every slot at <code>null</code>, and so does every cell of a
+          <code>String</code> grid.</p>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">String[] subsystems = new String[2];
+System.out.println(subsystems[0]);           // null</code></pre>
+        </div>
+
+        <p>Only object types can be <code>null</code>. An <code>int</code>, <code>double</code> or
+          <code>boolean</code> always holds a real value.</p>
+
+        <h2 id="npe"><span class="section-h"><span class="num">2</span> NullPointerException</span></h2>
+        <p>Printing <code>null</code> is fine. Calling a method on it is not.</p>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">String name = null;
+System.out.println(name.length());</code></pre>
+        </div>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">console</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">Exception in thread "main" java.lang.NullPointerException:
+        Cannot invoke "String.length()" because "name" is null</code></pre>
+        </div>
+
+        <p>The message names the method you tried to call and the variable that was empty. That is usually
+          enough to find the line without any other information.</p>
+
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">There is nothing there to ask</div>
+          <div class="c-body"><p>A method call needs an object to act on. When the variable holds
+            <code>null</code> there is no object, so Java stops rather than guessing. The fix is almost
+            never to catch this. The fix is to work out why the variable was empty.</p></div>
+        </div>
+
+        <h2 id="guard"><span class="section-h"><span class="num">3</span> Checking before you use</span></h2>
+        <p>Test for <code>null</code> with <code>==</code> or <code>!=</code>. This is one of the few
+          places <code>==</code> is correct on an object.</p>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">String label = null;
+
+if (label != null &amp;&amp; label.length() &gt; 0) {
+    System.out.println("label ok");
+} else {
+    System.out.println("no label, skipping");
+}</code></pre>
+        </div>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">no label, skipping</code></pre>
+        </div>
+
+        <p>The order matters. <code>&amp;&amp;</code> stops as soon as the left side is false, so
+          <code>label.length()</code> is never reached when <code>label</code> is <code>null</code>.
+          Writing the two checks the other way round crashes.</p>
+
+        <h2 id="bounds"><span class="section-h"><span class="num">4</span> Out of bounds</span></h2>
+        <p>The other common crash comes from asking for a position that does not exist. You have seen all
+          three forms.</p>
+
+        <div class="vocab">
+          <div class="vocab-term"><dt>String</dt><dd><code>StringIndexOutOfBoundsException</code> from <code>charAt</code> or <code>substring</code>.</dd></div>
+          <div class="vocab-term"><dt>Array</dt><dd><code>ArrayIndexOutOfBoundsException</code> from an index past the end.</dd></div>
+          <div class="vocab-term"><dt>ArrayList</dt><dd><code>IndexOutOfBoundsException</code> from <code>get</code>.</dd></div>
+        </div>
+
+        <p>All three messages tell you the index you asked for and the size you had. The cause is almost
+          always a loop that ran one step too far.</p>
+
+        <h2 id="trycatch"><span class="section-h"><span class="num">5</span> try and catch</span></h2>
+        <p><code>try</code> marks code that might fail. <code>catch</code> says what to do if it does.
+          Instead of stopping, the program runs the catch block and carries on.</p>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">int[] ids = {2, 3, 4};
+
+try {
+    System.out.println(ids[5]);
+} catch (ArrayIndexOutOfBoundsException e) {
+    System.out.println("caught: " + e.getMessage());
+}
+
+System.out.println("program continues");</code></pre>
+        </div>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">caught: Index 5 out of bounds for length 3
+program continues</code></pre>
+        </div>
+
+        <p>The variable <code>e</code> holds the exception. <code>e.getMessage()</code> gives the same text
+          you would have seen in the crash. The last line proves the program survived.</p>
+        <p>The type in the parentheses decides what gets caught. Catching
+          <code>ArrayIndexOutOfBoundsException</code> does not catch a
+          <code>NullPointerException</code>.</p>
+
+        <h2 id="finally"><span class="section-h"><span class="num">6</span> finally</span></h2>
+        <p>A <code>finally</code> block runs whether or not an exception happened.</p>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">try {
+    System.out.println(10 / 0);
+} catch (ArithmeticException e) {
+    System.out.println("caught: " + e.getMessage());
+} finally {
+    System.out.println("finally always runs");
+}</code></pre>
+        </div>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">caught: / by zero
+finally always runs</code></pre>
+        </div>
+
+        <p>Use it for cleanup that must happen either way, such as stopping a motor.</p>
+
+        <h2 id="which"><span class="section-h"><span class="num">7</span> Catch or fix</span></h2>
+        <p>Catching an exception is not the same as fixing it. Most exceptions in your own code are bugs,
+          and catching them hides the bug instead of removing it.</p>
+        <p>Fix the code when the exception means you made a mistake, such as a loop that runs past the end
+          of an array.</p>
+        <p>Catch the exception when the failure is expected and the program has something sensible to do
+          instead, such as a sensor that is not connected.</p>
+
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">Never catch and do nothing</div>
+          <div class="c-body"><p>An empty catch block turns a loud crash into a silent wrong answer, which
+            lesson 6 identified as the most expensive kind of bug. At minimum, print something.</p></div>
+        </div>
+
+        <h2 id="run"><span class="section-h"><span class="num">8</span> Run it yourself</span></h2>
+        <p>Run it, then remove the try and catch and compare what happens.</p>
+
+        <div class="sandbox" data-compiler data-title="Live Java Sandbox" data-lang="java">
+          <script type="text/x-java" class="sb-src">
+public class Main {
+    public static void main(String[] args) {
+        int[] ids = {2, 3, 4};
+
+        try {
+            System.out.println(ids[5]);
+        } catch (ArrayIndexOutOfBoundsException e) {
+            System.out.println("caught: " + e.getMessage());
+        }
+
+        System.out.println("program continues");
+
+        String label = null;
+        if (label != null && label.length() > 0) {
+            System.out.println("label ok");
+        } else {
+            System.out.println("no label, skipping");
+        }
+
+        // Try it: delete the try and catch and run again.
+        // Then swap the two halves of the label check and see it crash.
+    }
+}
+          </script>
+        </div>
+
+        <h2 id="challenges"><span class="section-h"><span class="num">9</span> Practice challenges</span></h2>
+
+        <div class="challenge" data-kind="text"
+             data-win="Correct. The exception is caught, so the program does not stop and the last line runs."
+             data-lose="Both lines print. Catching the exception lets the program carry on to the line after the catch block.">
+          <div class="challenge-head"><span class="ch-kind">Predict the output</span><span class="ch-title">Does it survive?</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Does the last line print? Type <code>yes</code> or <code>no</code>.</p>
+            <pre class="fib">int[] ids = {2, 3, 4};
+try {
+    System.out.println(ids[5]);
+} catch (ArrayIndexOutOfBoundsException e) {
+    System.out.println("caught");
+}
+System.out.println("done");</pre>
+            <div class="answer-row">
+              <input class="answer-input" type="text" placeholder="yes or no" data-answer="yes" aria-label="Your answer" />
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check answer</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="text"
+             data-win="Correct. A String array starts every slot at null."
+             data-lose="It prints null. new String[3] creates the slots but puts no text in them.">
+          <div class="challenge-head"><span class="ch-kind">Predict the output</span><span class="ch-title">The default</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">What is printed?</p>
+            <pre class="fib">String[] names = new String[3];
+System.out.println(names[0]);</pre>
+            <div class="answer-row">
+              <input class="answer-input" type="text" placeholder="Type the output…" data-answer="null" aria-label="Your answer" />
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check answer</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="fib"
+             data-win="Correct. Check for null first, and && stops before the method call when the check fails."
+             data-lose="Test that the variable is not null first, and join the two checks with && so the second is skipped when the first fails.">
+          <div class="challenge-head"><span class="ch-kind">Fill in the blanks</span><span class="ch-title">Guard the call</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Make this safe when <code>label</code> is <code>null</code>.</p>
+<pre class="fib">if (label <span class="blank" data-answer="!="></span> null <span class="blank" data-answer="&amp;&amp;"></span> label.length() &gt; 0) {
+    System.out.println(label);
+}</pre>
+            <div class="challenge-actions">
+              <button class="btn btn--sm check-btn" type="button">Check</button>
+              <button class="btn btn--sm btn--ghost reset-btn" type="button">Reset</button>
+            </div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">Catch or fix</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Your loop reads one slot past the end of an array. What is the right
+              response?</p>
+            <div class="options">
+              <label class="option" data-explain="That hides a bug you can remove completely. The loop is wrong, not the array."><input type="radio" name="q-cf" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Wrap it in try and catch</span></label>
+              <label class="option" data-correct data-explain="Correct. This exception means the loop condition is wrong. Fix the condition and the exception cannot happen."><input type="radio" name="q-cf" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Fix the loop condition</span></label>
+              <label class="option" data-explain="An empty catch turns a loud crash into a silent wrong answer, which is worse."><input type="radio" name="q-cf" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Catch it and do nothing</span></label>
+              <label class="option" data-explain="Padding the array hides the real problem and wastes space. The loop is still wrong."><input type="radio" name="q-cf" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Make the array bigger</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <h2 id="mistakes"><span class="section-h"><span class="num">10</span> Common mistakes</span></h2>
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">Watch out for these</div>
+          <div class="c-body">
+            <ul>
+              <li>Calling a method on a variable that might be <code>null</code>.</li>
+              <li>Putting the null check second, so the method call runs first and crashes.</li>
+              <li>Confusing <code>null</code> with <code>0</code> or with an empty string.</li>
+              <li>Catching an exception that is really a bug in your own loop.</li>
+              <li>Writing an empty catch block.</li>
+              <li>Catching the wrong type, so the exception you actually get is not caught at all.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="exercise" id="exercise">
+          <div class="exercise-head">
+            <div class="ex-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4L12 17l-6.3 4.4L8 14 2 9.4h7.6z"/></svg></div>
+            <div>
+              <div class="ex-kicker">Exercise</div>
+              <h3>Survive the Bad Data</h3>
+            </div>
+          </div>
+          <div class="exercise-body">
+            <p>An array of subsystem names has a gap in it. Print a report without crashing.</p>
+            <ol class="task-list">
+              <li>Loop over the array and print each name.</li>
+              <li>Skip any slot that is <code>null</code> and print <code>(empty slot)</code> instead.</li>
+              <li>Wrap a deliberate out of bounds read in try and catch, and print the caught message.</li>
+              <li>Print a final line to prove the program survived.</li>
+            </ol>
+            <div class="sandbox" data-compiler data-title="Project Sandbox" data-lang="java">
+              <script type="text/x-java" class="sb-src">
+public class Main {
+    public static void main(String[] args) {
+        String[] subsystems = new String[4];
+        subsystems[0] = "Intake";
+        subsystems[2] = "Shooter";
+        // slots 1 and 3 were never filled
+
+        // TODO: print each one, handling the null slots
+
+        // TODO: read subsystems[9] inside a try and catch
+
+        System.out.println("report finished");
+    }
+}
+              </script>
+            </div>
+            <details class="reveal">
+              <summary><svg class="rv-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg> Show one possible solution</summary>
+              <div class="reveal-body">
+                <div class="code">
+                  <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">solution · Main.java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">public class Main {
+    public static void main(String[] args) {
+        String[] subsystems = new String[4];
+        subsystems[0] = "Intake";
+        subsystems[2] = "Shooter";
+
+        for (int i = 0; i &lt; subsystems.length; i++) {
+            if (subsystems[i] == null) {
+                System.out.println(i + ": (empty slot)");
+            } else {
+                System.out.println(i + ": " + subsystems[i]);
+            }
+        }
+
+        try {
+            System.out.println(subsystems[9]);
+        } catch (ArrayIndexOutOfBoundsException e) {
+            System.out.println("caught: " + e.getMessage());
+        }
+
+        System.out.println("report finished");
+    }
+}</code></pre>
+                </div>
+                <div class="code">
+                  <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">0: Intake
+1: (empty slot)
+2: Shooter
+3: (empty slot)
+caught: Index 9 out of bounds for length 4
+report finished</code></pre>
+                </div>
+                <p>The null check is a fix, because those slots really are empty. The try and catch is a
+                  demonstration only. In real code that read would simply be removed.</p>
+              </div>
+            </details>
+          </div>
+        </div>
+
+        <div class="checkpoint" id="checkpoint">
+          <div class="checkpoint-head">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            <h3>Checkpoint</h3>
+            <span class="cp-score">0 / 5</span>
+          </div>
+          <div class="checkpoint-body">
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q1.</span> What does <code>null</code> mean?</div>
+              <div class="options">
+                <label class="option" data-correct data-explain="Correct. There is no object, which is why calling a method on it fails."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The variable holds no object</span></label>
+                <label class="option" data-explain="Zero is a real number. null is the absence of an object entirely."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The number zero</span></label>
+                <label class="option" data-explain="An empty string is still a real String object with a length of 0. null is not."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">An empty piece of text</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q2.</span> Why does <code>label.length()</code> crash when <code>label</code> is <code>null</code>?</div>
+              <div class="options">
+                <label class="option" data-correct data-explain="Correct. A method needs an object to act on, and there is none."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">There is no object for the method to run on</span></label>
+                <label class="option" data-explain="length is a real method on String. The problem is that there is no String."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>length()</code> does not exist</span></label>
+                <label class="option" data-explain="This compiles without complaint. It fails while running."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It is a compiler error</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q3.</span> Why must the null check come first in <code>label != null &amp;&amp; label.length() &gt; 0</code>?</div>
+              <div class="options">
+                <label class="option" data-correct data-explain="Correct. && stops as soon as the left side is false, so the method call is never reached."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Because <code>&amp;&amp;</code> skips the right side when the left is false</span></label>
+                <label class="option" data-explain="Java evaluates the left side first regardless of length or style."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Because shorter checks always go first</span></label>
+                <label class="option" data-explain="The order genuinely changes the behaviour. Reversed, this crashes."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The order does not matter</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q4.</span> What does <code>catch</code> let the program do?</div>
+              <div class="options">
+                <label class="option" data-correct data-explain="Correct. The catch block runs and then execution continues after it."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Keep running instead of stopping</span></label>
+                <label class="option" data-explain="The exception still happened. Catching only decides what to do about it."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Prevent the exception from happening</span></label>
+                <label class="option" data-explain="Catching does not repair anything. The bug is still there unless you fix it."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Fix the bug automatically</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q5.</span> When is catching an exception the wrong choice?</div>
+              <div class="options">
+                <label class="option" data-correct data-explain="Correct. If the exception is caused by your own mistake, remove the mistake instead of hiding it."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">When the exception is a bug you could fix</span></label>
+                <label class="option" data-explain="This is a good reason to catch. The failure is expected and there is something sensible to do."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">When a sensor might not be connected</span></label>
+                <label class="option" data-explain="Catching is a normal tool. It is only wrong when it hides a fixable mistake."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Always</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check my answers</button></div>
+          </div>
+        </div>
+
+        <div class="mark-complete">
+          <div class="mc-text"><b>Unit J4 complete.</b><span>Next unit: object-oriented programming, which is how WPILib itself is built.</span></div>
+          <button class="complete-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>Mark as complete</span></button>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="/assets/js/course.js"></script>
+  <script src="/assets/js/site.js"></script>
+  <script src="/assets/js/widgets.js"></script>
+</body>
+</html>

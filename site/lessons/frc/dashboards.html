@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboards &amp; AdvantageScope · Penguin Empire 2551</title>
+  <meta name="description" content="Choose between the console, a live dashboard and a graph over time. Read a velocity trace to spot a motor hitting a current limit, and plan what PenguinBot should publish." />
+  <link rel="icon" href="/assets/img/logo-2551.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Aldrich&family=Russo+One&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/brand.css" />
+  <link rel="stylesheet" href="/assets/css/layout.css" />
+  <link rel="stylesheet" href="/assets/css/lesson.css" />
+</head>
+<body data-page="lesson" data-lesson="frc-dashboards">
+  <main id="main" class="content">
+    <div class="content-inner">
+
+      <!-- ===================== HEADER ===================== -->
+      <header class="lesson-hero">
+        <nav class="crumbs" aria-label="Breadcrumb">
+          <a href="/">Home</a><span class="sep">/</span>
+          <a href="/syllabus.html">Phase 2 · FRC</a><span class="sep">/</span>
+          <span>Unit 2 · The Toolchain</span>
+        </nav>
+        <span class="badge badge--ocean">Unit 2</span>
+        <h1 class="lesson-title">Dashboards &amp; AdvantageScope</h1>
+        <p class="lesson-lede">A printed line tells you something happened. A live number tells you where you are. A
+          graph tells you what happened while nobody was looking. Most robot bugs need the third one.</p>
+        <div class="lesson-meta">
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg> 20 min</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h2v-4H3zM9 20h2V10H9zM15 20h2V4h-2z"/></svg> Beginner</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2zM18 3v16"/></svg> Needs: CAN IDs</span>
+        </div>
+      </header>
+
+      <!-- ===================== GOAL ===================== -->
+      <div class="goal">
+        <div class="goal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div>
+        <div>
+          <h2>Your goal</h2>
+          <p>Choose the right observation tool for a question, and read a velocity trace to spot a motor hitting a
+            limit.</p>
+        </div>
+      </div>
+
+      <nav class="toc" aria-label="On this page">
+        <strong>On this page</strong>
+        <ol>
+          <li><a href="#why">Why this matters</a></li>
+          <li><a href="#three">Three tools, three time horizons</a></li>
+          <li><a href="#nt">How a value gets to your laptop</a></li>
+          <li><a href="#which">Which dashboard</a></li>
+          <li><a href="#traces">Reading a trace</a></li>
+          <li><a href="#naming">Naming what you publish</a></li>
+          <li><a href="#challenges">Practice challenges</a></li>
+          <li><a href="#mistakes">Common mistakes</a></li>
+          <li><a href="#exercise">Project: PenguinBot's telemetry plan</a></li>
+          <li><a href="#checkpoint">Checkpoint</a></li>
+        </ol>
+      </nav>
+
+      <div class="prose">
+
+        <!-- ===================== WHY ===================== -->
+        <h2 id="why"><span class="section-h"><span class="num">1</span> Why this matters</span></h2>
+
+        <div class="callout callout--why">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></div>
+          <div class="c-title">The cutout nobody could see</div>
+          <div class="c-body">
+            <p>A motor on the team's robot kept cutting out. Nobody could work out why, because every time somebody
+              looked at the live number it was fine. The failure was over before anyone could turn their head.</p>
+            <p>Graphing amperage over time in AdvantageScope showed it immediately. The motor was hitting a current
+              limit and dropping out, and the spike lasted a fraction of a second. A live value cannot show you
+              something that happens for fifty milliseconds.</p>
+            <p>A second beat from the same team: they used SmartDashboard until it was on its way out, then moved to
+              Glass. Your dashboard is a season decision, not a permanent one.</p>
+          </div>
+        </div>
+
+        <!-- ===================== THREE ===================== -->
+        <h2 id="three"><span class="section-h"><span class="num">2</span> Three tools, three time horizons</span></h2>
+        <p>Everything in this lesson comes down to one question: over what span of time do you need to see?</p>
+
+        <div class="tablewrap">
+          <table class="data">
+            <thead><tr><th>Tool</th><th>Shows you</th><th>Good for</th></tr></thead>
+            <tbody>
+              <tr><td>Driver Station console</td><td>An event that happened, as text</td><td>Errors, exceptions, a message you printed</td></tr>
+              <tr><td>Live dashboard</td><td>A named value, right now</td><td>Is the arm where I think it is? Is vision seeing a tag?</td></tr>
+              <tr><td>AdvantageScope</td><td>A value over time, including after the fact</td><td>Anything intermittent, and anything you cannot watch while it happens</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>Choosing well is most of your debugging speed. A problem that happens once in ten tries cannot be caught
+          with a live number, because by the time you look at the screen the moment has gone.</p>
+
+        <!-- ===================== NT ===================== -->
+        <h2 id="nt"><span class="section-h"><span class="num">3</span> How a value gets to your laptop</span></h2>
+        <p>Your code runs on the roboRIO. Dashboards run on your laptop. The thing connecting them is
+          <strong>NetworkTables</strong>, a shared table of named values that both sides can read.</p>
+        <p>Your code writes a value under a name. Every dashboard connected to the robot sees it appear. That is the
+          whole mechanism, and it is why a dashboard value differs from a printed line:</p>
+
+        <div class="diagram">
+<span class="hl">println</span>     one line of text, once, gone into the scroll
+<span class="hl">NetworkTables</span>  a NAMED value that keeps updating, so it can be graphed
+        </div>
+
+        <p>The naming part is what makes graphing possible. A trace needs an identity that persists across fifty
+          updates a second.</p>
+
+        <!-- ===================== WHICH ===================== -->
+        <h2 id="which"><span class="section-h"><span class="num">4</span> Which dashboard</span></h2>
+        <p>The WPILib installer ships several. Here is what WPILib itself says each one is for.</p>
+
+        <div class="tablewrap">
+          <table class="data">
+            <thead><tr><th>Dashboard</th><th>WPILib's description</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td>Glass</td><td>A "robot data visualization tool", meant as "a programmer's tool rather than a proper dashboard in a competition environment, with a focus on high performance real time plotting"</td><td>Supported</td></tr>
+              <tr><td>Elastic</td><td>A "simple and modern Shuffleboard alternative", meant "to serve as a dashboard for competition but can also be used for testing"</td><td>Supported</td></tr>
+              <tr><td>AdvantageScope</td><td>A "robot diagnostics, log review/analysis, and data visualization application"</td><td>Supported</td></tr>
+              <tr><td>Shuffleboard</td><td>A "straightforward and easily customizable dashboard"</td><td>Deprecated</td></tr>
+              <tr><td>SmartDashboard</td><td>A "simple and efficient dashboard that uses relatively few computer resources"</td><td>Deprecated</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout callout--season">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
+          <div class="c-title">Verify for current season</div>
+          <div class="c-body"><p>This is the most season dependent page in the whole track. WPILib states that
+            SmartDashboard and Shuffleboard "do not have a person to maintain them" and "are deprecated and will be
+            removed for the 2027 season." That is exactly the change the team went through when they moved off
+            SmartDashboard. Check what your team is using this year before you build tooling around one.</p></div>
+        </div>
+
+        <p>For the work in this course, the split is simple. Use a live dashboard while you are standing next to the
+          robot and want to see a number. Use AdvantageScope when the interesting thing is over before you can look.</p>
+
+        <!-- ===================== TRACES ===================== -->
+        <h2 id="traces"><span class="section-h"><span class="num">5</span> Reading a trace</span></h2>
+        <p>A trace is a value plotted against time. Three shapes cover most of what you will see this season. In all
+          three, the flat line is the output your code commanded and the curve is the velocity that resulted.</p>
+
+        <div class="figure">
+          <div class="figure-body">
+            <svg viewBox="0 0 640 150" role="img" aria-label="Trace A: velocity rises smoothly and holds steady at the commanded level" style="width:100%;height:auto">
+              <rect x="0" y="0" width="640" height="150" fill="none"/>
+              <line x1="40" y1="120" x2="620" y2="120" stroke="#94a3b8" stroke-width="1.5"/>
+              <line x1="40" y1="15" x2="40" y2="120" stroke="#94a3b8" stroke-width="1.5"/>
+              <line x1="40" y1="45" x2="620" y2="45" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 5"/>
+              <path d="M40 120 C 110 120, 130 50, 190 46 L620 45" fill="none" stroke="#1f7a8c" stroke-width="3"/>
+              <text x="52" y="38" font-size="13" fill="#64748b">commanded</text>
+              <text x="200" y="72" font-size="13" fill="#1f7a8c">velocity</text>
+              <text x="590" y="140" font-size="13" fill="#64748b">time</text>
+            </svg>
+            <p><strong>Trace A.</strong> Velocity rises and settles on the commanded level. This is what healthy
+              looks like.</p>
+          </div>
+        </div>
+
+        <div class="figure">
+          <div class="figure-body">
+            <svg viewBox="0 0 640 150" role="img" aria-label="Trace B: velocity overshoots the commanded level and oscillates above and below it" style="width:100%;height:auto">
+              <line x1="40" y1="120" x2="620" y2="120" stroke="#94a3b8" stroke-width="1.5"/>
+              <line x1="40" y1="15" x2="40" y2="120" stroke="#94a3b8" stroke-width="1.5"/>
+              <line x1="40" y1="60" x2="620" y2="60" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 5"/>
+              <path d="M40 120 C 90 120, 110 18, 160 20 C 210 22, 220 108, 270 105 C 320 102, 330 34, 380 37 C 430 40, 440 86, 490 84 C 540 82, 560 62, 620 60" fill="none" stroke="#c2410c" stroke-width="3"/>
+              <text x="52" y="53" font-size="13" fill="#64748b">commanded</text>
+              <text x="590" y="140" font-size="13" fill="#64748b">time</text>
+            </svg>
+            <p><strong>Trace B.</strong> Velocity overshoots and swings above and below the target before settling.
+              You will meet this shape properly in Unit 6, where it means the control gains are too aggressive.</p>
+          </div>
+        </div>
+
+        <div class="figure">
+          <div class="figure-body">
+            <svg viewBox="0 0 640 150" role="img" aria-label="Trace C: velocity rises and holds, then drops abruptly to zero while the commanded output stays constant" style="width:100%;height:auto">
+              <line x1="40" y1="120" x2="620" y2="120" stroke="#94a3b8" stroke-width="1.5"/>
+              <line x1="40" y1="15" x2="40" y2="120" stroke="#94a3b8" stroke-width="1.5"/>
+              <line x1="40" y1="45" x2="620" y2="45" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 5"/>
+              <path d="M40 120 C 110 120, 130 50, 190 46 L400 45 L404 120 L470 120 C 500 120, 520 50, 560 46 L620 45" fill="none" stroke="#b91c1c" stroke-width="3"/>
+              <text x="52" y="38" font-size="13" fill="#64748b">commanded, unchanged</text>
+              <text x="410" y="103" font-size="13" fill="#b91c1c">it drops out here</text>
+              <text x="590" y="140" font-size="13" fill="#64748b">time</text>
+            </svg>
+            <p><strong>Trace C.</strong> Velocity holds, then falls off a cliff and comes back, while the commanded
+              output never changes. Your code did not do this. Something on the hardware side cut the motor off.</p>
+          </div>
+        </div>
+
+        <p>Trace C is the team's war story drawn out. If you were watching a live number, you would see a healthy
+          value both before and after the drop and nothing in between. The graph is the only place the failure
+          exists.</p>
+
+        <!-- ===================== NAMING ===================== -->
+        <h2 id="naming"><span class="section-h"><span class="num">6</span> Naming what you publish</span></h2>
+        <p>Two habits worth forming before you publish anything.</p>
+        <p><strong>Name for a stranger.</strong> Six weeks from now, at a competition, you will have three traces on
+          screen. A value called <code>value1</code> tells nobody anything, including you. A value called
+          <code>arm/position</code> needs no explanation. The name is the only documentation a trace ever gets.</p>
+        <p><strong>Publish deliberately.</strong> Twenty values updating fifty times a second costs loop time and
+          buries the three you actually need. Publish what answers a question you have.</p>
+
+        <div class="vocab">
+          <div class="vocab-term"><dt>dashboard</dt><dd>A live view of the named values your code publishes.</dd></div>
+          <div class="vocab-term"><dt>NetworkTables</dt><dd>The shared table of named values that carries data between the robot and your laptop.</dd></div>
+          <div class="vocab-term"><dt>AdvantageScope</dt><dd>A tool that graphs those values over time and reads back log files after the fact.</dd></div>
+          <div class="vocab-term"><dt>trace</dt><dd>One value plotted against time. The shape of it is the information.</dd></div>
+        </div>
+
+        <!-- ===================== CHALLENGES ===================== -->
+        <h2 id="challenges"><span class="section-h"><span class="num">7</span> Practice challenges</span></h2>
+
+        <!-- mcq trace -->
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">Read trace C</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Look at trace C above. Velocity climbs, holds, then drops abruptly to zero
+              while the commanded output stays constant. What does this most likely show?</p>
+            <div class="options">
+              <label class="option" data-explain="The commanded output is flat in this trace. The drop is not coming from your set call."><input type="radio" name="q-tr" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Your code set the output to 0</span></label>
+              <label class="option" data-correct data-explain="Right, and this is exactly the bug the team found by graphing amperage over time. A live number would have missed it entirely."><input type="radio" name="q-tr" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The motor hit a current limit and cut out</span></label>
+              <label class="option" data-explain="A broken sensor usually reads garbage or zero from the start, not a clean climb followed by a drop."><input type="radio" name="q-tr" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The sensor reading the velocity is broken</span></label>
+              <label class="option" data-explain="Possible, and a timeout would also fill the console with errors. The current limit cutout is the textbook shape here."><input type="radio" name="q-tr" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The CAN bus timed out</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <!-- mcq tool -->
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">Pick the tool</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">A mechanism works nine times and fails once, and you can never catch it
+              happening. Which tool?</p>
+            <div class="options">
+              <label class="option" data-explain="It tells you whether an error was thrown, and not what the values were doing around the failure."><input type="radio" name="q-tool" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The console</span></label>
+              <label class="option" data-explain="By the time you look, the moment is gone. That is the entire problem."><input type="radio" name="q-tool" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A live dashboard</span></label>
+              <label class="option" data-correct data-explain="Yes. Intermittent problems need history, not a snapshot."><input type="radio" name="q-tool" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">AdvantageScope, graphing it over time</span></label>
+              <label class="option" data-explain="Never the answer, and it costs an hour."><input type="radio" name="q-tool" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Reinstall Game Tools</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <!-- fib -->
+        <div class="challenge" data-kind="fib"
+             data-win="Three tools, three time horizons. Choosing well is most of debugging speed."
+             data-lose="Console gives you an event that happened. A dashboard gives you the value now. AdvantageScope gives you the value over time.">
+          <div class="challenge-head"><span class="ch-kind">Fill in the blanks</span><span class="ch-title">Three horizons</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Complete the sentence.</p>
+<pre class="fib">The console shows you an <span class="blank" data-answer="error|message|event|exception"></span>,
+a dashboard shows you a value <span class="blank" data-answer="now|right now|live|currently"></span>,
+and AdvantageScope shows you a value <span class="blank" data-answer="over time|history|through time|across time"></span>.</pre>
+            <div class="challenge-actions">
+              <button class="btn btn--sm check-btn" type="button">Check</button>
+              <button class="btn btn--sm btn--ghost reset-btn" type="button">Reset</button>
+            </div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <!-- short answer -->
+        <div class="challenge" data-kind="text"
+             data-win="You cannot tell what it is. Name values like arm/position and intake/current. The name is the only documentation a trace ever gets."
+             data-lose="Nobody, including you, will know what value1 is. Names like arm/position cost nothing now and save you at 9am on a Saturday.">
+          <div class="challenge-head"><span class="ch-kind">Predict</span><span class="ch-title">Six weeks later</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">You publish a value under the name <code>value1</code>. Six weeks later you
+              are at a competition with three traces on screen. What is the problem?</p>
+            <div class="answer-row">
+              <input class="answer-input" type="text" placeholder="say it in a few words" data-answer="you don't know what it is|bad name|you cant tell what it is|no idea what it is|unclear name|meaningless name|you dont know what it is|you can't tell what it is|the name means nothing" aria-label="Your answer" />
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <!-- ===================== MISTAKES ===================== -->
+        <h2 id="mistakes"><span class="section-h"><span class="num">8</span> Common mistakes</span></h2>
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">Watch out for these</div>
+          <div class="c-body">
+            <ul>
+              <li><strong>Confusing a dashboard with the Driver Station.</strong> The Driver Station enables the
+                robot. A dashboard displays values. Different window, different job.</li>
+              <li><strong>Treating println and a dashboard as the same thing.</strong> Printing sends a one off line
+                of text. A dashboard shows a named value that keeps updating, which is what makes it graphable.</li>
+              <li><strong>Thinking AdvantageScope is for advanced teams.</strong> It is the fastest way to find an
+                intermittent problem, and reading a trace is easier than reading a log.</li>
+              <li><strong>Publishing everything so you do not miss anything.</strong> Twenty values at fifty times a
+                second costs loop time and buries the three that matter.</li>
+              <li><strong>Assuming one dashboard is "the FRC dashboard."</strong> Glass is this team's current
+                choice. SmartDashboard was, until it was not.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- ===================== EXERCISE ===================== -->
+        <div class="exercise" id="exercise">
+          <div class="exercise-head">
+            <div class="ex-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4L12 17l-6.3 4.4L8 14 2 9.4h7.6z"/></svg></div>
+            <div>
+              <div class="ex-kicker">Build it · PenguinBot</div>
+              <h3>PenguinBot's telemetry plan</h3>
+            </div>
+          </div>
+          <div class="exercise-body">
+            <p>You have a CAN ID map and a full toolbox. You have not written robot code yet, so plan what you will
+              want to see when you do.</p>
+            <ol class="task-list">
+              <li><b>List the values</b> PenguinBot should publish. Cover the intake, the arm, and the drivetrain.</li>
+              <li><b>For each one,</b> write the name you would publish it under, which tool you would watch it in,
+                and the single question it answers.</li>
+              <li><b>Name the one value</b> you would graph over time on the strength of the war story alone.</li>
+            </ol>
+            <details class="reveal">
+              <summary><svg class="rv-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg> Reveal the reference plan</summary>
+              <div class="reveal-body">
+                <div class="tablewrap">
+                  <table class="data">
+                    <thead><tr><th>Value</th><th>Published name</th><th>Watch in</th><th>Question it answers</th></tr></thead>
+                    <tbody>
+                      <tr><td>Arm position</td><td><code>arm/position</code></td><td>Live dashboard</td><td>Where is the arm right now?</td></tr>
+                      <tr><td>Arm at setpoint</td><td><code>arm/atSetpoint</code></td><td>Live dashboard</td><td>Is it safe to run the next step?</td></tr>
+                      <tr><td>Intake current</td><td><code>intake/current</code></td><td>AdvantageScope</td><td>Is the roller stalling on a game piece?</td></tr>
+                      <tr><td>Arm current</td><td><code>arm/current</code></td><td>AdvantageScope</td><td>Is it hitting a current limit and cutting out?</td></tr>
+                      <tr><td>Drive speed</td><td><code>drive/speed</code></td><td>Live dashboard</td><td>Is the drivetrain responding at all?</td></tr>
+                      <tr><td>Vision has a target</td><td><code>vision/hasTarget</code></td><td>Live dashboard</td><td>Can we aim right now?</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+                <p>The one to graph over time on the war story alone is <strong>current draw</strong>. A motor that
+                  cuts out intermittently looks perfectly healthy every single time you check a live number.</p>
+                <p>Notice that half of these values do not exist yet. You cannot publish an arm position until you
+                  can read one, and reading one is Unit 5.</p>
+              </div>
+            </details>
+            <p>Unit 2 is done. You can install it, connect to it, address it, and watch it. Unit 3 is the map of the
+              project itself, and where every line of code you are about to write belongs.</p>
+          </div>
+        </div>
+
+        <!-- ===================== CHECKPOINT ===================== -->
+        <div class="checkpoint" id="checkpoint">
+          <div class="checkpoint-head">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            <h3>Checkpoint</h3>
+            <span class="cp-score">0 / 4</span>
+          </div>
+          <div class="checkpoint-body">
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q1.</span> What carries a published value from the robot to your laptop?</div>
+              <div class="options">
+                <label class="option" data-explain="CAN lives inside the robot, between the roboRIO and the devices."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The CAN bus</span></label>
+                <label class="option" data-correct data-explain="Yes. A shared table of named values that both sides can see."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">NetworkTables</span></label>
+                <label class="option" data-explain="That sends text to the console. It is not a named, updating value."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>System.out.println</code></span></label>
+                <label class="option" data-explain="That is the vendor client's private connection to one device."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The USB cable to the SparkMax</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q2.</span> What does AdvantageScope do that a live dashboard cannot?</div>
+              <div class="options">
+                <label class="option" data-explain="Dashboards show live values too. That is their whole job."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Show live values</span></label>
+                <label class="option" data-correct data-explain="Right. History is what lets you see a failure that lasted fifty milliseconds an hour ago."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Show a value's history over time, including after the fact</span></label>
+                <label class="option" data-explain="Neither one controls anything. The Driver Station enables the robot."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Control the robot</span></label>
+                <label class="option" data-explain="Nothing in this lesson changes code. These are observation tools."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Change values on the robot</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q3.</span> Why did the team stop using SmartDashboard?</div>
+              <div class="options">
+                <label class="option" data-explain="Nothing about a dashboard breaks a robot. It only displays."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It broke their robot</span></label>
+                <label class="option" data-correct data-explain="Correct. WPILib now lists both SmartDashboard and Shuffleboard as deprecated, with removal targeted for the 2027 season."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It was on its way out, so they moved to a supported dashboard</span></label>
+                <label class="option" data-explain="It is described by WPILib as using relatively few computer resources, so speed was not the issue."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It was too slow</span></label>
+                <label class="option" data-explain="It is part of the WPILib install, so cost was never a factor."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It started charging money</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q4.</span> You want to know whether the arm is where you think it is, right now, while standing next to the robot. Which tool?</div>
+              <div class="options">
+                <label class="option" data-explain="It would work, and it buries the console in text at fifty lines a second."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Print it to the console every loop</span></label>
+                <label class="option" data-correct data-explain="Right. One named value, updating live, is exactly what a dashboard is for."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Publish it and watch it on a live dashboard</span></label>
+                <label class="option" data-explain="Overkill for a question you can answer by looking. Save the graph for what you cannot watch."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Record a log and graph it afterwards</span></label>
+                <label class="option" data-explain="The client talks to one device over USB and does not know what your code thinks the arm position is."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Open the REV Hardware Client</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check my answers</button></div>
+          </div>
+        </div>
+
+        <!-- ===================== COMPLETE ===================== -->
+        <div class="mark-complete">
+          <div class="mc-text"><b>Unit 2 complete. The toolbox is full.</b><span>Unit 3: the map of the project, and where every line you write belongs.</span></div>
+          <button class="complete-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>Mark as complete</span></button>
+        </div>
+
+      </div><!-- /prose -->
+    </div><!-- /content-inner -->
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="/assets/js/course.js"></script>
+  <script src="/assets/js/site.js"></script>
+  <script src="/assets/js/widgets.js"></script>
+</body>
+</html>

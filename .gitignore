@@ -1,0 +1,21 @@
+# dependencies
+node_modules/
+
+# dev artifacts
+.shots/
+temporary screenshots/
+_site/
+*.log
+
+# raw photo originals — the resized derivatives that the site actually uses
+# live in site/assets/img/
+teamimages/
+
+# third-party design reference screenshots
+WebsiteHomepageMockup/
+
+# stale agent config from a different machine, kept locally only
+CLAUDE(2).md
+
+# os
+.DS_Store

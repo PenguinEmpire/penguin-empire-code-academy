@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Methods That Act on Objects · Penguin Empire 2551</title>
+  <meta name="description" content="An instance method reads and changes the fields of the specific object it is called on. Calling with dot notation, methods that change state, methods that return a value, and one method calling another." />
+  <link rel="icon" href="/assets/img/logo-2551.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Aldrich&family=Russo+One&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/brand.css" />
+  <link rel="stylesheet" href="/assets/css/layout.css" />
+  <link rel="stylesheet" href="/assets/css/lesson.css" />
+</head>
+<body data-page="lesson" data-lesson="j-instance-methods">
+  <main id="main" class="content">
+    <div class="content-inner">
+
+      <header class="lesson-hero">
+        <nav class="crumbs" aria-label="Breadcrumb">
+          <a href="/">Home</a><span class="sep">/</span>
+          <a href="/syllabus.html">Phase 1 · Java &amp; OOP</a><span class="sep">/</span>
+          <span>Unit J5 · Object-Oriented Programming</span>
+        </nav>
+        <span class="badge badge--ocean">Lesson 22</span>
+        <h1 class="lesson-title">Methods That Act on Objects</h1>
+        <p class="lesson-lede">A method written without <code>static</code> belongs to an object rather than
+          to the class. It reads and changes that one object's own fields.</p>
+        <div class="lesson-meta">
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg> 20 min</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h2v-4H3zM9 20h2V10H9zM15 20h2V4h-2z"/></svg> Beginner</span>
+        </div>
+      </header>
+
+      <div class="goal">
+        <div class="goal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div>
+        <div>
+          <h2>Your goal</h2>
+          <p>Write methods that change an object's fields, write one that returns a value based on those
+            fields, and call one method from inside another.</p>
+        </div>
+      </div>
+
+      <nav class="toc" aria-label="On this page">
+        <strong>On this page</strong>
+        <ol>
+          <li><a href="#instance">A method without static</a></li>
+          <li><a href="#calling">Calling it with a dot</a></li>
+          <li><a href="#change">A method that changes fields</a></li>
+          <li><a href="#returning">A method that returns a value</a></li>
+          <li><a href="#combining">One method calling another</a></li>
+          <li><a href="#run">Run it yourself</a></li>
+          <li><a href="#challenges">Practice challenges</a></li>
+          <li><a href="#mistakes">Common mistakes</a></li>
+          <li><a href="#exercise">Exercise</a></li>
+          <li><a href="#checkpoint">Checkpoint</a></li>
+        </ol>
+      </nav>
+
+      <div class="prose">
+
+        <h2 id="instance"><span class="section-h"><span class="num">1</span> A method without static</span></h2>
+        <p>Every method so far has been <code>static</code>, sitting next to <code>main</code> and called by
+          name alone. Leave <code>static</code> off, and the method belongs to an object instead of to the
+          class. This is called an <strong>instance method</strong>.</p>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">the shape</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">class Flywheel {
+    double currentRPM;
+    double targetRPM;
+
+    void spinUp() {
+        currentRPM = targetRPM;
+    }
+}</code></pre>
+        </div>
+
+        <p>Inside <code>spinUp()</code>, the plain names <code>currentRPM</code> and <code>targetRPM</code>
+          refer to the fields of whichever <code>Flywheel</code> object the method is running on. There is no
+          need to write <code>this.</code> here, since nothing else in the method shares those names.</p>
+
+        <h2 id="calling"><span class="section-h"><span class="num">2</span> Calling it with a dot</span></h2>
+        <p>An instance method is called through an object, the same dot you already use to reach a field.</p>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">class Flywheel {
+    int canId;
+    String name;
+    double targetRPM;
+    double currentRPM;
+
+    Flywheel(int canId, String name, double targetRPM) {
+        this.canId = canId;
+        this.name = name;
+        this.targetRPM = targetRPM;
+        this.currentRPM = 0;
+    }
+
+    void spinUp() {
+        currentRPM = targetRPM;
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Flywheel shooter = new Flywheel(5, "Shooter Flywheel", 5000);
+        System.out.println(shooter.currentRPM);
+
+        shooter.spinUp();
+        System.out.println(shooter.currentRPM);
+    }
+}</code></pre>
+        </div>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">0.0
+5000.0</code></pre>
+        </div>
+
+        <p><code>shooter.spinUp()</code> runs the method with <code>currentRPM</code> and
+          <code>targetRPM</code> pointing at <code>shooter</code>'s own fields. A second
+          <code>Flywheel</code> object would keep its own <code>currentRPM</code> completely untouched.</p>
+
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">No object, no call</div>
+          <div class="c-body"><p>An instance method cannot be called by name alone the way a static method
+            can. <code>spinUp();</code> on its own, with no object and no dot, fails to compile with
+            <code>cannot find symbol</code>. Java has no idea which <code>Flywheel</code> you mean.</p></div>
+        </div>
+
+        <h2 id="change"><span class="section-h"><span class="num">3</span> A method that changes fields</span></h2>
+        <p><code>spinUp()</code> is a <code>void</code> method whose entire job is changing state. A second
+          method can undo it the same way.</p>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">void stop() {
+    currentRPM = 0;
+}</code></pre>
+        </div>
+
+        <p>Nothing is passed in and nothing is returned. Calling <code>shooter.stop()</code> is only useful
+          for the change it makes to <code>shooter</code>'s own <code>currentRPM</code>.</p>
+
+        <h2 id="returning"><span class="section-h"><span class="num">4</span> A method that returns a value</span></h2>
+        <p>An instance method can return a value the same way any method can, computed from the object's own
+          fields.</p>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">boolean isAtSpeed() {
+    return Math.abs(currentRPM - targetRPM) &lt;= 50;
+}</code></pre>
+        </div>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">Flywheel shooter = new Flywheel(5, "Shooter Flywheel", 5000);
+System.out.println(shooter.isAtSpeed());
+
+shooter.spinUp();
+System.out.println(shooter.isAtSpeed());
+
+shooter.stop();
+System.out.println(shooter.isAtSpeed());</code></pre>
+        </div>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">false
+true
+false</code></pre>
+        </div>
+
+        <p><code>isAtSpeed()</code> reads <code>currentRPM</code> and <code>targetRPM</code> but changes
+          neither. The same object gives a different answer at different points in the program, because its
+          own <code>currentRPM</code> changed in between.</p>
+
+        <h2 id="combining"><span class="section-h"><span class="num">5</span> One method calling another</span></h2>
+        <p>A method belonging to an object can call another method on that same object, no dot needed, the
+          same way it can read a field directly.</p>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">void report() {
+    System.out.println(name + ": " + currentRPM + " / " + targetRPM
+        + " RPM, at speed: " + isAtSpeed());
+}</code></pre>
+        </div>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">Shooter Flywheel: 0.0 / 5000.0 RPM, at speed: false
+Shooter Flywheel: 5000.0 / 5000.0 RPM, at speed: true
+Shooter Flywheel: 0.0 / 5000.0 RPM, at speed: false</code></pre>
+        </div>
+
+        <p><code>report()</code> calls <code>isAtSpeed()</code> exactly like a static method calls another
+          static method. The difference is that both methods run against the one object that
+          <code>report()</code> was called on.</p>
+
+        <div class="callout callout--note">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16v-4M12 8h.01"/><circle cx="12" cy="12" r="9"/></svg></div>
+          <div class="c-title">This is the shape of a WPILib subsystem</div>
+          <div class="c-body"><p>A real robot subsystem is a class exactly like this one, fields for its
+            current state, a constructor, and methods that read or change that state. Phase 2 opens with a
+            class built this way.</p></div>
+        </div>
+
+        <h2 id="run"><span class="section-h"><span class="num">6</span> Run it yourself</span></h2>
+        <p>Call the methods in a different order and watch <code>report()</code> change.</p>
+
+        <div class="sandbox" data-compiler data-title="Live Java Sandbox" data-lang="java">
+          <script type="text/x-java" class="sb-src">
+class Flywheel {
+    int canId;
+    String name;
+    double targetRPM;
+    double currentRPM;
+
+    Flywheel(int canId, String name, double targetRPM) {
+        this.canId = canId;
+        this.name = name;
+        this.targetRPM = targetRPM;
+        this.currentRPM = 0;
+    }
+
+    void spinUp() {
+        currentRPM = targetRPM;
+    }
+
+    void stop() {
+        currentRPM = 0;
+    }
+
+    boolean isAtSpeed() {
+        return Math.abs(currentRPM - targetRPM) <= 50;
+    }
+
+    void report() {
+        System.out.println(name + ": " + currentRPM + " / " + targetRPM
+            + " RPM, at speed: " + isAtSpeed());
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Flywheel shooter = new Flywheel(5, "Shooter Flywheel", 5000);
+
+        shooter.report();
+        shooter.spinUp();
+        shooter.report();
+        shooter.stop();
+        shooter.report();
+
+        // Try it: create a second Flywheel and call spinUp on only one of them.
+        // report both and check that the other one never changed.
+    }
+}
+          </script>
+        </div>
+
+        <h2 id="challenges"><span class="section-h"><span class="num">7</span> Practice challenges</span></h2>
+
+        <div class="challenge" data-kind="text"
+             data-win="Correct. spinUp() sets currentRPM to targetRPM, so the two are equal and isAtSpeed() reports true."
+             data-lose="It is true. spinUp() sets currentRPM equal to targetRPM, so the difference is 0, well inside the 50 RPM tolerance.">
+          <div class="challenge-head"><span class="ch-kind">Predict the output</span><span class="ch-title">After spinning up</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Type <code>true</code> or <code>false</code>.</p>
+            <pre class="fib">Flywheel shooter = new Flywheel(5, "Shooter Flywheel", 5000);
+shooter.spinUp();
+System.out.println(shooter.isAtSpeed());</pre>
+            <div class="answer-row">
+              <input class="answer-input" type="text" placeholder="true or false" data-answer="true" aria-label="Your answer" />
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check answer</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="fib"
+             data-win="Correct. isAtSpeed returns a boolean, and the tolerance check uses <=."
+             data-lose="isAtSpeed returns boolean, and the comparison needs <= to include exactly 50 as within range.">
+          <div class="challenge-head"><span class="ch-kind">Fill in the blanks</span><span class="ch-title">Complete isAtSpeed</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Finish a method that reports whether the flywheel is within 50 RPM of
+              its target.</p>
+<pre class="fib"><span class="blank" data-answer="boolean"></span> isAtSpeed() {
+    return Math.abs(currentRPM - targetRPM) <span class="blank" data-answer="&lt;="></span> 50;
+}</pre>
+            <div class="challenge-actions">
+              <button class="btn btn--sm check-btn" type="button">Check</button>
+              <button class="btn btn--sm btn--ghost reset-btn" type="button">Reset</button>
+            </div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">What the fields belong to</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Inside <code>spinUp()</code>, the line
+              <code>currentRPM = targetRPM;</code> changes...</p>
+            <div class="options">
+              <label class="option" data-explain="Fields belong to objects, not to the class as a whole. Every Flywheel keeps its own separate currentRPM."><input type="radio" name="q-fields" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Every Flywheel object at once</span></label>
+              <label class="option" data-correct data-explain="Correct. Whichever object the method was called on is the one whose fields change."><input type="radio" name="q-fields" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Only the object the method was called on</span></label>
+              <label class="option" data-explain="Local variables live inside a method and vanish when it ends. currentRPM is a field, and it survives between calls."><input type="radio" name="q-fields" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A local variable that disappears when the method ends</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <h2 id="mistakes"><span class="section-h"><span class="num">8</span> Common mistakes</span></h2>
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">Watch out for these</div>
+          <div class="c-body">
+            <ul>
+              <li>Calling <code>spinUp();</code> with no object and no dot, which gives
+                <code>cannot find symbol</code>.</li>
+              <li>Leaving off the parentheses, <code>shooter.spinUp;</code> instead of
+                <code>shooter.spinUp();</code>, which gives <code>not a statement</code>.</li>
+              <li>Forgetting a return type or a <code>return</code> statement on a method meant to answer a
+                question, such as <code>isAtSpeed()</code>.</li>
+              <li>Expecting one object's method call to affect a different object of the same class.</li>
+              <li>Calling <code>report()</code> expecting it to change <code>currentRPM</code>. It only
+                reads the fields and prints them.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="exercise" id="exercise">
+          <div class="exercise-head">
+            <div class="ex-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4L12 17l-6.3 4.4L8 14 2 9.4h7.6z"/></svg></div>
+            <div>
+              <div class="ex-kicker">Exercise</div>
+              <h3>Intake Rollers</h3>
+            </div>
+          </div>
+          <div class="exercise-body">
+            <p>Build a small class whose methods change and report its own state.</p>
+            <ol class="task-list">
+              <li>Write class <code>Intake</code> with fields <code>canId</code>, <code>name</code>, and
+                <code>rollersOn</code> (a <code>boolean</code>).</li>
+              <li>Give it a constructor that takes <code>canId</code> and <code>name</code>, and starts
+                <code>rollersOn</code> at <code>false</code>.</li>
+              <li>Write instance methods <code>start()</code> and <code>stopRollers()</code> that set
+                <code>rollersOn</code> to <code>true</code> and <code>false</code>.</li>
+              <li>Write <code>report()</code> to print the name and whether the rollers are on.</li>
+              <li>Bonus: write <code>isRunning()</code> that returns <code>rollersOn</code>, and call it from
+                inside <code>report()</code> instead of reading the field directly.</li>
+            </ol>
+            <div class="sandbox" data-compiler data-title="Project Sandbox" data-lang="java">
+              <script type="text/x-java" class="sb-src">
+class Intake {
+    // TODO: fields, constructor, start, stopRollers, report
+
+}
+
+public class Main {
+    public static void main(String[] args) {
+        // TODO: create an Intake, report, start, report, stop, report
+
+    }
+}
+              </script>
+            </div>
+            <details class="reveal">
+              <summary><svg class="rv-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg> Show one possible solution</summary>
+              <div class="reveal-body">
+                <div class="code">
+                  <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">solution · Main.java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">class Intake {
+    int canId;
+    String name;
+    boolean rollersOn;
+
+    Intake(int canId, String name) {
+        this.canId = canId;
+        this.name = name;
+        this.rollersOn = false;
+    }
+
+    void start() {
+        rollersOn = true;
+    }
+
+    void stopRollers() {
+        rollersOn = false;
+    }
+
+    boolean isRunning() {
+        return rollersOn;
+    }
+
+    void report() {
+        System.out.println(name + " rollers on: " + isRunning());
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Intake intake = new Intake(7, "Intake");
+
+        intake.report();
+        intake.start();
+        intake.report();
+        intake.stopRollers();
+        intake.report();
+    }
+}</code></pre>
+                </div>
+                <div class="code">
+                  <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code class="language-text">Intake rollers on: false
+Intake rollers on: true
+Intake rollers on: false</code></pre>
+                </div>
+                <p><code>report()</code> never changes <code>rollersOn</code> itself. It calls
+                  <code>isRunning()</code>, which only reads it, so calling <code>report()</code> as many
+                  times as you like never changes what it prints.</p>
+              </div>
+            </details>
+          </div>
+        </div>
+
+        <div class="checkpoint" id="checkpoint">
+          <div class="checkpoint-head">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            <h3>Checkpoint</h3>
+            <span class="cp-score">0 / 5</span>
+          </div>
+          <div class="checkpoint-body">
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q1.</span> What makes a method an instance method?</div>
+              <div class="options">
+                <label class="option" data-explain="A return type of void just means it hands nothing back. Plenty of static methods are void too."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It returns <code>void</code></span></label>
+                <label class="option" data-correct data-explain="Correct. No static means the method belongs to an object rather than to the class."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It is declared without <code>static</code></span></label>
+                <label class="option" data-explain="Parameters have nothing to do with static versus instance. Both kinds of method can take parameters."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It takes no parameters</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q2.</span> How do you call an instance method?</div>
+              <div class="options">
+                <label class="option" data-explain="That syntax is for static methods, called through the class name."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">By class name, like <code>Flywheel.spinUp()</code></span></label>
+                <label class="option" data-correct data-explain="Correct. shooter.spinUp() runs the method against that specific object."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Through an object, like <code>shooter.spinUp()</code></span></label>
+                <label class="option" data-explain="Calling it with no object at all only works for a static method in the very same class."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">By name alone, like <code>spinUp()</code></span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q3.</span> Two Flywheel objects, left and right. Calling <code>left.spinUp()</code> does what to <code>right.currentRPM</code>?</div>
+              <div class="options">
+                <label class="option" data-correct data-explain="Correct. left.spinUp() only ever touches left's own fields."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Nothing</span></label>
+                <label class="option" data-explain="An instance method only ever reaches the fields of the object it was called on."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Sets it to match left's targetRPM too</span></label>
+                <label class="option" data-explain="Calling a method on one object is ordinary, legal Java."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A compiler error</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q4.</span> Inside <code>report()</code>, calling <code>isAtSpeed()</code> with no dot and no object works because...</div>
+              <div class="options">
+                <label class="option" data-correct data-explain="Correct. Both methods belong to the same object, so one can call the other directly."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Both methods act on the same object already</span></label>
+                <label class="option" data-explain="isAtSpeed() is an instance method with no static keyword at all."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">isAtSpeed() is secretly static</span></label>
+                <label class="option" data-explain="Order in the file does not decide whether a call needs an object."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">isAtSpeed() is declared above report()</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q5.</span> What does <code>isAtSpeed()</code> change about the object it is called on?</div>
+              <div class="options">
+                <label class="option" data-correct data-explain="Correct. It only reads currentRPM and targetRPM to compute an answer. Neither field changes."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Nothing</span></label>
+                <label class="option" data-explain="isAtSpeed only reads currentRPM. Only spinUp and stop change it."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It sets currentRPM to targetRPM</span></label>
+                <label class="option" data-explain="isAtSpeed reads two existing fields. It has no reason to touch targetRPM."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It resets targetRPM to 0</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check my answers</button></div>
+          </div>
+        </div>
+
+        <div class="mark-complete">
+          <div class="mc-text"><b>Lesson complete.</b><span>Next: static, for behavior that belongs to the class itself.</span></div>
+          <button class="complete-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>Mark as complete</span></button>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="/assets/js/course.js"></script>
+  <script src="/assets/js/site.js"></script>
+  <script src="/assets/js/widgets.js"></script>
+</body>
+</html>

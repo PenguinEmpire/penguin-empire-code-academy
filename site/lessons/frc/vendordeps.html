@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vendor Libraries (REVLib) · Penguin Empire 2551</title>
+  <meta name="description" content="Why SparkMax does not exist in a fresh WPILib project, how to install REVLib as a vendordep, and how to tell a missing library from a class that was removed for good." />
+  <link rel="icon" href="/assets/img/logo-2551.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Aldrich&family=Russo+One&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/brand.css" />
+  <link rel="stylesheet" href="/assets/css/layout.css" />
+  <link rel="stylesheet" href="/assets/css/lesson.css" />
+</head>
+<body data-page="lesson" data-lesson="frc-vendordeps">
+  <main id="main" class="content">
+    <div class="content-inner">
+
+      <!-- ===================== HEADER ===================== -->
+      <header class="lesson-hero">
+        <nav class="crumbs" aria-label="Breadcrumb">
+          <a href="/">Home</a><span class="sep">/</span>
+          <a href="/syllabus.html">Phase 2 · FRC</a><span class="sep">/</span>
+          <span>Unit 2 · The Toolchain</span>
+        </nav>
+        <span class="badge badge--ocean">Unit 2</span>
+        <h1 class="lesson-title">Vendor Libraries (REVLib)</h1>
+        <p class="lesson-lede">Type <code>SparkMax</code> into a brand new project and it will not resolve. Nothing is
+          wrong with your spelling. The class is not there yet.</p>
+        <div class="lesson-meta">
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg> 15 min</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h2v-4H3zM9 20h2V10H9zM15 20h2V4h-2z"/></svg> Beginner</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2zM18 3v16"/></svg> Needs: WPILib + VS Code</span>
+        </div>
+      </header>
+
+      <!-- ===================== GOAL ===================== -->
+      <div class="goal">
+        <div class="goal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div>
+        <div>
+          <h2>Your goal</h2>
+          <p>Install REVLib into a robot project and explain why <code>SparkMax</code> does not exist until you do.</p>
+        </div>
+      </div>
+
+      <nav class="toc" aria-label="On this page">
+        <strong>On this page</strong>
+        <ol>
+          <li><a href="#why">Why this matters</a></li>
+          <li><a href="#what">What a vendor library is</a></li>
+          <li><a href="#read">Reading a package root</a></li>
+          <li><a href="#install">Installing REVLib</a></li>
+          <li><a href="#json">What the vendordep file is</a></li>
+          <li><a href="#gone">Missing, or gone for good</a></li>
+          <li><a href="#challenges">Practice challenges</a></li>
+          <li><a href="#mistakes">Common mistakes</a></li>
+          <li><a href="#exercise">Project: Make SparkMax resolve</a></li>
+          <li><a href="#checkpoint">Checkpoint</a></li>
+        </ol>
+      </nav>
+
+      <div class="prose">
+
+        <!-- ===================== WHY ===================== -->
+        <h2 id="why"><span class="section-h"><span class="num">1</span> Why this matters</span></h2>
+
+        <div class="callout callout--why">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></div>
+          <div class="c-title">The import that will never resolve</div>
+          <div class="c-body">
+            <p>The team sat down to program the ChairBot with the Jaguar motor controllers they already owned. They
+              wrote the import for the Jaguar class and it would not resolve. Jaguars had been discontinued and
+              removed from current WPILib. The class was not deprecated or renamed. It was gone.</p>
+            <p>That incident is this whole lesson. Two very different problems produce the same red squiggle:</p>
+            <ol>
+              <li><strong>The class was removed</strong> from the library. Nothing you type fixes that.</li>
+              <li><strong>You have not installed the library it lives in.</strong> Thirty seconds to fix.</li>
+            </ol>
+            <p>Telling them apart is the skill. The ChairBot itself shipped on last year's code from GitHub, which
+              still had working Jaguar support, edited for the new robot. Old code is a legitimate answer to a
+              removed API.</p>
+          </div>
+        </div>
+
+        <!-- ===================== WHAT ===================== -->
+        <h2 id="what"><span class="section-h"><span class="num">2</span> What a vendor library is</span></h2>
+        <p>WPILib is the core framework. It knows about the roboRIO, the Driver Station, timing, math, and the
+          command based structure. It knows nothing at all about REV's or CTRE's hardware.</p>
+        <p>Each hardware vendor ships a <strong>vendor library</strong> so their devices can be used from Java.</p>
+
+        <div class="tablewrap">
+          <table class="data">
+            <thead><tr><th>Library</th><th>From</th><th>Gives you</th></tr></thead>
+            <tbody>
+              <tr><td>WPILib</td><td>FIRST / WPI</td><td><code>PIDController</code>, <code>Timer</code>, <code>SubsystemBase</code>, <code>Command</code></td></tr>
+              <tr><td>REVLib</td><td>REV Robotics</td><td><code>SparkMax</code>, <code>MotorType</code>, <code>RelativeEncoder</code></td></tr>
+              <tr><td>Phoenix</td><td>CTRE</td><td><code>TalonFX</code> and everything else for Krakens</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>Three facts about vendor libraries that explain almost every confusing situation you will hit:</p>
+        <ul>
+          <li>They are installed <strong>per project</strong>. A new project starts with none.</li>
+          <li>The installation is recorded in a <strong>JSON file</strong> inside the project's
+            <code>vendordeps/</code> folder.</li>
+          <li>That record pins a <strong>version</strong>, which is why two of your team's repositories can disagree
+            about what a class is called.</li>
+        </ul>
+
+        <!-- ===================== READ ===================== -->
+        <h2 id="read"><span class="section-h"><span class="num">3</span> Reading a package root</span></h2>
+        <p>You can tell where a class comes from without looking anything up. Read the start of the package name.</p>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">imports, decoded</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">import edu.wpi.first.math.controller.PIDController;   // edu.wpi.first = WPILib, always present
+import com.revrobotics.spark.SparkMax;                // com.revrobotics = REV, needs REVLib
+import com.ctre.phoenix6.hardware.TalonFX;            // com.ctre = CTRE, needs Phoenix</code></pre>
+        </div>
+
+        <p>When an import will not resolve, read the root first. <code>edu.wpi.first</code> failing is unusual and
+          usually means a broken project. <code>com.</code> anything failing almost always means a vendor library is
+          not installed.</p>
+
+        <!-- ===================== INSTALL ===================== -->
+        <h2 id="install"><span class="section-h"><span class="num">4</span> Installing REVLib</span></h2>
+        <p>WPILib's VS Code has a vendor dependency manager. There are two routes and both end in the same place.</p>
+
+        <p><strong>From the list.</strong> Open the WPILib vendor dependencies view, find REVLib under the available
+          dependencies, and install it. Confirm it then appears under installed dependencies. This is the route the
+          team uses, and it needs no URL.</p>
+
+        <p><strong>From a URL.</strong> Run <strong>Manage Vendor Libraries</strong> from the command palette, choose
+          <strong>Install new library (online)</strong>, and paste the vendor's JSON URL. REV's is:</p>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">REVLib · online install URL</span><span class="code-spacer"></span></div>
+<pre><code>https://software-metadata.revrobotics.com/REVLib-2026.json</code></pre>
+        </div>
+
+        <div class="callout callout--season">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
+          <div class="c-title">Verify for current season</div>
+          <div class="c-body"><p>That URL has the season in it. Next year it will be a different number, and using an
+            old one silently installs an old library. Take the URL from REV's current documentation rather than from
+            a lesson, a forum post, or a teammate's notes.</p></div>
+        </div>
+
+        <p>After installing, rebuild. Then type <code>SparkMax</code> and take the autocomplete. The import appears at
+          the top of the file on its own:</p>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">IntakeSubsystem.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">// added for you when you accept the autocomplete
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkLowLevel.MotorType;</code></pre>
+        </div>
+
+        <!-- ===================== JSON ===================== -->
+        <h2 id="json"><span class="section-h"><span class="num">5</span> What the vendordep file is</span></h2>
+        <p>Installing a vendor library does not copy source code into your project. It writes one short JSON file
+          into <code>vendordeps/</code> naming the library, its version, and where Gradle should fetch it from.
+          Gradle downloads the actual library at build time.</p>
+        <p>Two consequences worth knowing now:</p>
+        <ul>
+          <li>You never edit vendor code. If you find yourself in a vendor library's source, you have gone the wrong
+            way.</li>
+          <li>The <code>vendordeps/</code> folder belongs in version control. Sharing your project without it means
+            the next person's build fails on imports that work perfectly for you.</li>
+        </ul>
+
+        <div class="vocab">
+          <div class="vocab-term"><dt>vendor library</dt><dd>Code a hardware vendor ships so their devices can be controlled from Java.</dd></div>
+          <div class="vocab-term"><dt>vendordep</dt><dd>The JSON record in your project that says which vendor libraries are installed and at what version.</dd></div>
+          <div class="vocab-term"><dt>REVLib</dt><dd>REV's library. The home of <code>SparkMax</code>, <code>MotorType</code> and <code>RelativeEncoder</code>.</dd></div>
+          <div class="vocab-term"><dt>Phoenix</dt><dd>CTRE's library, used for Krakens and other CTRE devices.</dd></div>
+        </div>
+
+        <!-- ===================== GONE ===================== -->
+        <h2 id="gone"><span class="section-h"><span class="num">6</span> Missing, or gone for good</span></h2>
+        <p>Back to the two problems from the top of the page. Here is how to tell them apart in under a minute.</p>
+
+        <div class="tablewrap">
+          <table class="data">
+            <thead><tr><th>Check</th><th>Not installed</th><th>Removed from the library</th></tr></thead>
+            <tbody>
+              <tr><td>Is the library in <code>vendordeps/</code>?</td><td>No</td><td>Yes</td></tr>
+              <tr><td>Do the vendor's other classes resolve?</td><td>No, none of them</td><td>Yes, just not this one</td></tr>
+              <tr><td>Is the class in the vendor's current documentation?</td><td>Yes</td><td>No</td></tr>
+              <tr><td>What fixes it</td><td>Install the vendordep and rebuild</td><td>Different hardware, a different class, or an older season's project</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>The middle row is the fastest test. If <em>every</em> class from a vendor is red, the library is missing.
+          If one class out of many is red, that class moved or was removed.</p>
+
+        <!-- ===================== CHALLENGES ===================== -->
+        <h2 id="challenges"><span class="section-h"><span class="num">7</span> Practice challenges</span></h2>
+
+        <!-- predict -->
+        <div class="challenge" data-kind="text"
+             data-win="REVLib. SparkMax is not part of WPILib. It arrives with REV's vendor library, per project."
+             data-lose="Nothing is wrong with the code. SparkMax lives in REVLib, which is not installed in this project yet.">
+          <div class="challenge-head"><span class="ch-kind">Predict the error</span><span class="ch-title">What is missing?</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">You typed this into a brand new project and both class names are underlined
+              in red.</p>
+            <pre class="fib">SparkMax roller = new SparkMax(2, MotorType.kBrushless);</pre>
+            <p class="challenge-prompt">In a few words, what is missing?</p>
+            <div class="answer-row">
+              <input class="answer-input" type="text" placeholder="e.g. the something library" data-answer="revlib|rev lib|the rev library|vendordep|the vendor library|revlib isn't installed|rev library|revlib is not installed|the revlib vendordep" aria-label="Your answer" />
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <!-- mcq wpilib class -->
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">Which one is WPILib?</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Which of these classes needs <em>no</em> vendor library?</p>
+            <div class="options">
+              <label class="option" data-explain="com.revrobotics is REV's package root, so this is a vendor class."><input type="radio" name="q-pkg" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>com.revrobotics.spark.SparkMax</code></span></label>
+              <label class="option" data-correct data-explain="Yes. edu.wpi.first is WPILib's package root, so it is present in every project with no vendordep at all."><input type="radio" name="q-pkg" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>edu.wpi.first.math.controller.PIDController</code></span></label>
+              <label class="option" data-explain="com.ctre is CTRE's package root. That one needs the Phoenix library."><input type="radio" name="q-pkg" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>com.ctre.phoenix6.hardware.TalonFX</code></span></label>
+              <label class="option" data-explain="Still REV. The class name changed but the package root did not."><input type="radio" name="q-pkg" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>com.revrobotics.RelativeEncoder</code></span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <!-- mcq gone -->
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">Two kinds of missing</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Your import will not resolve. Which of these means the class is gone for
+              good, rather than just uninstalled?</p>
+            <div class="options">
+              <label class="option" data-explain="That is the fixable kind. Install it and rebuild."><input type="radio" name="q-gone" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The library is not in <code>vendordeps/</code></span></label>
+              <label class="option" data-explain="Also fixable. Rebuild and the IDE catches up."><input type="radio" name="q-gone" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">You have not rebuilt since installing it</span></label>
+              <label class="option" data-correct data-explain="Right. That is the Jaguar case. Removed from the library entirely, and no amount of installing brings it back."><input type="radio" name="q-gone" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The class appears nowhere in the vendor's current documentation</span></label>
+              <label class="option" data-explain="That is a typo, and the editor will offer you the correct spelling."><input type="radio" name="q-gone" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">You typed the class name in lowercase</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <!-- fib -->
+        <div class="challenge" data-kind="fib"
+             data-win="Those three facts explain why the same class has two different names in two of your team's repositories."
+             data-lose="Per project, recorded as a JSON file in vendordeps, pinned to a version. That is why an old repo still compiles against an old API.">
+          <div class="challenge-head"><span class="ch-kind">Fill in the blanks</span><span class="ch-title">Three facts</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Complete the sentence.</p>
+<pre class="fib">Vendor libraries are installed <span class="blank" data-answer="per project|per-project|by project|perproject"></span>,
+recorded in a <span class="blank" data-answer="json|JSON|json file|vendordep"></span> file, and pinned to a <span class="blank" data-answer="version|season|specific version"></span>.</pre>
+            <div class="challenge-actions">
+              <button class="btn btn--sm check-btn" type="button">Check</button>
+              <button class="btn btn--sm btn--ghost reset-btn" type="button">Reset</button>
+            </div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <!-- ===================== MISTAKES ===================== -->
+        <h2 id="mistakes"><span class="section-h"><span class="num">8</span> Common mistakes</span></h2>
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">Watch out for these</div>
+          <div class="c-body">
+            <ul>
+              <li><strong>Thinking SparkMax is part of WPILib.</strong> It is REV's class from REV's library. WPILib
+                knows nothing about SparkMaxes until you install REVLib.</li>
+              <li><strong>"I installed REVLib last time."</strong> Vendordeps are per project. Every new project
+                starts empty.</li>
+              <li><strong>Reading a red squiggle as a typo.</strong> Check whether the library is installed before
+                you doubt your spelling, and read the package root.</li>
+              <li><strong>Assuming last year's code compiles this year.</strong> Last year's project pins last year's
+                library. <code>CANSparkMax</code> became <code>SparkMax</code>, and Jaguar support disappeared
+                entirely.</li>
+              <li><strong>Expecting to edit the vendor's code.</strong> Installing writes a small JSON record.
+                Gradle fetches the library at build time and you never touch it.</li>
+              <li><strong>Leaving <code>vendordeps/</code> out of version control.</strong> The next person to clone
+                your project gets imports that fail for no visible reason.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- ===================== EXERCISE ===================== -->
+        <div class="exercise" id="exercise">
+          <div class="exercise-head">
+            <div class="ex-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4L12 17l-6.3 4.4L8 14 2 9.4h7.6z"/></svg></div>
+            <div>
+              <div class="ex-kicker">Build it · PenguinBot</div>
+              <h3>Make SparkMax resolve</h3>
+            </div>
+          </div>
+          <div class="exercise-body">
+            <p>You created the <code>PenguinBot</code> project last lesson and it builds clean. It cannot talk to a
+              single REV motor yet. Look at the failure before you fix it. That is the point of step one.</p>
+            <p class="cl-count"></p>
+            <ol class="checklist" data-key="revlib-install">
+              <li>Open <code>PenguinBot</code>. In <code>RobotContainer.java</code>, type <code>SparkMax</code>
+                somewhere temporary and confirm it does <b>not</b> resolve.</li>
+              <li>Open the WPILib vendor dependencies view and install <b>REVLib</b>.</li>
+              <li>Confirm REVLib now appears under installed dependencies.</li>
+              <li>Open the new file in the project's <code>vendordeps/</code> folder and read it. It is short.</li>
+              <li>Rebuild, retype <code>SparkMax</code>, and take the autocomplete.</li>
+              <li>Confirm the import appeared at the top of the file without you typing it.</li>
+              <li>Delete your temporary line and build again. Clean.</li>
+            </ol>
+            <details class="reveal">
+              <summary><svg class="rv-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg> What you should have seen</summary>
+              <div class="reveal-body">
+                <p>Before installing, <code>SparkMax</code> is red and the editor says it cannot be resolved to a
+                  type. After installing REVLib and rebuilding, the same word autocompletes and this line appears at
+                  the top of the file:</p>
+                <div class="code">
+                  <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">RobotContainer.java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">import com.revrobotics.spark.SparkMax;</code></pre>
+                </div>
+                <p>The <code>vendordeps/</code> folder now holds a JSON file naming the library, its version, and
+                  where Gradle fetches it from. That file is the entire installation.</p>
+                <p>You deleted the test line on purpose. PenguinBot's motors get created inside a subsystem, not in
+                  <code>RobotContainer</code>. Unit 3 shows where things belong and Unit 4 writes the real one.</p>
+              </div>
+            </details>
+            <p>Next: the desktop applications that talk to those motors directly, where you set the CAN IDs your code
+              is about to depend on.</p>
+          </div>
+        </div>
+
+        <!-- ===================== CHECKPOINT ===================== -->
+        <div class="checkpoint" id="checkpoint">
+          <div class="checkpoint-head">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            <h3>Checkpoint</h3>
+            <span class="cp-score">0 / 4</span>
+          </div>
+          <div class="checkpoint-body">
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q1.</span> Why does <code>SparkMax</code> not exist in a brand new WPILib project?</div>
+              <div class="options">
+                <label class="option" data-explain="You cannot import a class that is not in the project at all."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">You just need to add the import</span></label>
+                <label class="option" data-correct data-explain="Correct. Install REVLib, rebuild, and it appears."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It lives in REV's vendor library, which is not installed yet</span></label>
+                <label class="option" data-explain="Code has no idea what hardware is plugged in. It compiles the same either way."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It only exists when a real SparkMax is connected</span></label>
+                <label class="option" data-explain="That is the Jaguar story, which is the other kind of missing."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It was removed from WPILib</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q2.</span> Where is the record of an installed vendor library kept?</div>
+              <div class="options">
+                <label class="option" data-explain="Constants.java is for your tunable numbers, which is Unit 7."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">In <code>Constants.java</code></span></label>
+                <label class="option" data-correct data-explain="Yes, and Gradle reads it at build time to fetch the library."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A JSON file in the project's <code>vendordeps/</code> folder</span></label>
+                <label class="option" data-explain="It is per project, which is exactly why each new project starts empty."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">In a global WPILib setting on your machine</span></label>
+                <label class="option" data-explain="Nothing about dependencies lives in Robot.java."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Inside <code>Robot.java</code></span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q3.</span> Reading <code>com.revrobotics.spark.SparkMax</code>, how do you know it is a vendor class?</div>
+              <div class="options">
+                <label class="option" data-explain="Naming tells you nothing reliable. Plenty of WPILib classes have vendor sounding names."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It ends in Max</span></label>
+                <label class="option" data-explain="That is your own folder, not a package root."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It gets used in <code>subsystems/</code></span></label>
+                <label class="option" data-correct data-explain="Exactly. That prefix is the tell, every time."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The package root is <code>com.revrobotics</code>, not <code>edu.wpi.first</code></span></label>
+                <label class="option" data-explain="Plenty of WPILib classes take device numbers too."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It takes a CAN ID</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q4.</span> An import worked in last season's repository and fails in yours. Most likely reason?</div>
+              <div class="options">
+                <label class="option" data-explain="Possible, and it is not the first thing to suspect when a whole season has passed."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">You typed it wrong</span></label>
+                <label class="option" data-correct data-explain="Right. Each project pins its own version, and class names change or disappear between seasons."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">That repository pins an older library version where the class had a different name or still existed</span></label>
+                <label class="option" data-explain="The roboRIO is not involved in whether your project compiles."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Your roboRIO needs imaging</span></label>
+                <label class="option" data-explain="Java version is rarely the cause of a single unresolved vendor class."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">You are on a different Java version</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check my answers</button></div>
+          </div>
+        </div>
+
+        <!-- ===================== COMPLETE ===================== -->
+        <div class="mark-complete">
+          <div class="mc-text"><b>Your project can see REV hardware now.</b><span>Next: the desktop tools that configure that hardware directly.</span></div>
+          <button class="complete-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>Mark as complete</span></button>
+        </div>
+
+      </div><!-- /prose -->
+    </div><!-- /content-inner -->
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="/assets/js/course.js"></script>
+  <script src="/assets/js/site.js"></script>
+  <script src="/assets/js/widgets.js"></script>
+</body>
+</html>
