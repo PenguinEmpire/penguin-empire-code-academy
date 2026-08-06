@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Constants · Penguin Empire 2551</title>
+  <meta name="description" content="One home for every tunable number on the robot. Nested static classes, the k prefix, what belongs there and what does not, and a sandbox where changing one line changes the robot." />
+  <link rel="icon" href="/assets/img/logo-2551.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Aldrich&family=Russo+One&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/brand.css" />
+  <link rel="stylesheet" href="/assets/css/layout.css" />
+  <link rel="stylesheet" href="/assets/css/lesson.css" />
+</head>
+<body data-page="lesson" data-lesson="frc-constants">
+  <main id="main" class="content">
+    <div class="content-inner">
+
+      <!-- ===================== HEADER ===================== -->
+      <header class="lesson-hero">
+        <nav class="crumbs" aria-label="Breadcrumb">
+          <a href="/">Home</a><span class="sep">/</span>
+          <a href="/syllabus.html">Phase 2 · FRC</a><span class="sep">/</span>
+          <span>Unit 7 · Structuring Behavior</span>
+        </nav>
+        <span class="badge badge--ocean">Unit 7</span>
+        <h1 class="lesson-title">Constants</h1>
+        <p class="lesson-lede">One idea, no new syntax, and it is the difference between a one line change and
+          searching four files while a match is being called.</p>
+        <div class="lesson-meta">
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg> 20 min</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h2v-4H3zM9 20h2V10H9zM15 20h2V4h-2z"/></svg> Intermediate</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2zM18 3v16"/></svg> Needs: Subsystem Anatomy</span>
+        </div>
+      </header>
+
+      <!-- ===================== GOAL ===================== -->
+      <div class="goal">
+        <div class="goal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div>
+        <div>
+          <h2>Your goal</h2>
+          <p>Move every hard-coded number in PenguinBot into <code>Constants.java</code>, organised so a teammate
+            can find any value in one guess.</p>
+        </div>
+      </div>
+
+      <nav class="toc" aria-label="On this page">
+        <strong>On this page</strong>
+        <ol>
+          <li><a href="#why">Why this matters</a></li>
+          <li><a href="#belongs">What belongs there</a></li>
+          <li><a href="#pattern">The pattern</a></li>
+          <li><a href="#before">Before and after</a></li>
+          <li><a href="#run">Change one line, change the robot</a></li>
+          <li><a href="#limits">Where this does not help</a></li>
+          <li><a href="#challenges">Practice challenges</a></li>
+          <li><a href="#mistakes">Common mistakes</a></li>
+          <li><a href="#exercise">Project: The numbers move into one file</a></li>
+          <li><a href="#checkpoint">Checkpoint</a></li>
+        </ol>
+      </nav>
+
+      <div class="prose">
+
+        <!-- ===================== WHY ===================== -->
+        <h2 id="why"><span class="section-h"><span class="num">1</span> Why this matters</span></h2>
+
+        <div class="callout callout--why">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></div>
+          <div class="c-title">Hunting down every hard-coded zero</div>
+          <div class="c-body">
+            <p>The generated project template writes <code>OperatorConstants.kDriverControllerPort</code> where a
+              beginner would type <code>0</code>. Our curriculum explains why in one sentence, and it is the least
+              glamorous and most repeatedly true argument in software.</p>
+            <p>If several files use that port and you later need to change it, you have to find and edit every
+              <code>0</code> by hand. With a constant you change it once.</p>
+            <p>Now make that concrete. Here are the numbers currently sitting in your own PenguinBot code.</p>
+            <div class="code">
+              <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">numbers you have written so far</span><span class="code-spacer"></span></div>
+<pre><code>new SparkMax(2, ...)             the intake's CAN ID
+new SparkMax(3, ...)             the arm's CAN ID
+new PIDController(0.2, 0, 0)     the tuned gain, and two zeros that are not the port
+moveToward(9.0)                  the scoring setpoint
+Math.min(0.8, ...)               the team's power limit
+new CommandPS5Controller(0)      the controller port</code></pre>
+            </div>
+            <p>Two of those zeros mean completely different things and one of them is a controller port. It is
+              nine in the morning on a Saturday, between matches, with the drive team waiting. That is when you find
+              out whether you did this.</p>
+          </div>
+        </div>
+
+        <!-- ===================== BELONGS ===================== -->
+        <h2 id="belongs"><span class="section-h"><span class="num">2</span> What belongs there</span></h2>
+        <p>A constant here is nothing more than a <code>public static final</code> value stored in one file. There is
+          no new language feature in this lesson. The idea is organisational, not technical.</p>
+        <p>Our curriculum states the textbook rule as <strong>a value used in multiple places that rarely
+          changes</strong>. Here is the practical version.</p>
+
+        <div class="tablewrap">
+          <table class="data">
+            <thead><tr><th>Put it in Constants</th><th>Leave it inline</th></tr></thead>
+            <tbody>
+              <tr><td>CAN IDs and controller ports</td><td>A loop bound like <code>i &lt; 4</code></td></tr>
+              <tr><td>Speeds, setpoints, tolerances</td><td>An obvious <code>0</code> meaning stop</td></tr>
+              <tr><td>PID gains</td><td>Something used exactly once whose meaning is already clear</td></tr>
+              <tr><td>Physical dimensions and gear ratios</td><td></td></tr>
+              <tr><td>Anything you will change while tuning</td><td></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout callout--tip">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12c.7.7 1 1.4 1 2h6c0-.6.3-1.3 1-2a7 7 0 0 0-4-12z"/></svg></div>
+          <div class="c-title">The one test that settles it</div>
+          <div class="c-body"><p>Would you ever change this value while standing next to the robot? If yes, it goes
+            in <code>Constants</code>.</p></div>
+        </div>
+
+        <!-- ===================== PATTERN ===================== -->
+        <h2 id="pattern"><span class="section-h"><span class="num">3</span> The pattern</span></h2>
+        <p>One outer class, one nested static class per mechanism, and a <code>k</code> on the front of every name.</p>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Constants.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">public final class Constants {
+
+    private Constants() { }        // never instantiated. it is all static
+
+    public static final class OperatorConstants {
+        public static final int kDriverControllerPort = 0;
+    }
+
+    public static final class IntakeConstants {
+        public static final int    kRollerCanId  = 2;
+        public static final double kIntakeSpeed  = 0.7;
+        public static final double kOuttakeSpeed = -0.5;
+    }
+
+    public static final class ArmConstants {
+        public static final int    kPivotCanId    = 3;
+        public static final int    kFollowerCanId = 4;
+
+        public static final double kP = 0.2;      // tuned in Unit 6
+        public static final double kI = 0.0;
+        public static final double kD = 0.0;
+
+        public static final double kStowedRotations = 0.0;
+        public static final double kScoreRotations  = 9.0;
+        public static final double kToleranceRot    = 0.25;
+        public static final double kHomingSpeed     = -0.15;
+        public static final double kSafetyLimitRot  = 12.0;
+    }
+
+    public static final class RobotConstants {
+        public static final double kMaxOutput = 0.8;   // the team's 80 percent rule
+    }
+}</code></pre>
+        </div>
+
+        <p>Four decisions in that file are worth stating out loud.</p>
+        <ul>
+          <li><b>The <code>k</code> prefix</b> is a WPILib convention, not a rule. The reason to follow it is that
+            when you read <code>kIntakeSpeed</code> in the middle of a method you know instantly it is a configured
+            value and not a local variable. The generated template uses it and your teammates will expect it.</li>
+          <li><b>Nested static classes, one per mechanism.</b> You get autocomplete that lists everything the arm
+            has the moment you type <code>Constants.ArmConstants.</code>, and names can repeat across mechanisms
+            without colliding.</li>
+          <li><b>Everything is <code>static</code></b>, so <code>Constants.ArmConstants.kP</code> works with no
+            <code>new</code> anywhere, for the same reason <code>Math.PI</code> does. Your subsystems are instances
+            because there is one real arm. Your constants are static because there is one set of numbers.</li>
+          <li><b><code>kMaxOutput</code> lives in <code>RobotConstants</code>, not <code>ArmConstants</code></b>,
+            because the 80 percent rule is a team rule that applies to every mechanism. Where a constant lives is a
+            design decision, not filing.</li>
+        </ul>
+
+        <div class="callout callout--season">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
+          <div class="c-title">Verify for current season</div>
+          <div class="c-body"><p>The generated Command Robot template creates <code>Constants.java</code> with an
+            <code>OperatorConstants</code> nested class. Check what your season's template actually scaffolds and
+            follow it, since matching the template is most of the value of following a convention at all.</p></div>
+        </div>
+
+        <!-- ===================== BEFORE ===================== -->
+        <h2 id="before"><span class="section-h"><span class="num">4</span> Before and after</span></h2>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">ArmSubsystem.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">// BEFORE
+private final SparkMax pivot = new SparkMax(3, MotorType.kBrushless);
+private final PIDController pid = new PIDController(0.2, 0.0, 0.0);
+public void goToScore() { moveToward(9.0); }
+
+// AFTER
+private final SparkMax pivot =
+    new SparkMax(ArmConstants.kPivotCanId, MotorType.kBrushless);
+private final PIDController pid =
+    new PIDController(ArmConstants.kP, ArmConstants.kI, ArmConstants.kD);
+public void goToScore() { moveToward(ArmConstants.kScoreRotations); }</code></pre>
+        </div>
+
+        <p>Be honest about the cost. The second version is longer and takes more typing. What you bought is that
+          every number now has a name, and every one of them lives in a single file you can open on a phone in the
+          pits.</p>
+
+        <!-- ===================== RUN ===================== -->
+        <h2 id="run"><span class="section-h"><span class="num">5</span> Change one line, change the robot</span></h2>
+        <p>Run this three times, changing exactly one constant each time. Watch what you never have to touch.</p>
+
+        <div class="sandbox" data-compiler data-sim data-title="Constants driving a subsystem">
+          <script type="text/x-java" class="sb-src">
+// Sim units: the sandbox works in degrees, so the setpoint is 50.0 and the
+// gain is 0.02. PenguinBot's real numbers are 9.0 rotations and 0.2.
+
+public class Main {
+
+    // ===== Constants.java, as nested static classes =====
+    static final class ArmConstants {
+        static final int    kPivotCanId     = 3;
+        static final double kP              = 0.02;   // <-- CHANGE ME
+        static final double kScoreRotations = 50.0;   // <-- CHANGE ME
+        static final double kTolerance      = 1.0;
+    }
+    static final class RobotConstants {
+        static final double kMaxOutput = 0.8;         // <-- CHANGE ME
+    }
+    // ====================================================
+
+    // Nothing below this line changes in any of the three runs.
+    static class ArmSubsystem extends SubsystemBase {
+        private final SparkMax pivot =
+            new SparkMax(ArmConstants.kPivotCanId, MotorType.kBrushless);
+        private final PIDController pid =
+            new PIDController(ArmConstants.kP, 0.0, 0.0);
+
+        ArmSubsystem() { pid.setTolerance(ArmConstants.kTolerance); }
+
+        double  getPosition() { return pivot.getEncoder().getPosition(); }
+        boolean atSetpoint()  { return pid.atSetpoint(); }
+
+        void goToScore() {
+            double out = pid.calculate(getPosition(), ArmConstants.kScoreRotations);
+            double max = RobotConstants.kMaxOutput;
+            pivot.set(Math.max(-max, Math.min(max, out)));
+        }
+
+        @Override public void periodic() { }
+    }
+
+    public static void main(String[] args) {
+        CommandScheduler.getInstance().setTraceEnabled(false);
+        ArmSubsystem arm = new ArmSubsystem();
+
+        System.out.printf("target %.2f   kP %.3f   maxOut %.2f%n",
+                          ArmConstants.kScoreRotations,
+                          ArmConstants.kP,
+                          RobotConstants.kMaxOutput);
+
+        for (int tick = 1; tick <= 100; tick++) {
+            arm.goToScore();
+            CommandScheduler.getInstance().run();
+            if (tick % 20 == 0) {
+                System.out.printf("tick %3d   pos %6.2f   atSetpoint %b%n",
+                                  tick, arm.getPosition(), arm.atSetpoint());
+            }
+        }
+    }
+}
+          </script>
+        </div>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">run 1 · defaults</span><span class="code-spacer"></span></div>
+<pre><code>target 50.00   kP 0.020   maxOut 0.80
+tick  20   pos  20.73   atSetpoint false
+tick  40   pos  40.63   atSetpoint false
+tick  60   pos  48.09   atSetpoint false
+tick  80   pos  49.87   atSetpoint true
+tick 100   pos  49.99   atSetpoint true</code></pre>
+        </div>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">run 2 · kScoreRotations = 25.0</span><span class="code-spacer"></span></div>
+<pre><code>target 25.00   kP 0.020   maxOut 0.80
+tick  20   pos  11.45   atSetpoint false
+tick  40   pos  20.89   atSetpoint false
+tick  60   pos  24.22   atSetpoint true
+tick  80   pos  24.93   atSetpoint true
+tick 100   pos  24.93   atSetpoint true</code></pre>
+        </div>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">run 3 · kMaxOutput = 0.4</span><span class="code-spacer"></span></div>
+<pre><code>target 50.00   kP 0.020   maxOut 0.40
+tick  20   pos  10.59   atSetpoint false
+tick  40   pos  26.17   atSetpoint false
+tick  60   pos  40.65   atSetpoint false
+tick  80   pos  47.67   atSetpoint false
+tick 100   pos  49.69   atSetpoint true</code></pre>
+        </div>
+
+        <div class="callout callout--tip">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12c.7.7 1 1.4 1 2h6c0-.6.3-1.3 1-2a7 7 0 0 0-4-12z"/></svg></div>
+          <div class="c-title">The headline</div>
+          <div class="c-body"><p><code>ArmSubsystem</code> is byte for byte identical in all three runs. The arm
+            stopped somewhere else, and then moved at half power robot-wide, and the class that drives it was never
+            opened.</p></div>
+        </div>
+
+        <p>Run 3 is worth a second look. Halving the output limit did not just make the arm slower. It kept the
+          clamp active for twice as long, so <code>atSetpoint</code> was still false at tick 80 where the default run
+          had already arrived at tick 67. One number in one place changed the timing of the whole mechanism.</p>
+
+        <!-- ===================== LIMITS ===================== -->
+        <h2 id="limits"><span class="section-h"><span class="num">6</span> Where this does not help</span></h2>
+        <p>Three honest limits, so you do not apply this everywhere out of habit.</p>
+        <ul>
+          <li><b>A value used in exactly one place, with an obvious meaning, is fine inline.</b> Moving it adds a hop
+            for the reader and buys nothing.</li>
+          <li><b>A constant does not make a number correct.</b> <code>kScoreRotations = 9.0</code> is still wrong if
+            the arm actually scores at 11.</li>
+          <li><b>It does not replace the vendor client.</b> Writing <code>kIntakeCanId = 2</code> while the physical
+            SparkMax is still set to ID 5 is the same silent failure from Unit 2. Your code only ever
+            <em>requests</em> an ID. The device is told its ID in the REV client.</li>
+        </ul>
+
+        <!-- ===================== CHALLENGES ===================== -->
+        <h2 id="challenges"><span class="section-h"><span class="num">7</span> Practice challenges</span></h2>
+
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">Does it belong</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Which of these should move into <code>Constants.java</code>?</p>
+            <div class="options">
+              <label class="option" data-explain="A loop bound with an obvious meaning. Naming it kFour would be worse than leaving it."><input type="radio" name="q-bel" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>for (int i = 0; i &lt; 4; i++)</code></span></label>
+              <label class="option" data-correct data-explain="Yes. It is a device address, it will be referenced in more than one place eventually, and you will change it the first time a controller is swapped."><input type="radio" name="q-bel" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>new SparkMax(3, ...)</code>, the arm's CAN ID</span></label>
+              <label class="option" data-explain="Zero meaning stop is universally readable. Naming it adds a hop and clarifies nothing."><input type="radio" name="q-bel" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>pivot.set(0)</code> to stop</span></label>
+              <label class="option" data-explain="That is a computation, not a value. There is nothing there to store."><input type="radio" name="q-bel" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>Math.abs(error)</code></span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="fib"
+             data-win="A k-prefixed name, grouped in a nested class named for the mechanism. That is the whole convention."
+             data-lose="The k prefix marks it as a configured constant, and the nested class is named for the mechanism so you can type Constants.ArmConstants. and see everything the arm has.">
+          <div class="challenge-head"><span class="ch-kind">Fill in the blanks</span><span class="ch-title">The pattern</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Complete the constant and the reference to it.</p>
+<pre class="fib">public final class Constants {
+    public static final class ArmConstants {
+        public static final double <span class="blank" data-answer="kScoreRotations"></span> = 9.0;
+    }
+}
+// used as:
+moveToward(Constants.<span class="blank" data-answer="ArmConstants"></span>.kScoreRotations);</pre>
+            <div class="challenge-actions">
+              <button class="btn btn--sm check-btn" type="button">Check</button>
+              <button class="btn btn--sm btn--ghost reset-btn" type="button">Reset</button>
+            </div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="text"
+             data-win="One. That is the entire argument for this lesson."
+             data-lose="One, the constant's definition. Without it you would be searching for the digit 0 across every file and trying to work out which zeros are ports.">
+          <div class="challenge-head"><span class="ch-kind">Predict</span><span class="ch-title">Moving the port</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">PenguinBot's controller moves from port 0 to port 1. Your code uses
+              <code>Constants.OperatorConstants.kDriverControllerPort</code> everywhere. How many lines do you
+              change?</p>
+            <div class="answer-row">
+              <input class="answer-input" type="text" placeholder="a number" data-answer="1|one|1 line|one line|just one" aria-label="Your answer" />
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">The limit of the idea</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">You move <code>kIntakeCanId = 2</code> into <code>Constants.java</code>, but
+              the physical SparkMax is still set to ID 5. What have you fixed?</p>
+            <div class="options">
+              <label class="option" data-explain="Nothing about the device changed. Your code still asks for a device that is not answering."><input type="radio" name="q-lim" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The motor now works</span></label>
+              <label class="option" data-explain="The compiler has never been able to see your hardware and never will. This mismatch is invisible until you run the robot."><input type="radio" name="q-lim" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The compiler will now catch the mismatch</span></label>
+              <label class="option" data-correct data-explain="Right. Constants make numbers easy to change. Only the vendor client makes them true."><input type="radio" name="q-lim" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Nothing yet, but the number is now in one place</span></label>
+              <label class="option" data-explain="CAN IDs are always set on the device in the vendor client. Nothing assigns them for you."><input type="radio" name="q-lim" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The CAN ID is now assigned automatically</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">Why no object</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Why can you write <code>Constants.ArmConstants.kP</code> without creating an
+              object?</p>
+            <div class="options">
+              <label class="option" data-explain="final means it cannot be reassigned. That is a different property and it does not affect how you reach the value."><input type="radio" name="q-stat" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Because it is <code>final</code></span></label>
+              <label class="option" data-correct data-explain="Exactly, and it is the same reason Math.PI needs no new Math()."><input type="radio" name="q-stat" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Because it is <code>static</code>, so it belongs to the class</span></label>
+              <label class="option" data-explain="The file name grants nothing. You could put a constants class in any file and it would behave the same."><input type="radio" name="q-stat" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Because it lives in <code>Constants.java</code></span></label>
+              <label class="option" data-explain="The type has nothing to do with it. An instance double would still need an object."><input type="radio" name="q-stat" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Because it is a <code>double</code></span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <!-- ===================== MISTAKES ===================== -->
+        <h2 id="mistakes"><span class="section-h"><span class="num">8</span> Common mistakes</span></h2>
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">Watch out for these</div>
+          <div class="c-body">
+            <ul>
+              <li><strong>Treating this as tidiness.</strong> It is the difference between a one line change and a
+                search across four files while a match is being called.</li>
+              <li><strong>Making every number a constant.</strong> A number used once with an obvious meaning is
+                clearer inline.</li>
+              <li><strong>Believing a constant makes the value correct.</strong> It makes it easy to change. Nothing
+                more.</li>
+              <li><strong>Trying to instantiate <code>Constants</code>.</strong> It is all static, which is why the
+                class has a private constructor.</li>
+              <li><strong>Assuming the constant reaches the hardware.</strong> Your code requests an ID. The device
+                is told its ID in the vendor client.</li>
+              <li><strong>Flat naming with no nesting.</strong> Then <code>kP</code> can only mean one mechanism, and
+                you end up with <code>kArmP</code> and <code>kDriveP</code>, which is the nesting you avoided,
+                spelled worse.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- ===================== EXERCISE ===================== -->
+        <div class="exercise" id="exercise">
+          <div class="exercise-head">
+            <div class="ex-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4L12 17l-6.3 4.4L8 14 2 9.4h7.6z"/></svg></div>
+            <div>
+              <div class="ex-kicker">Build it · PenguinBot</div>
+              <h3>The numbers move into one file</h3>
+            </div>
+          </div>
+          <div class="exercise-body">
+            <p><code>IntakeSubsystem</code> and <code>ArmSubsystem</code> are real subsystems now, with CAN IDs,
+              gains, setpoints, tolerances and limits scattered through them. Collect them.</p>
+            <ol class="task-list">
+              <li><b>Write <code>Constants.java</code></b> with nested classes for
+                <code>OperatorConstants</code>, <code>IntakeConstants</code>, <code>ArmConstants</code> and
+                <code>RobotConstants</code>.</li>
+              <li><b>Refactor both subsystems and <code>ArmToScoreCommand</code></b> to reference it. When you are
+                done neither subsystem should contain a bare number except an obvious <code>0</code>.</li>
+              <li><b>Verify.</b> Search your subsystem files for the digits <code>2</code>, <code>3</code>,
+                <code>9</code> and <code>0.8</code>. Nothing should turn up except constant references.</li>
+              <li><b>Write down</b> the one line you would change if the arm's gearbox were swapped and the scoring
+                position became 14.0 rotations.</li>
+              <li><b>Bonus.</b> Add a <code>DriveConstants</code> block with placeholder CAN IDs 10 to 17 for the
+                swerve motors you will add in Unit 9, including its own <code>kP</code>.</li>
+            </ol>
+
+            <details class="reveal">
+              <summary><svg class="rv-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg> Reveal the solution</summary>
+              <div class="reveal-body">
+                <div class="code with-lines">
+                  <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Constants.java · solution</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">public final class Constants {
+
+    private Constants() { }        // never instantiated, it is all static
+
+    public static final class OperatorConstants {
+        public static final int kDriverControllerPort = 0;
+    }
+
+    public static final class IntakeConstants {
+        public static final int    kRollerCanId  = 2;
+        public static final double kIntakeSpeed  = 0.7;
+        public static final double kOuttakeSpeed = -0.5;
+    }
+
+    public static final class ArmConstants {
+        public static final int    kPivotCanId    = 3;
+        public static final int    kFollowerCanId = 4;
+
+        public static final double kP = 0.2;       // tuned in Unit 6
+        public static final double kI = 0.0;
+        public static final double kD = 0.0;
+
+        public static final double kStowedRotations = 0.0;
+        public static final double kScoreRotations  = 9.0;
+        public static final double kToleranceRot    = 0.25;
+        public static final double kHomingSpeed     = -0.15;
+        public static final double kSafetyLimitRot  = 12.0;
+        public static final int    kTimeoutTicks    = 100;
+    }
+
+    // Bonus, placeholders for Unit 9
+    public static final class DriveConstants {
+        public static final int kFrontLeftDriveCanId  = 10;
+        public static final int kFrontRightDriveCanId = 11;
+        public static final int kBackLeftDriveCanId   = 12;
+        public static final int kBackRightDriveCanId  = 13;
+        public static final int kFrontLeftSteerCanId  = 14;
+        public static final int kFrontRightSteerCanId = 15;
+        public static final int kBackLeftSteerCanId   = 16;
+        public static final int kBackRightSteerCanId  = 17;
+
+        public static final double kP = 0.0;   // not tuned yet, and NOT the arm's kP
+    }
+
+    public static final class RobotConstants {
+        public static final double kMaxOutput = 0.8;   // the 80 percent rule, robot-wide
+    }
+}</code></pre>
+                </div>
+
+                <div class="code with-lines">
+                  <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">subsystems/ArmSubsystem.java · after</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">import static frc.robot.Constants.ArmConstants;
+import static frc.robot.Constants.RobotConstants;
+
+public class ArmSubsystem extends SubsystemBase {
+
+    private final SparkMax pivot =
+        new SparkMax(ArmConstants.kPivotCanId, MotorType.kBrushless);
+    private final SparkMax follower =
+        new SparkMax(ArmConstants.kFollowerCanId, MotorType.kBrushless);
+
+    private final PIDController pid =
+        new PIDController(ArmConstants.kP, ArmConstants.kI, ArmConstants.kD);
+
+    public ArmSubsystem() {
+        pid.setTolerance(ArmConstants.kToleranceRot);
+    }
+
+    public void setSpeed(double speed) {
+        double max  = RobotConstants.kMaxOutput;
+        double safe = Math.max(-max, Math.min(max, speed));
+        pivot.set(safe);
+        follower.set(safe);
+    }
+
+    public void goToScore()  { moveToward(ArmConstants.kScoreRotations);  }
+    public void goToStowed() { moveToward(ArmConstants.kStowedRotations); }
+    // the rest is unchanged
+}</code></pre>
+                </div>
+
+                <p><b>The gearbox change is one line.</b></p>
+                <div class="code with-lines">
+                  <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Constants.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">public static final double kScoreRotations = 14.0;</code></pre>
+                </div>
+                <p>Nothing in <code>ArmSubsystem</code>, <code>ArmToScoreCommand</code> or
+                  <code>RobotContainer</code> is touched.</p>
+
+                <p>Two details in the solution are worth more than the rest.</p>
+                <ul>
+                  <li><code>private Constants() { }</code> says in code what the class is for. Nobody should ever
+                    write <code>new Constants()</code>, so make that impossible rather than hoping.</li>
+                  <li><code>DriveConstants.kP</code> sitting next to <code>ArmConstants.kP</code> is the clearest
+                    justification for nesting there is. Two mechanisms, two gains, the same correct name, no
+                    collision, and no need to invent <code>kArmP</code>.</li>
+                </ul>
+              </div>
+            </details>
+            <p>Unit 7 is finished. PenguinBot has subsystems that own their hardware, commands with real end
+              conditions, and every number in one file. It still cannot be driven, because nothing is connected to a
+              controller. Unit 8 wires it up.</p>
+          </div>
+        </div>
+
+        <!-- ===================== CHECKPOINT ===================== -->
+        <div class="checkpoint" id="checkpoint">
+          <div class="checkpoint-head">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            <h3>Checkpoint</h3>
+            <span class="cp-score">0 / 4</span>
+          </div>
+          <div class="checkpoint-body">
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q1.</span> What is the main argument for <code>Constants.java</code>?</div>
+              <div class="options">
+                <label class="option" data-explain="It makes the code slightly longer. The before and after in section 4 is honest about that."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It makes the code shorter</span></label>
+                <label class="option" data-correct data-explain="Yes, and it is the reason that saves you at a competition rather than in the shop."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A value used in several places can be changed in exactly one</span></label>
+                <label class="option" data-explain="There is no runtime difference at all. These compile to the same thing."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It makes the code run faster</span></label>
+                <label class="option" data-explain="It is a convention the template encourages, not something the library requires."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">WPILib requires it</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q2.</span> What does the <code>k</code> in <code>kScoreRotations</code> mean?</div>
+              <div class="options">
+                <label class="option" data-explain="Nothing to do with units. It appears on integers, doubles and booleans alike."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Kilo</span></label>
+                <label class="option" data-explain="That is the k in kP, which is a different use of the letter in a different context."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Constant of proportionality</span></label>
+                <label class="option" data-correct data-explain="Right, so you can tell at a glance that it is not a local variable."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A naming convention marking it as a configured constant</span></label>
+                <label class="option" data-explain="The compiler does not care about names. Remove every k and it still compiles."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It is required by the compiler</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q3.</span> Why nested classes instead of one flat list?</div>
+              <div class="options">
+                <label class="option" data-explain="No performance difference. Both compile to the same static fields."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It is faster</span></label>
+                <label class="option" data-correct data-explain="Exactly. ArmConstants.kP and DriveConstants.kP are two different, correctly named things."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It groups values by mechanism and lets the same name exist for two mechanisms</span></label>
+                <label class="option" data-explain="Java does not require it. A flat list of static finals compiles perfectly."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Java requires nesting for <code>static final</code></span></label>
+                <label class="option" data-explain="They are all public. Grouping is organisation, not hiding."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It hides the values from other classes</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q4.</span> Which of these is <em>not</em> fixed by using constants?</div>
+              <div class="options">
+                <label class="option" data-explain="That is exactly what it fixes, and it is the whole argument for the lesson."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Changing the controller port in one place</span></label>
+                <label class="option" data-correct data-explain="Right. Constants make the number easy to change. Only the vendor client makes it true."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The CAN ID in your code not matching the ID set on the device</span></label>
+                <label class="option" data-explain="It is now in one obvious place with a name that says what it is."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Finding the arm's tuned gain</span></label>
+                <label class="option" data-explain="It is now called kIntakeSpeed, so there is nothing to work out."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Knowing which <code>0.7</code> is the intake speed</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check my answers</button></div>
+          </div>
+        </div>
+
+        <!-- ===================== COMPLETE ===================== -->
+        <div class="mark-complete">
+          <div class="mc-text"><b>Unit 7 done. Every number has a name and one home.</b><span>Next: connecting a controller so a human can actually drive this thing.</span></div>
+          <button class="complete-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>Mark as complete</span></button>
+        </div>
+
+      </div><!-- /prose -->
+    </div><!-- /content-inner -->
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="/assets/js/course.js"></script>
+  <script src="/assets/js/site.js"></script>
+  <script src="/assets/js/widgets.js"></script>
+</body>
+</html>

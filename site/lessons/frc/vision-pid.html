@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vision-Aligned PID · Penguin Empire 2551</title>
+  <meta name="description" content="Six lines of new code standing on four units of work: feed TX straight into a PID controller, drive it to zero, and handle the moment the tag disappears." />
+  <link rel="icon" href="/assets/img/logo-2551.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Aldrich&family=Russo+One&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/brand.css" />
+  <link rel="stylesheet" href="/assets/css/layout.css" />
+  <link rel="stylesheet" href="/assets/css/lesson.css" />
+</head>
+<body data-page="lesson" data-lesson="frc-vision-pid">
+  <main id="main" class="content">
+    <div class="content-inner">
+
+      <!-- ===================== HEADER ===================== -->
+      <header class="lesson-hero">
+        <nav class="crumbs" aria-label="Breadcrumb">
+          <a href="/">Home</a><span class="sep">/</span>
+          <a href="/syllabus.html">Phase 2 · FRC</a><span class="sep">/</span>
+          <span>Unit 10 · Seeing</span>
+        </nav>
+        <span class="badge badge--ocean">Unit 10</span>
+        <h1 class="lesson-title">Vision-Aligned PID</h1>
+        <p class="lesson-lede">This is where Units 6, 9 and 10 pay off. Vision gives you the error and PID drives
+          it to zero, and there is almost nothing left to invent.</p>
+        <div class="lesson-meta">
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg> 30 min</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h2v-4H3zM9 20h2V10H9zM15 20h2V4h-2z"/></svg> Advanced</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2zM18 3v16"/></svg> Needs: Limelight &amp; AprilTags</span>
+        </div>
+      </header>
+
+      <!-- ===================== GOAL ===================== -->
+      <div class="goal">
+        <div class="goal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div>
+        <div>
+          <h2>Your goal</h2>
+          <p>Write a command that turns the robot until it faces an AprilTag, and handle the case where the tag
+            disappears.</p>
+        </div>
+      </div>
+
+      <nav class="toc" aria-label="On this page">
+        <strong>On this page</strong>
+        <ol>
+          <li><a href="#why">Why this matters</a></li>
+          <li><a href="#setpoint">The setpoint is zero</a></li>
+          <li><a href="#sign">Sign conventions will bite you</a></li>
+          <li><a href="#lost">Losing the target</a></li>
+          <li><a href="#command">The command</a></li>
+          <li><a href="#run">Aim it, then break it</a></li>
+          <li><a href="#range">TY for range</a></li>
+          <li><a href="#challenges">Practice challenges</a></li>
+          <li><a href="#mistakes">Common mistakes</a></li>
+          <li><a href="#exercise">Project: PenguinBot aims itself</a></li>
+          <li><a href="#checkpoint">Checkpoint</a></li>
+        </ol>
+      </nav>
+
+      <div class="prose">
+
+        <!-- ===================== WHY ===================== -->
+        <h2 id="why"><span class="section-h"><span class="num">1</span> Why this matters</span></h2>
+
+        <div class="callout callout--why">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></div>
+          <div class="c-title">Everything you have built, in one command</div>
+          <div class="c-body">
+            <p>Look at how little is left to invent.</p>
+            <p>In Unit 6 you learned that a controller needs an <strong>error</strong> and produces an
+              <strong>output</strong>. In Unit 9 you got a drivetrain that accepts a rotation rate. In Unit 10 you
+              got a camera that hands you an angle off target.</p>
+            <div class="code">
+              <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">the entire design</span><span class="code-spacer"></span></div>
+<pre><code>error  = TX                        the camera already did the subtraction
+output = pid.calculate(TX, 0.0)
+       -&gt; the drivetrain's rotation rate</code></pre>
+            </div>
+            <p>Six lines of genuinely new code, standing on four units of work. That is what good structure feels
+              like from the inside.</p>
+          </div>
+        </div>
+
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">This loop drives 120 pounds of robot</div>
+          <div class="c-body"><p>The tuning warning from Unit 6 applies here with considerably more mass behind it.
+            Bent parts and a mechanism coming off the robot were the consequences on an arm. This is the whole
+            machine.</p>
+            <p>Start the gain small. The sandbox below exists so you can get the aggressive one out of your system
+              somewhere harmless.</p></div>
+        </div>
+
+        <!-- ===================== SETPOINT ===================== -->
+        <h2 id="setpoint"><span class="section-h"><span class="num">2</span> The setpoint is zero</span></h2>
+        <p>Every controller in this course so far aimed at a <em>position</em>, such as 9.0 rotations. Here the
+          target is <strong>always zero</strong>, because being aimed means having no angular error.</p>
+        <p>What moves instead is the measurement. TX changes as the robot turns and as the tag moves. You are not
+          steering toward a number. You are cancelling an offset.</p>
+
+        <!-- ===================== SIGN ===================== -->
+        <h2 id="sign"><span class="section-h"><span class="num">3</span> Sign conventions will bite you</span></h2>
+        <p>Whether a positive TX means the tag is to the left or the right, and whether a positive rotation output
+          turns the robot clockwise, both depend on how the camera was mounted and what the drivetrain's convention
+          is.</p>
+        <p>Those two have to agree. If they do not, your robot turns <strong>away</strong> from the target, the
+          error grows, the output grows, and you have built a positive feedback loop out of a 120 pound machine.</p>
+
+        <div class="callout callout--tip">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12c.7.7 1 1.4 1 2h6c0-.6.3-1.3 1-2a7 7 0 0 0-4-12z"/></svg></div>
+          <div class="c-title">Do not reason about it. Test it.</div>
+          <div class="c-body"><p>Set the gain to something tiny like 0.01, run it, and <strong>watch which way it
+            turns</strong>. If it turns away from the tag, negate the output. That is the whole procedure.</p>
+            <p>This is exactly Unit 4's rule that you will not know which direction is positive until you test.
+              Twenty minutes of reasoning about mounting orientation is twenty minutes you could have spent
+              knowing.</p></div>
+        </div>
+
+        <p>You will produce this failure deliberately in the sandbox, where nothing can be damaged by it.</p>
+
+        <!-- ===================== LOST ===================== -->
+        <h2 id="lost"><span class="section-h"><span class="num">4</span> Losing the target</span></h2>
+        <p>This is what separates working vision from a demo. From the previous lesson: TX reads zero with no
+          target, which is indistinguishable from perfect alignment. So the command must ask whether the target is
+          valid <strong>before</strong> it acts on any reading.</p>
+        <p>There are three sensible policies, and choosing one deliberately is the point.</p>
+
+        <div class="tablewrap">
+          <table class="data">
+            <thead><tr><th>Policy</th><th>Behaviour</th><th>Good for</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Stop and finish</strong></td><td>No valid target, so stop the drivetrain and report finished</td><td>Simple, safe, and the default</td></tr>
+              <tr><td>Hold and wait</td><td>Keep the last output briefly, hoping the tag reappears</td><td>Brief occlusions, such as a defender passing through</td></tr>
+              <tr><td>Stop but keep waiting</td><td>Stop moving, do not finish, keep looking</td><td>When a sequence must not advance without the tag</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>Teach yourself the first one as the default. The failure to avoid is the fourth option, which nobody
+          chooses on purpose: <strong>carry on driving on a stale reading</strong>. That is what you get for free if
+          you never think about this.</p>
+
+        <!-- ===================== COMMAND ===================== -->
+        <h2 id="command"><span class="section-h"><span class="num">5</span> The command</span></h2>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">commands/AimAtTagCommand.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj2.command.Command;
+import static frc.robot.Constants.VisionConstants;
+import static frc.robot.Constants.RobotConstants;
+
+public class AimAtTagCommand extends Command {
+
+    private final DriveSubsystem     drive;
+    private final LimelightSubsystem limelight;
+
+    // Setpoint is ZERO. "Aimed" means no angular error.
+    private final PIDController pid =
+        new PIDController(VisionConstants.kAimP, 0.0, 0.0);
+
+    public AimAtTagCommand(DriveSubsystem drive, LimelightSubsystem limelight) {
+        this.drive     = drive;
+        this.limelight = limelight;
+        addRequirements(drive);       // NOT the limelight. reading it does not own it.
+    }
+
+    @Override
+    public void initialize() {
+        pid.reset();
+        pid.setTolerance(VisionConstants.kAimToleranceDeg);
+    }
+
+    @Override
+    public void execute() {
+        if (!limelight.isTargetValid()) {
+            drive.stopRotation();     // no valid tag: do not act on a stale reading
+            return;
+        }
+        double tx  = limelight.getAngleToTag();     // the error, straight from the camera
+        double out = pid.calculate(tx, 0.0);
+        double max = RobotConstants.kMaxOutput;
+        drive.rotate(Math.max(-max, Math.min(max, out)));
+    }
+
+    @Override
+    public boolean isFinished() {
+        // Finish when aimed, OR when there is nothing to aim at.
+        return !limelight.isTargetValid() || pid.atSetpoint();
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        drive.stopRotation();         // always
+    }
+}</code></pre>
+        </div>
+
+        <p>Four things in that class are worth more than the rest.</p>
+        <ul>
+          <li><b><code>addRequirements(drive)</code> and not the Limelight.</b> Reading a sensor does not require
+            exclusive ownership of it. Requiring the camera would stop any other command from reading vision at the
+            same time, for no benefit. People over-require, and this is the clearest example of why not to.</li>
+          <li><b>The validity guard appears in both <code>execute()</code> and <code>isFinished()</code>.</b> That is
+            not redundant. One stops the motion, the other stops the command, and they are different jobs.</li>
+          <li><b>The clamp is here too.</b> Every PID output in this course gets clamped, and a controller aiming a
+            whole robot is not the place to start making exceptions.</li>
+          <li><b><code>end()</code> stops rotation unconditionally</b>, on both paths, as always.</li>
+        </ul>
+
+        <div class="callout callout--season">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
+          <div class="c-title">Verify for current season</div>
+          <div class="c-body"><p><code>drive.rotate(double)</code> and <code>drive.stopRotation()</code> are named
+            here for readability. They are <strong>stand-ins</strong> for whatever your generated swerve subsystem
+            actually exposes, which differs between the two generators and between versions of each. Substitute the
+            real calls from your own drive subsystem.</p>
+            <p>Everything else in that class, meaning the controller, the guard, the clamp and the lifecycle, is
+              yours and does not change.</p></div>
+        </div>
+
+        <!-- ===================== RUN ===================== -->
+        <h2 id="run"><span class="section-h"><span class="num">6</span> Aim it, then break it</span></h2>
+
+        <div class="callout callout--note">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg></div>
+          <div class="c-title">The fake is deliberately visible</div>
+          <div class="c-body"><p>PenguinSim has no camera and no drivetrain. So the sandbox defines a small
+            <code>FakeField</code> <strong>in the file you are reading</strong>, labelled, rather than hiding it in
+            the simulator.</p>
+            <p>That is on purpose. A visible fake is honest and you can see exactly what it assumes. An invisible
+              one teaches you an API that does not exist. What is real here is the control loop, which is the part
+              that transfers to the robot unchanged.</p></div>
+        </div>
+
+        <div class="sandbox" data-compiler data-sim data-title="Aiming at a tag">
+          <script type="text/x-java" class="sb-src">
+// Real robot code would start with:
+//   import edu.wpi.first.math.controller.PIDController;
+
+public class Main {
+
+    // ---- STAND-IN. On a real robot this is a Limelight and your swerve. ----
+    static class FakeField {
+        double tx = 25.0;            // the tag starts 25 degrees off to one side
+        boolean hasTarget = true;    // <-- CHANGE ME
+        int tagId = 7;               // <-- CHANGE ME (try 3, which is not ours)
+
+        // Rotating the robot moves the tag across the image.
+        void rotate(double power) { tx += power * 2.0; }
+    }
+    // -----------------------------------------------------------------------
+
+    public static void main(String[] args) {
+        FakeField field = new FakeField();
+
+        final double KP        = 0.05;   // <-- CHANGE ME (try 0.20)
+        final double TOLERANCE = 1.0;    // degrees. "aimed enough"
+        final double MAX_OUT   = 0.8;    // the team's 80 percent rule
+        final int[]  OUR_TAGS  = { 7, 8 };
+
+        PIDController pid = new PIDController(KP, 0.0, 0.0);
+        pid.setTolerance(TOLERANCE);
+
+        System.out.printf("kP = %.2f   starting tx = %.2f%n", KP, field.tx);
+        System.out.println("tick      tx   output   aimed");
+
+        for (int tick = 1; tick <= 60; tick++) {
+
+            boolean valid = field.hasTarget && contains(OUR_TAGS, field.tagId);
+            if (!valid) {
+                System.out.println("tick " + tick + "  NO VALID TARGET, stopping");
+                break;
+            }
+
+            double out = pid.calculate(field.tx, 0.0);      // TX is the error
+            out = Math.max(-MAX_OUT, Math.min(MAX_OUT, out));
+            field.rotate(out);                              // <-- TRY NEGATING THIS
+
+            if (tick % 4 == 0 || pid.atSetpoint())
+                System.out.printf("%4d  %6.2f   %6.2f   %b%n",
+                                  tick, field.tx, out, pid.atSetpoint());
+            if (pid.atSetpoint()) {
+                System.out.println("aimed at tick " + tick);
+                break;
+            }
+        }
+    }
+
+    static boolean contains(int[] ids, int id) {
+        for (int i : ids) if (i == id) return true;
+        return false;
+    }
+}
+          </script>
+        </div>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output · kP = 0.05</span><span class="code-spacer"></span></div>
+<pre><code>kP = 0.05   starting tx = 25.00
+tick      tx   output   aimed
+   4   18.60    -0.80   false
+   8   12.47    -0.69   false
+  12    8.18    -0.45   false
+  16    5.37    -0.30   false
+  20    3.52    -0.20   false
+  24    2.31    -0.13   false
+  28    1.52    -0.08   false
+  32    1.00    -0.06   false
+  33    0.90    -0.05   true
+aimed at tick 33</code></pre>
+        </div>
+
+        <p>Read the two columns together. TX shrinks toward zero and the output shrinks with it, exactly like the
+          arm in Unit 6. The output is pinned at the clamp for the first few ticks while the error is large, then
+          comes off it as the robot closes in. Nothing here is a new idea.</p>
+
+        <h3>Experiment 1 · raise the gain</h3>
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output · kP = 0.20</span><span class="code-spacer"></span></div>
+<pre><code>kP = 0.20   starting tx = 25.00
+tick      tx   output   aimed
+   4   18.60    -0.80   false
+   8   12.20    -0.80   false
+  12    5.80    -0.80   false
+  16    0.94    -0.31   false
+  17    0.56    -0.19   true
+aimed at tick 17</code></pre>
+        </div>
+        <p>Seventeen ticks instead of thirty three, because the output stayed on the clamp much longer. Same tuning
+          skill from Unit 6, new mechanism. Keep raising it and you will find the same overshoot and chatter you
+          found on the arm.</p>
+
+        <h3>Experiment 2 · the sign error</h3>
+        <p>Change <code>field.rotate(out)</code> to <code>field.rotate(-out)</code>.</p>
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output · negated</span><span class="code-spacer"></span></div>
+<pre><code>kP = 0.05   starting tx = 25.00
+tick      tx   output   aimed
+   4   31.40    -0.80   false
+   8   37.80    -0.80   false
+  12   44.20    -0.80   false
+  ...
+  40   89.00    -0.80   false</code></pre>
+        </div>
+
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">This is what a sign error looks like</div>
+          <div class="c-body"><p>TX goes up and keeps going up, and the output stays pinned at full clamp the whole
+            way. The controller is driving the error <em>larger</em>, and the larger it gets the harder it
+            pushes.</p>
+            <p>On a real robot that is a 120 pound machine spinning up to its maximum rate while your code
+              believes it is correcting. It does not stop, because nothing in the loop can ever be satisfied.</p>
+            <p>Test at a tiny gain and watch which way it turns before you trust it. Every time.</p></div>
+        </div>
+
+        <h3>Experiment 3 · lose the target</h3>
+        <p>Set <code>tagId</code> to 3, which is not one of ours.</p>
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output · foreign tag</span><span class="code-spacer"></span></div>
+<pre><code>kP = 0.05   starting tx = 25.00
+tick      tx   output   aimed
+tick 1  NO VALID TARGET, stopping</code></pre>
+        </div>
+        <p>It refuses to move at all. The tag is right there, TX is a perfectly good 25 degrees, and the robot
+          correctly declines to aim at it. Setting <code>hasTarget = false</code> produces the same result for a
+          different reason, which is the behaviour you want.</p>
+
+        <!-- ===================== RANGE ===================== -->
+        <h2 id="range"><span class="section-h"><span class="num">7</span> TY for range</span></h2>
+        <p>Same shape, one paragraph, because there is genuinely nothing new in it.</p>
+        <p>A second <code>PIDController</code> runs on TY with a <em>non-zero</em> setpoint, which is whatever TY
+          reads at your preferred shooting distance. Its output drives forward and backward translation instead of
+          rotation. Two controllers, two axes, running at the same time on one drivetrain.</p>
+        <p>The only genuinely new thing is that the setpoint is not zero, because "the right distance" is a
+          particular TY reading rather than the absence of error. You measure it once by putting the robot where you
+          want it and writing down what TY says.</p>
+
+        <div class="callout callout--tip">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12c.7.7 1 1.4 1 2h6c0-.6.3-1.3 1-2a7 7 0 0 0-4-12z"/></svg></div>
+          <div class="c-title">Where this command actually gets used</div>
+          <div class="c-body"><p>An aiming command is rarely bound to a button on its own. It goes at the front of a
+            scoring sequence: aim, then raise the arm, then score. That is a
+            <a href="/lessons/frc/command-groups.html">sequential group</a> and you already know how to build
+            one.</p>
+            <p>In Unit 11 the same command appears inside the autonomous routine, unmodified. One class, written
+              once, reused twice. That is the composition payoff you were promised in Unit 3.</p></div>
+        </div>
+
+        <!-- ===================== CHALLENGES ===================== -->
+        <h2 id="challenges"><span class="section-h"><span class="num">8</span> Practice challenges</span></h2>
+
+        <div class="challenge" data-kind="text"
+             data-win="It grows without bound. The controller is now driving the error up, and the further off it gets the harder it pushes."
+             data-lose="TX increases forever. Flipping the sign turns negative feedback into positive feedback, so the bigger the error the harder it drives in the wrong direction. Test at a tiny gain first.">
+          <div class="challenge-head"><span class="ch-kind">Predict</span><span class="ch-title">The sign error</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">You negate the drivetrain output so a positive PID result turns the wrong
+              way. TX starts at 25. What happens to TX?</p>
+            <div class="answer-row">
+              <input class="answer-input" type="text" placeholder="what happens?" data-answer="increases|it grows|goes up|runs away|gets bigger|increases forever|grows without bound|it increases|grows" aria-label="Your answer" />
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">The setpoint</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">What setpoint do you pass to <code>pid.calculate(tx, ...)</code> when
+              aiming?</p>
+            <div class="options">
+              <label class="option" data-explain="That tells you which tag you are looking at, not where it is. The ID has nothing to do with the control loop."><input type="radio" name="q-sp" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The tag's ID</span></label>
+              <label class="option" data-correct data-explain="Yes. Aimed means no angular error, so the target value for TX is zero."><input type="radio" name="q-sp" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">0.0</span></label>
+              <label class="option" data-explain="Then the error is always zero and nothing ever moves. The robot would report itself aimed from the first cycle."><input type="radio" name="q-sp" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The current TX</span></label>
+              <label class="option" data-explain="Tolerance is how close counts as arrived. It is a separate number and it is not a target."><input type="radio" name="q-sp" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The tolerance</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">Requirements</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Why does <code>AimAtTagCommand</code> require the drivetrain but not the
+              Limelight?</p>
+            <div class="options">
+              <label class="option" data-explain="Nothing stops you requiring it. The question is whether you should, and doing so blocks other commands from reading vision for no benefit."><input type="radio" name="q-req" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">You cannot require a sensor subsystem</span></label>
+              <label class="option" data-correct data-explain="Right. It moves the drivetrain, so it needs exclusive control of that. It only reads the camera, and reading does not conflict with anything."><input type="radio" name="q-req" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It moves the drivetrain but only reads the camera</span></label>
+              <label class="option" data-explain="The Limelight subsystem is a real subsystem and registers with the scheduler like any other."><input type="radio" name="q-req" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The Limelight is not a real subsystem</span></label>
+              <label class="option" data-explain="Requirements are not about speed. They are about preventing two commands from driving one mechanism."><input type="radio" name="q-req" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Requiring both would be slower</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="fib"
+             data-win="TX in, zero as the setpoint, clamped, into the drivetrain. That is the whole loop."
+             data-lose="The measurement is TX and the setpoint is 0.0, because aimed means no error. Then clamp the result before it reaches the drivetrain, like every other PID output in this course.">
+          <div class="challenge-head"><span class="ch-kind">Fill in the blanks</span><span class="ch-title">The loop</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Complete the aiming loop.</p>
+<pre class="fib">double tx  = limelight.getAngleToTag();
+double out = pid.calculate(<span class="blank" data-answer="tx"></span>, <span class="blank" data-answer="0.0|0"></span>);
+drive.rotate(Math.max(-max, Math.min(max, <span class="blank" data-answer="out"></span>)));</pre>
+            <div class="challenge-actions">
+              <button class="btn btn--sm check-btn" type="button">Check</button>
+              <button class="btn btn--sm btn--ghost reset-btn" type="button">Reset</button>
+            </div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">Losing the tag</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">A defender blocks the camera mid-aim and the target goes invalid. What does
+              the command in section 5 do?</p>
+            <div class="options">
+              <label class="option" data-explain="That is the fourth option nobody chooses on purpose, and it is what you get if you write no guard at all."><input type="radio" name="q-lost" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Keeps turning on the last reading</span></label>
+              <label class="option" data-correct data-explain="Right, and that is the stop-and-finish policy. Both halves matter: the guard in execute stops the motion, and the guard in isFinished stops the command."><input type="radio" name="q-lost" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Stops rotating and finishes</span></label>
+              <label class="option" data-explain="Nothing throws. A blocked camera is a completely normal thing to happen in a match."><input type="radio" name="q-lost" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Throws an exception</span></label>
+              <label class="option" data-explain="That is the hold-and-wait policy, which is a valid choice you would have to write deliberately. This command does not do it."><input type="radio" name="q-lost" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Holds its last output for a moment</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <!-- ===================== MISTAKES ===================== -->
+        <h2 id="mistakes"><span class="section-h"><span class="num">9</span> Common mistakes</span></h2>
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">Watch out for these</div>
+          <div class="c-body">
+            <ul>
+              <li><strong>Reasoning about the sign instead of testing it.</strong> Set a tiny gain, run it, watch
+                which way it turns. Two minutes instead of twenty.</li>
+              <li><strong>Acting on a reading without checking it is valid.</strong> TX reads zero with no target,
+                which looks exactly like being aimed.</li>
+              <li><strong>Requiring the camera subsystem.</strong> Reading a sensor does not need exclusive
+                ownership, and requiring it blocks every other command that wants to look.</li>
+              <li><strong>Skipping the clamp because the drivetrain feels different.</strong> It is more mass, not
+                less reason to clamp.</li>
+              <li><strong>Setting the tolerance too tight.</strong> Ask for a tenth of a degree and the robot hunts
+                forever without ever reporting itself aimed.</li>
+              <li><strong>Forgetting the tag ID filter.</strong> Aiming at the other alliance's tag is a real
+                failure and it looks like the code working perfectly.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- ===================== EXERCISE ===================== -->
+        <div class="exercise" id="exercise">
+          <div class="exercise-head">
+            <div class="ex-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4L12 17l-6.3 4.4L8 14 2 9.4h7.6z"/></svg></div>
+            <div>
+              <div class="ex-kicker">Build it · PenguinBot</div>
+              <h3>PenguinBot aims itself</h3>
+            </div>
+          </div>
+          <div class="exercise-body">
+            <p>PenguinBot has a <code>LimelightSubsystem</code> that can say where a tag is and whether it is one of
+              ours. Nothing turns the robot toward it.</p>
+            <ol class="task-list">
+              <li><b>Add <code>kAimP</code> to <code>VisionConstants</code></b>, starting small.</li>
+              <li><b>Write <code>AimAtTagCommand</code></b> with the four lifecycle methods, the validity guard in
+                both places, and the clamp.</li>
+              <li><b>Write the test procedure</b> you would follow the first time you run it on a real robot,
+                including what gain you start at and what you are watching for.</li>
+              <li><b>Put it at the front of a scoring sequence</b>: aim, then the existing
+                <code>ScoreSequence</code>.</li>
+              <li><b>Bonus 1.</b> Add a second controller on TY for range, with a non-zero setpoint. Say where that
+                setpoint number comes from.</li>
+              <li><b>Bonus 2.</b> Add a timeout, so a robot that can never quite satisfy the tolerance does not hold
+                the drivetrain for the rest of the match.</li>
+            </ol>
+
+            <details class="reveal">
+              <summary><svg class="rv-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg> Reveal the solution</summary>
+              <div class="reveal-body">
+                <p>The command is the one in section 5, plus the timeout from Unit 7.</p>
+
+                <div class="code with-lines">
+                  <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Constants.java · VisionConstants</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">public static final class VisionConstants {
+    public static final String kLimelightName   = "limelight";
+    public static final double kAimToleranceDeg = 1.0;
+    public static final int[]  kScoringTagIds   = { 7, 8 };   // VERIFY THIS SEASON
+
+    // Start small. Raise it only after watching which way the robot turns.
+    public static final double kAimP        = 0.02;
+    public static final int    kAimTimeoutTicks = 100;        // 2 seconds
+}</code></pre>
+                </div>
+
+                <p><b>The first-run test procedure</b></p>
+                <ol class="task-list">
+                  <li>Robot on blocks, tag on a stand well off to one side so TX is clearly non-zero.</li>
+                  <li>Set the gain to <b>0.01</b>. Deliberately far too low to be useful.</li>
+                  <li>Enable and schedule the command. <b>Watch which way the modules turn.</b> That is the only
+                    thing you are testing.</li>
+                  <li>If it turns away from the tag, negate the output and repeat step 3. Do not proceed until the
+                    direction is right.</li>
+                  <li>Raise the gain gradually, using the recipe from Unit 6, until it aims cleanly with no
+                    overshoot and no direction reversals.</li>
+                  <li>Cover the camera mid-aim and confirm the robot stops instead of continuing.</li>
+                  <li>Show it a tag that is not in <code>kScoringTagIds</code> and confirm it refuses to move.</li>
+                  <li>Only then put it on the floor.</li>
+                </ol>
+                <p>Steps 3 and 4 are the entire reason this procedure exists. Everything else is tuning you already
+                  know how to do.</p>
+
+                <p><b>The scoring sequence, with aiming on the front</b></p>
+                <div class="code with-lines">
+                  <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">commands/AimAndScore.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+
+public class AimAndScore extends SequentialCommandGroup {
+
+    public AimAndScore(DriveSubsystem drive, LimelightSubsystem limelight,
+                       ArmSubsystem arm, IntakeSubsystem intake) {
+        addCommands(
+            new AimAtTagCommand(drive, limelight),   // face the tag first
+            new ScoreSequence(arm, intake)           // then the cycle from Unit 8
+        );
+    }
+}</code></pre>
+                </div>
+                <p>Nine lines, and neither of the two commands inside it needed a single change. That is what
+                  composition buys you.</p>
+
+                <p><b>Bonus 1, where the TY setpoint comes from.</b> You measure it. Put the robot exactly where you
+                  want it to shoot from, read TY, and write that number down as the setpoint. There is no formula,
+                  because it depends on how high the camera is mounted and at what angle. That is why it lives in
+                  <code>Constants</code> with a comment saying how it was obtained.</p>
+
+                <p><b>Bonus 2, why the timeout matters here specifically.</b> An aiming command that can never
+                  satisfy its tolerance holds the <em>drivetrain</em>, and the drivetrain is the one subsystem the
+                  driver needs back. Without a timeout, a robot that is nearly-but-not-quite aimed refuses to be
+                  driven for the rest of the match.</p>
+              </div>
+            </details>
+            <p>PenguinBot can now find a tag and turn to face it. In the next unit that same command goes into an
+              autonomous routine, unchanged, and the robot does it with nobody touching a controller.</p>
+          </div>
+        </div>
+
+        <!-- ===================== CHECKPOINT ===================== -->
+        <div class="checkpoint" id="checkpoint">
+          <div class="checkpoint-head">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            <h3>Checkpoint</h3>
+            <span class="cp-score">0 / 5</span>
+          </div>
+          <div class="checkpoint-body">
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q1.</span> Why does TX need no subtraction before going into the controller?</div>
+              <div class="options">
+                <label class="option" data-explain="It is measured, not calculated by you. The camera did the work."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It is already an output</span></label>
+                <label class="option" data-correct data-explain="Yes. The setpoint is zero, so the error and the measurement are the same number."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It is already the error, because being aimed means TX is zero</span></label>
+                <label class="option" data-explain="Angles work in a controller exactly like any other number. Nothing about degrees is special."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Angles do not need error terms</span></label>
+                <label class="option" data-explain="It does the subtraction internally with whatever setpoint you pass it. Here you pass zero, so there is nothing to subtract."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The controller subtracts it for you</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q2.</span> Your robot turns away from the tag and speeds up. What is wrong?</div>
+              <div class="options">
+                <label class="option" data-explain="Too high a gain causes overshoot and chatter around the target. It does not cause the robot to leave in the opposite direction."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The gain is too high</span></label>
+                <label class="option" data-correct data-explain="Right. Negative feedback has become positive feedback, and it can never be satisfied."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The sign convention between the camera and the drivetrain does not match</span></label>
+                <label class="option" data-explain="Then TX would read zero and the robot would stop, not accelerate away."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The camera has lost the target</span></label>
+                <label class="option" data-explain="A wrong setpoint would aim at the wrong angle and stop there. It would not run away."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The setpoint is wrong</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q3.</span> Why does the validity check appear in both <code>execute()</code> and <code>isFinished()</code>?</div>
+              <div class="options">
+                <label class="option" data-explain="It is not redundant. Each one prevents a different failure."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It is redundant, one could be removed</span></label>
+                <label class="option" data-correct data-explain="Exactly. One prevents motion on a stale reading, the other prevents the command holding the drivetrain forever."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">One stops the motion, the other stops the command</span></label>
+                <label class="option" data-explain="The scheduler calls each of them once per cycle regardless. Repeating the check is a choice, not a requirement."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The scheduler only calls one of them</span></label>
+                <label class="option" data-explain="It is checked every cycle in both places, which is exactly what you want with a reading that can change at any moment."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">So it is only checked once per command</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q4.</span> What is the first thing you do when running a vision aim on a real robot?</div>
+              <div class="options">
+                <label class="option" data-explain="That is what you tune toward eventually. It is a terrible thing to start with on an untested sign convention."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Set the gain to something that aims quickly</span></label>
+                <label class="option" data-correct data-explain="Correct. Direction first, at a gain low enough that being wrong is harmless. Everything else is tuning you already know."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Set a tiny gain and watch which way it turns</span></label>
+                <label class="option" data-explain="You cannot work it out reliably. It depends on the camera's mounting and the drivetrain's convention, and both are easier to observe than to derive."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Work out the sign convention from the mounting</span></label>
+                <label class="option" data-explain="Useful later, and it tells you nothing about whether the loop turns the right way."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Tighten the tolerance</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q5.</span> How does range control with TY differ from aiming with TX?</div>
+              <div class="options">
+                <label class="option" data-explain="Both use an ordinary PID controller. There is nothing different about the maths."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It needs a different kind of controller</span></label>
+                <label class="option" data-correct data-explain="Right, and you get that number by putting the robot where you want it and reading TY."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The setpoint is a measured non-zero TY value rather than zero</span></label>
+                <label class="option" data-explain="They run at the same time on the same drivetrain, one controlling rotation and one controlling translation."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">They cannot run at the same time</span></label>
+                <label class="option" data-explain="TY is an angle, not a distance. It correlates with distance, which is what makes it usable."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">TY gives a distance in metres</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check my answers</button></div>
+          </div>
+        </div>
+
+        <!-- ===================== COMPLETE ===================== -->
+        <div class="mark-complete">
+          <div class="mc-text"><b>Unit 10 done. PenguinBot aims itself.</b><span>Next: doing all of it with nobody holding a controller.</span></div>
+          <button class="complete-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>Mark as complete</span></button>
+        </div>
+
+      </div><!-- /prose -->
+    </div><!-- /content-inner -->
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="/assets/js/course.js"></script>
+  <script src="/assets/js/site.js"></script>
+  <script src="/assets/js/widgets.js"></script>
+</body>
+</html>

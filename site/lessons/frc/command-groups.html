@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sequential &amp; Parallel Groups · Penguin Empire 2551</title>
+  <meta name="description" content="Composing commands into a scoring sequence: run in order, run together, why a group is itself a command, and what happens when one step can never finish." />
+  <link rel="icon" href="/assets/img/logo-2551.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Aldrich&family=Russo+One&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/brand.css" />
+  <link rel="stylesheet" href="/assets/css/layout.css" />
+  <link rel="stylesheet" href="/assets/css/lesson.css" />
+</head>
+<body data-page="lesson" data-lesson="frc-command-groups">
+  <main id="main" class="content">
+    <div class="content-inner">
+
+      <!-- ===================== HEADER ===================== -->
+      <header class="lesson-hero">
+        <nav class="crumbs" aria-label="Breadcrumb">
+          <a href="/">Home</a><span class="sep">/</span>
+          <a href="/syllabus.html">Phase 2 · FRC</a><span class="sep">/</span>
+          <span>Unit 8 · Wiring It Together</span>
+        </nav>
+        <span class="badge badge--ocean">Unit 8</span>
+        <h1 class="lesson-title">Sequential &amp; Parallel Groups</h1>
+        <p class="lesson-lede">Unit 3 said commands have an end so that behaviours can be sequenced. Everything
+          since has been building the parts. Here they compose.</p>
+        <div class="lesson-meta">
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg> 25 min</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h2v-4H3zM9 20h2V10H9zM15 20h2V4h-2z"/></svg> Intermediate</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2zM18 3v16"/></svg> Needs: RobotContainer</span>
+        </div>
+      </header>
+
+      <!-- ===================== GOAL ===================== -->
+      <div class="goal">
+        <div class="goal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div>
+        <div>
+          <h2>Your goal</h2>
+          <p>Compose existing commands into a scoring sequence, and decide correctly which steps run in order and
+            which run together.</p>
+        </div>
+      </div>
+
+      <nav class="toc" aria-label="On this page">
+        <strong>On this page</strong>
+        <ol>
+          <li><a href="#why">Why this matters</a></li>
+          <li><a href="#syntax">The verified syntax</a></li>
+          <li><a href="#iscommand">A group is a command</a></li>
+          <li><a href="#howseq">How a sequence actually runs</a></li>
+          <li><a href="#parallel">Parallel, and what it costs</a></li>
+          <li><a href="#wait">WaitCommand</a></li>
+          <li><a href="#design">Designing the scoring sequence</a></li>
+          <li><a href="#run">Watch it run</a></li>
+          <li><a href="#challenges">Practice challenges</a></li>
+          <li><a href="#mistakes">Common mistakes</a></li>
+          <li><a href="#exercise">Project: Score from one button</a></li>
+          <li><a href="#checkpoint">Checkpoint</a></li>
+        </ol>
+      </nav>
+
+      <div class="prose">
+
+        <!-- ===================== WHY ===================== -->
+        <h2 id="why"><span class="section-h"><span class="num">1</span> Why this matters</span></h2>
+
+        <div class="callout callout--why">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></div>
+          <div class="c-title">Scoring is four things in a specific order</div>
+          <div class="c-body">
+            <p>PenguinBot can raise its arm to a setpoint and stop there. It can spin its intake. Scoring is those
+              two capabilities used in order.</p>
+            <div class="code">
+              <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">a scoring cycle</span><span class="code-spacer"></span></div>
+<pre><code>arm up  ->  spit the piece out  ->  wait for it to clear  ->  arm back down</code></pre>
+            </div>
+            <p>Try that with four button bindings and the driver has to time it by hand, mid-match, while somebody
+              is defending them.</p>
+            <p>Try it with four method calls in a row and all four happen within the same 20 milliseconds. The
+              intake fires while the arm is still at the bottom and the piece lands on the floor.</p>
+            <p><strong>Order needs duration, and duration needs an end condition.</strong> That is what commands
+              have been for all along.</p>
+          </div>
+        </div>
+
+        <!-- ===================== SYNTAX ===================== -->
+        <h2 id="syntax"><span class="section-h"><span class="num">2</span> The verified syntax</span></h2>
+
+        <div class="callout callout--verified">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4 12 14.01l-3-3"/></svg></div>
+          <div class="c-title">Verified syntax · WPILib</div>
+          <div class="c-body">
+            <div class="code with-lines">
+              <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">grouping commands</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">// Run in order, each waiting for the previous to finish:
+new SequentialCommandGroup(cmd1, cmd2, cmd3);
+
+// Run all at the same time:
+new ParallelCommandGroup(cmdA, cmdB);</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout--season">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
+          <div class="c-title">Verify for current season</div>
+          <div class="c-body"><p>Modern WPILib also offers factory methods that build the same groups with less
+            typing. Check what your season provides and follow whatever your team's existing code already uses,
+            since mixing both styles in one project is worse than either. The class form above is verified in our
+            curriculum and works everywhere.</p>
+            <p>PenguinSim does not ship these classes, so the sandbox builds small versions by hand. That turns out
+              to be useful, because it makes section 4 something you can read rather than something you take on
+              trust.</p></div>
+        </div>
+
+        <!-- ===================== ISCOMMAND ===================== -->
+        <h2 id="iscommand"><span class="section-h"><span class="num">3</span> A group is a command</span></h2>
+        <p>This is the idea that makes groups powerful rather than merely convenient.
+          <code>SequentialCommandGroup</code> extends <code>Command</code>. It has
+          <code>initialize()</code>, <code>execute()</code>, <code>isFinished()</code> and <code>end()</code>, just
+          like everything you wrote in Unit 7.</p>
+        <p>So a group can be bound to a button, nested inside another group, or used as an entire autonomous
+          routine. There is no separate category of thing here.</p>
+        <p>That has a consequence worth stating now: your whole autonomous routine in Unit 11 will be one sequential
+          group made of commands you have already written.</p>
+
+        <!-- ===================== HOWSEQ ===================== -->
+        <h2 id="howseq"><span class="section-h"><span class="num">4</span> How a sequence actually runs</span></h2>
+        <p>People imagine something clever is happening. It is not.</p>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">a sequential group, in full</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">initialize()  -&gt; initialize the FIRST command
+execute()     -&gt; execute the current command
+                 if it isFinished(): end it, and initialize the NEXT one
+isFinished()  -&gt; true when the last command has finished</code></pre>
+        </div>
+
+        <p>Two consequences follow directly, and the sandbox shows both.</p>
+        <ul>
+          <li><b>The group finishes when its last command finishes.</b> Give it a command that never ends and the
+            whole group never ends, along with any autonomous routine containing it.</li>
+          <li><b>An <code>InstantCommand</code> inside a sequence acts the moment the previous step finishes</b>,
+            because it does its work in <code>initialize()</code> and the group calls that immediately.</li>
+        </ul>
+
+        <!-- ===================== PARALLEL ===================== -->
+        <h2 id="parallel"><span class="section-h"><span class="num">5</span> Parallel, and what it costs</span></h2>
+        <p>Parallel is for things that genuinely can happen at once. Raising the arm while driving to the scoring
+          position uses two different subsystems, so it is safe and it halves the time.</p>
+        <p>A parallel group ends when <strong>all</strong> its members end. One slow member sets the pace, and one
+          member that never ends means the group never ends.</p>
+
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">Two commands needing the same subsystem cannot be parallel</div>
+          <div class="c-body">
+            <p>This is a hard constraint, not a style preference. Putting an arm-up command and an arm-down command
+              in the same parallel group means two commands driving one mechanism toward opposite setpoints, which
+              is precisely what requirements exist to prevent.</p>
+            <p>Parallel is not a way to make things faster in general. It is a way to overlap work on
+              <em>different</em> mechanisms. Two arm commands in parallel is not faster. It is broken.</p>
+          </div>
+        </div>
+
+        <!-- ===================== WAIT ===================== -->
+        <h2 id="wait"><span class="section-h"><span class="num">6</span> WaitCommand</span></h2>
+        <p><code>new WaitCommand(0.5)</code> does nothing for half a second and then finishes. It looks trivial and
+          it is essential, because physical things take time that no sensor is measuring. The game piece needs a
+          moment to clear the roller before the arm comes down.</p>
+
+        <div class="callout callout--tip">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12c.7.7 1 1.4 1 2h6c0-.6.3-1.3 1-2a7 7 0 0 0-4-12z"/></svg></div>
+          <div class="c-title">A wait is a guess</div>
+          <div class="c-body"><p>Be honest about what a <code>WaitCommand</code> is. It is a bet that the robot will
+            behave the same way twice. Where a sensor can tell you the piece has cleared, use the sensor. Waits are
+            what you reach for when you have no sensor, and every one of them is a place your routine can go wrong
+            on a cold battery or a sticky roller.</p>
+            <p>It also does not block the robot. It pauses its own sequence. Every subsystem's
+              <code>periodic()</code>, every other command and the whole scheduler carry on at full speed.</p></div>
+        </div>
+
+        <!-- ===================== DESIGN ===================== -->
+        <h2 id="design"><span class="section-h"><span class="num">7</span> Designing the scoring sequence</span></h2>
+        <p>Walk the decision step by step. The reasoning is the transferable part.</p>
+
+        <div class="tablewrap">
+          <table class="data">
+            <thead><tr><th>Step</th><th>Where it goes</th><th>Why</th></tr></thead>
+            <tbody>
+              <tr><td>Arm to score</td><td>First, alone</td><td>The piece must be up before it is released</td></tr>
+              <tr><td>Outtake on</td><td>Immediately after</td><td>Instantaneous, so an <code>InstantCommand</code></td></tr>
+              <tr><td>Wait</td><td>After</td><td>Give the piece time to clear the roller</td></tr>
+              <tr><td>Outtake off</td><td>After</td><td>Instantaneous again</td></tr>
+              <tr><td>Arm to stowed</td><td>Last</td><td>Only safe once the piece is gone</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>Now the counter-example, because it is what makes the reasoning stick. Could steps one and two be
+          parallel? No. You would spit the piece out at floor level. Could the arm stow while the intake stops? Yes,
+          and that is a real optimisation, which the exercise builds as a nested parallel group.</p>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">ScoreSequence.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
+import static frc.robot.Constants.IntakeConstants;
+
+public class ScoreSequence extends SequentialCommandGroup {
+
+    public ScoreSequence(ArmSubsystem arm, IntakeSubsystem intake) {
+        addCommands(
+            new ArmToScoreCommand(arm),                        // takes time
+            new InstantCommand(() -&gt; intake.runRoller(IntakeConstants.kOuttakeSpeed)),
+            new WaitCommand(0.5),                              // let the piece clear
+            new InstantCommand(intake::stop),
+            new ArmToStowCommand(arm)                          // takes time
+        );
+    }
+}</code></pre>
+        </div>
+
+        <p><code>intake::stop</code> is a method reference, which is the same idea as the lambda written shorter.
+          And because the group is itself a command, binding it is one line.</p>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">RobotContainer.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">driver.cross().onTrue(new ScoreSequence(arm, intake));</code></pre>
+        </div>
+
+        <p>Notice what just happened. The binding got <em>simpler</em> while the behaviour got more sophisticated.</p>
+
+        <!-- ===================== RUN ===================== -->
+        <h2 id="run"><span class="section-h"><span class="num">8</span> Watch it run</span></h2>
+        <p>PenguinSim has no group classes, so this sandbox builds them. <code>Sequence</code> is fifteen lines and
+          it is exactly the pseudocode from section 4 written out in Java. Read it before you press Run.</p>
+
+        <div class="sandbox" data-compiler data-sim data-title="A scoring sequence">
+          <script type="text/x-java" class="sb-src">
+// Real robot code would use WPILib's versions of Sequence and WaitCommand:
+//   import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+//   import edu.wpi.first.wpilibj2.command.WaitCommand;
+
+public class Main {
+
+    static class IntakeSubsystem extends SubsystemBase {
+        private final SparkMax roller = new SparkMax(2, MotorType.kBrushless);
+        void runRoller(double s) { roller.set(s); }
+        void stop()              { roller.set(0); }
+        double commanded()       { return roller.get(); }
+        @Override public void periodic() { }
+    }
+
+    static class ArmSubsystem extends SubsystemBase {
+        private final SparkMax pivot = new SparkMax(3, MotorType.kBrushless);
+        private final PIDController pid = new PIDController(0.02, 0.0, 0.0);
+        ArmSubsystem() { pid.setTolerance(1.0); }
+        double  getPosition() { return pivot.getEncoder().getPosition(); }
+        boolean atSetpoint()  { return pid.atSetpoint(); }
+        void    startMove()   { pid.reset(); }
+        void    stop()        { pivot.set(0); }
+        void    moveToward(double sp) {
+            double o = pid.calculate(getPosition(), sp);
+            pivot.set(Math.max(-0.8, Math.min(0.8, o)));
+        }
+        @Override public void periodic() { }
+    }
+
+    static class ArmToCommand extends Command {
+        private final ArmSubsystem arm; private final double setpoint; private final String label;
+        ArmToCommand(ArmSubsystem arm, double setpoint, String label) {
+            this.arm = arm; this.setpoint = setpoint; this.label = label;
+        }
+        @Override public void initialize()    { arm.startMove(); }
+        @Override public void execute()       { arm.moveToward(setpoint); }
+        @Override public boolean isFinished() { return arm.atSetpoint(); }
+        @Override public void end(boolean interrupted) {
+            arm.stop();
+            System.out.printf("  %s (%.2f)%n", label, arm.getPosition());
+        }
+    }
+
+    // ===== the two classes WPILib gives you, written out =====
+    static class Sequence extends Command {
+        private final Command[] steps;
+        private int index = 0;
+        Sequence(Command... steps) { this.steps = steps; }
+
+        @Override public void initialize() {
+            index = 0;
+            if (steps.length > 0) steps[0].initialize();
+        }
+        @Override public void execute() {
+            if (index >= steps.length) return;
+            Command current = steps[index];
+            current.execute();
+            if (current.isFinished()) {
+                current.end(false);
+                index++;
+                if (index < steps.length) steps[index].initialize();
+            }
+        }
+        @Override public boolean isFinished() { return index >= steps.length; }
+        @Override public void end(boolean interrupted) {
+            if (interrupted && index < steps.length) steps[index].end(true);
+        }
+    }
+
+    static class WaitCommand extends Command {
+        private final double seconds;
+        private final Timer timer = new Timer();
+        WaitCommand(double seconds) { this.seconds = seconds; }
+        @Override public void initialize()    { timer.reset(); timer.start(); }
+        @Override public boolean isFinished() { return timer.get() >= seconds; }
+    }
+    // =========================================================
+
+    static class ScoreSequence extends Sequence {
+        ScoreSequence(ArmSubsystem arm, IntakeSubsystem intake) {
+            super(
+                new ArmToCommand(arm, 50.0, "[1] arm at score"),
+                new InstantCommand(() -> { intake.runRoller(-0.5);
+                                           System.out.println("  [2] outtake ON"); }),
+                new WaitCommand(0.5),                          // <-- CHANGE ME
+                new InstantCommand(() -> { intake.stop();
+                                           System.out.println("  [4] outtake OFF"); }),
+                new ArmToCommand(arm, 0.0, "[5] arm stowed")
+            );
+        }
+    }
+
+    public static void main(String[] args) {
+        CommandScheduler.getInstance().setTraceEnabled(false);
+        ArmSubsystem    arm    = new ArmSubsystem();
+        IntakeSubsystem intake = new IntakeSubsystem();
+
+        System.out.println("ScoreSequence scheduled");
+        Command seq = new ScoreSequence(arm, intake);
+        CommandScheduler.getInstance().schedule(seq);
+
+        for (int tick = 1; tick <= 200; tick++) {
+            CommandScheduler.getInstance().run();
+            if (tick % 20 == 0)
+                System.out.printf("tick %3d   arm %5.2f   roller %5.2f%n",
+                                  tick, arm.getPosition(), intake.commanded());
+            if (!CommandScheduler.getInstance().isScheduled(seq)) {
+                System.out.println("ScoreSequence finished at tick " + tick); break;
+            }
+        }
+    }
+}
+          </script>
+        </div>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code>ScoreSequence scheduled
+tick  20   arm 20.73   roller  0.00
+tick  40   arm 40.63   roller  0.00
+tick  60   arm 48.09   roller  0.00
+  [1] arm at score (49.07)
+  [2] outtake ON
+tick  80   arm 49.71   roller -0.50
+  [4] outtake OFF
+tick 100   arm 47.27   roller  0.00
+tick 120   arm 22.77   roller  0.00
+tick 140   arm  6.52   roller  0.00
+tick 160   arm  1.14   roller  0.00
+  [5] arm stowed (0.92)
+ScoreSequence finished at tick 163</code></pre>
+        </div>
+
+        <p>Read it against the design table.</p>
+        <ul>
+          <li>Steps happened <b>strictly in order</b>. Nothing from step three occurred before step two was done.</li>
+          <li>The roller was negative <b>only</b> between outtake on and outtake off.</li>
+          <li>The arm stayed at the top through the whole wait. It drifted from 49.07 to 49.71 because a stopped
+            motor coasts, which you met in Unit 7. No step was driving it.</li>
+          <li>The arm came back down <b>only after</b> the outtake stopped.</li>
+          <li>The group reported finished after its last command, at tick 163.</li>
+        </ul>
+
+        <h3>Three experiments, and one of them is the important one</h3>
+        <ul>
+          <li><b>Change the wait</b> to 0.1 and then 2.0. The whole sequence's length changes and nothing else does.
+            Think about what the game piece is doing during that time.</li>
+          <li><b>Reorder the steps</b> so the outtake <code>InstantCommand</code> comes first. The piece is released
+            at floor level. This is the most instructive mistake in the lesson, so make it deliberately.</li>
+          <li><b>Give the first <code>ArmToCommand</code> a setpoint the mechanism cannot reach</b>, such as 500.0.
+            Read the next callout first.</li>
+        </ul>
+
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">One stuck step freezes everything after it</div>
+          <div class="c-body">
+            <p>With an unreachable setpoint on step one, the arm drives at full output forever and
+              <strong>steps two through five never happen</strong>. The intake never runs. The arm never comes down.
+              The sequence never reports finished.</p>
+            <p>No error. No warning. The robot looks like it is working, because the arm really is moving.</p>
+            <p>In Unit 11 that is a whole autonomous routine doing nothing for fifteen seconds while the crowd
+              watches. The defence is the timeout you wrote in Unit 7, and the exercise puts it back.</p>
+          </div>
+        </div>
+
+        <!-- ===================== CHALLENGES ===================== -->
+        <h2 id="challenges"><span class="section-h"><span class="num">9</span> Practice challenges</span></h2>
+
+        <div class="challenge" data-kind="order"
+             data-win="That is the scoring sequence. Every step waits for the one before it, which is only possible because each has an end condition."
+             data-lose="Raise the arm first, because releasing at floor level drops the piece. Then reverse the intake, wait for the piece to clear, stop the intake, and only then lower the arm.">
+          <div class="challenge-head"><span class="ch-kind">Put in order</span><span class="ch-title">Build the sequence</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Drag these into the order a scoring cycle needs.</p>
+            <ul class="order-list">
+              <li class="order-item" data-pos="4"><span class="grip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h16M4 16h16"/></svg></span><span>Stop the intake</span></li>
+              <li class="order-item" data-pos="1"><span class="grip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h16M4 16h16"/></svg></span><span>Raise the arm to the scoring setpoint</span></li>
+              <li class="order-item" data-pos="3"><span class="grip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h16M4 16h16"/></svg></span><span>Wait for the piece to clear</span></li>
+              <li class="order-item" data-pos="5"><span class="grip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h16M4 16h16"/></svg></span><span>Lower the arm to stowed</span></li>
+              <li class="order-item" data-pos="2"><span class="grip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h16M4 16h16"/></svg></span><span>Run the intake in reverse</span></li>
+            </ul>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">Which group</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Driving to the scoring position takes two seconds. Raising the arm takes
+              one. They use different subsystems. Which group, and how long does it take?</p>
+            <div class="options">
+              <label class="option" data-explain="Safe, and it wastes a second on every scoring cycle. Different subsystems do not conflict, so there is nothing to be safe from."><input type="radio" name="q-grp" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Sequential, three seconds</span></label>
+              <label class="option" data-correct data-explain="Right. Different subsystems, so both can run, and the group ends when the slower one does."><input type="radio" name="q-grp" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Parallel, two seconds</span></label>
+              <label class="option" data-explain="A parallel group ends when all its members end, not when the first one does. The drive is still going."><input type="radio" name="q-grp" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Parallel, one second</span></label>
+              <label class="option" data-explain="Then the driver has to time it by hand, which is exactly what you are trying to eliminate."><input type="radio" name="q-grp" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Neither, use two separate bindings</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">The constraint</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">You put an arm-up command and an arm-down command in the same
+              <code>ParallelCommandGroup</code>. Why is that wrong?</p>
+            <div class="options">
+              <label class="option" data-explain="They take any number of commands. Count is not the issue."><input type="radio" name="q-cons" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Parallel groups only take two commands</span></label>
+              <label class="option" data-correct data-explain="Exactly, and they would be commanding opposite setpoints, which is the clearest possible demonstration of why requirements exist."><input type="radio" name="q-cons" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Both require the arm, and two commands cannot drive one subsystem at once</span></label>
+              <label class="option" data-explain="Different durations are completely fine in parallel. The group simply waits for the slower one."><input type="radio" name="q-cons" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">One takes longer than the other</span></label>
+              <label class="option" data-explain="You need them to be sequential. A wait between two commands in a parallel group does not make them happen in order."><input type="radio" name="q-cons" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">You need a <code>WaitCommand</code> between them</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="text"
+             data-win="Nothing, ever. A sequential group does not start step two until step one finishes, and step one never will."
+             data-lose="The intake never runs. The sequence is stuck on step one forever. Nothing errors, which is why this class of bug is so hard to spot. Put timeouts on commands that could hang.">
+          <div class="challenge-head"><span class="ch-kind">Predict</span><span class="ch-title">A stuck first step</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">The arm command's setpoint is unreachable, so it never finishes. Your
+              sequence runs it first. What does the intake do?</p>
+            <div class="answer-row">
+              <input class="answer-input" type="text" placeholder="what happens?" data-answer="nothing|never runs|doesn't run|never starts|it never runs|nothing at all|does not run|it does nothing" aria-label="Your answer" />
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="fib"
+             data-win="Three building blocks. Every autonomous routine you will ever write is made of these plus the commands you already have."
+             data-lose="SequentialCommandGroup for order, ParallelCommandGroup for together, and WaitCommand for a timed pause.">
+          <div class="challenge-head"><span class="ch-kind">Fill in the blanks</span><span class="ch-title">The building blocks</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Name each one from what it does.</p>
+<pre class="fib">new <span class="blank" data-answer="SequentialCommandGroup"></span>(cmd1, cmd2, cmd3);   // in order, each waiting
+new <span class="blank" data-answer="ParallelCommandGroup"></span>(cmdA, cmdB);         // both at once
+new <span class="blank" data-answer="WaitCommand"></span>(0.5);                // pause half a second</pre>
+            <div class="challenge-actions">
+              <button class="btn btn--sm check-btn" type="button">Check</button>
+              <button class="btn btn--sm btn--ghost reset-btn" type="button">Reset</button>
+            </div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <!-- ===================== MISTAKES ===================== -->
+        <h2 id="mistakes"><span class="section-h"><span class="num">10</span> Common mistakes</span></h2>
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">Watch out for these</div>
+          <div class="c-body">
+            <ul>
+              <li><strong>Thinking a group is a special kind of thing.</strong> A group is a command. Bind it, nest
+                it, or use it as an autonomous routine.</li>
+              <li><strong>Using parallel wherever possible because it is faster.</strong> Only where the commands
+                need different subsystems and doing them together is physically safe.</li>
+              <li><strong>Expecting a parallel group to end when the first member ends.</strong> It ends when all of
+                them do.</li>
+              <li><strong>Thinking <code>WaitCommand</code> blocks the robot.</strong> It pauses its own sequence.
+                Everything else carries on.</li>
+              <li><strong>Assuming a stuck step will time out.</strong> Nothing times out on its own. Give commands
+                that could hang their own timeout.</li>
+              <li><strong>Replacing small commands with one big one.</strong> Composition is the opposite move. Keep
+                small commands that do one thing, and those same commands become your autonomous routine.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- ===================== EXERCISE ===================== -->
+        <div class="exercise" id="exercise">
+          <div class="exercise-head">
+            <div class="ex-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4L12 17l-6.3 4.4L8 14 2 9.4h7.6z"/></svg></div>
+            <div>
+              <div class="ex-kicker">Build it · PenguinBot</div>
+              <h3>Score from one button</h3>
+            </div>
+          </div>
+          <div class="exercise-body">
+            <p><code>RobotContainer</code> binds four buttons to four separate behaviours, and the driver has to
+              sequence a scoring cycle by hand. Take that job away from them.</p>
+            <ol class="task-list">
+              <li><b>Write <code>ArmToStowCommand</code></b>, the same shape as <code>ArmToScoreCommand</code> but
+                targeting the stowed setpoint from <code>Constants</code>.</li>
+              <li><b>Write <code>ScoreSequence</code></b>: arm up, outtake on, wait, outtake off, arm down.</li>
+              <li><b>Rebind <code>cross()</code></b> to the sequence, replacing the bare arm command.</li>
+              <li><b>Write one sentence per step</b> explaining why it cannot move earlier in the order.</li>
+              <li><b>Bonus 1.</b> Make the last two steps a nested <code>ParallelCommandGroup</code> so the intake
+                stops while the arm stows, and say how much time that saves.</li>
+              <li><b>Bonus 2.</b> Add the timeout from Unit 7 back onto <code>ArmToScoreCommand</code> so a jammed
+                arm cannot freeze the whole sequence.</li>
+            </ol>
+
+            <details class="reveal">
+              <summary><svg class="rv-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg> Reveal the solution</summary>
+              <div class="reveal-body">
+                <div class="code with-lines">
+                  <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">commands/ArmToStowCommand.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">import edu.wpi.first.wpilibj2.command.Command;
+
+public class ArmToStowCommand extends Command {
+    private final ArmSubsystem arm;
+
+    public ArmToStowCommand(ArmSubsystem arm) {
+        this.arm = arm;
+        addRequirements(arm);
+    }
+
+    @Override public void initialize()    { arm.startMove(); }
+    @Override public void execute()       { arm.goToStowed(); }
+    @Override public boolean isFinished() { return arm.atSetpoint(); }
+    @Override public void end(boolean interrupted) { arm.stop(); }
+}</code></pre>
+                </div>
+
+                <div class="code with-lines">
+                  <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">commands/ScoreSequence.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
+import static frc.robot.Constants.IntakeConstants;
+
+public class ScoreSequence extends SequentialCommandGroup {
+
+    public ScoreSequence(ArmSubsystem arm, IntakeSubsystem intake) {
+        addCommands(
+            // 1. Raise first. Releasing at floor level drops the piece on the floor.
+            new ArmToScoreCommand(arm),
+
+            // 2. Now release. Instant, because there is nothing to wait for.
+            new InstantCommand(() -&gt; intake.runRoller(IntakeConstants.kOuttakeSpeed)),
+
+            // 3. Give the piece time to physically clear the roller. No sensor for
+            //    this, so it is a timed guess. Keep it as short as reliably works.
+            new WaitCommand(0.5),
+
+            // 4 and 5 together. The intake can stop WHILE the arm comes down:
+            //    different subsystems, no conflict.
+            new ParallelCommandGroup(
+                new InstantCommand(intake::stop),
+                new ArmToStowCommand(arm)
+            )
+        );
+    }
+}</code></pre>
+                </div>
+
+                <p><b>Why each step cannot move earlier</b></p>
+                <ol class="task-list">
+                  <li><b>Arm up.</b> Everything after it assumes the piece is at scoring height.</li>
+                  <li><b>Outtake on.</b> Before the arm is up, this releases the piece onto the floor.</li>
+                  <li><b>Wait.</b> Stopping the roller immediately would trap the piece half out.</li>
+                  <li><b>Outtake off.</b> Before the wait, the piece has not cleared.</li>
+                  <li><b>Arm down.</b> Before the piece is clear, the arm carries it back down with it.</li>
+                </ol>
+
+                <p><b>What bonus 1 saves.</b> Roughly one scheduler cycle, which is 20 milliseconds. That is almost
+                  nothing, and the pattern is the point. In Unit 11 you will run a whole drivetrain path in parallel
+                  with an arm movement, and there the same reasoning saves seconds.</p>
+
+                <p><b>Why bonus 2 matters more than it looks.</b> Without the timeout, a jammed arm means the
+                  sequence never gets past step one. During a match. For the whole match. Silently.</p>
+              </div>
+            </details>
+            <p>One button now runs five commands in the right order. Something still has to call the scheduler every
+              20 milliseconds, and something has to decide whether you are in teleop or autonomous. That is
+              <code>Robot.java</code>, the file you mostly leave alone, explained.</p>
+          </div>
+        </div>
+
+        <!-- ===================== CHECKPOINT ===================== -->
+        <div class="checkpoint" id="checkpoint">
+          <div class="checkpoint-head">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            <h3>Checkpoint</h3>
+            <span class="cp-score">0 / 5</span>
+          </div>
+          <div class="checkpoint-body">
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q1.</span> When does a <code>SequentialCommandGroup</code> finish?</div>
+              <div class="options">
+                <label class="option" data-explain="That is when the second one starts. The group is only part way through."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">When the first command finishes</span></label>
+                <label class="option" data-correct data-explain="Yes, and if any member cannot finish, the group cannot either."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">When the last command finishes</span></label>
+                <label class="option" data-explain="There is no built-in time limit anywhere in the command framework. Timeouts are something you write."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">After a fixed time</span></label>
+                <label class="option" data-explain="Only if it was bound with whileTrue, and that is a property of the binding rather than of the group."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">When the button is released</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q2.</span> When does a <code>ParallelCommandGroup</code> finish?</div>
+              <div class="options">
+                <label class="option" data-explain="Variants exist that end on the first member, but the plain parallel group waits for everything."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">When the first member finishes</span></label>
+                <label class="option" data-correct data-explain="Right, so the slowest member sets the duration of the whole group."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">When all its members have finished</span></label>
+                <label class="option" data-explain="Only if every member happens to be instantaneous, which is a special case rather than the rule."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Immediately</span></label>
+                <label class="option" data-explain="Interruption is a different path from the group's normal end condition."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">When any member is interrupted</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q3.</span> Why can two commands that both require the arm not run in parallel?</div>
+              <div class="options">
+                <label class="option" data-explain="The type of command is not the constraint. Two identical commands would have the same problem."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Parallel groups take only one command per type</span></label>
+                <label class="option" data-correct data-explain="Correct, and it is the runtime enforcement of the ownership rule from Unit 3."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Two commands cannot drive one subsystem at once</span></label>
+                <label class="option" data-explain="It is a correctness problem, not a performance one. It would be wrong even if it were fast."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It would be too slow</span></label>
+                <label class="option" data-explain="Mode has nothing to do with it. The same constraint applies in teleop and autonomous."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The arm can only run in autonomous</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q4.</span> What makes a group nestable inside another group?</div>
+              <div class="options">
+                <label class="option" data-explain="Folders do not confer behaviour. You could put it anywhere and it would work the same."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It lives in the commands folder</span></label>
+                <label class="option" data-correct data-explain="Exactly, which is also why you can bind one straight to a button or use it as an autonomous routine."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A group is a Command, with the same four lifecycle methods</span></label>
+                <label class="option" data-explain="No such method exists. You simply pass one group in where a command is expected."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Groups have a special nesting method</span></label>
+                <label class="option" data-explain="Both nest, and both nest inside each other, which is how the exercise puts a parallel group inside a sequence."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Only sequential groups nest</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q5.</span> What is the honest weakness of <code>WaitCommand</code>?</div>
+              <div class="options">
+                <label class="option" data-explain="It only pauses its own sequence. Every other command and every subsystem's periodic keeps running."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It stops the whole robot</span></label>
+                <label class="option" data-explain="It is perfectly accurate about time. Time is not what you actually wanted to measure."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It is inaccurate</span></label>
+                <label class="option" data-correct data-explain="Right. Where a sensor can tell you the piece cleared, use the sensor. A wait is what you use when you cannot."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It is a guess about the physical world that no sensor is confirming</span></label>
+                <label class="option" data-explain="It is most commonly used in autonomous, where there is nobody to react to what is happening."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It cannot be used in autonomous</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check my answers</button></div>
+          </div>
+        </div>
+
+        <!-- ===================== COMPLETE ===================== -->
+        <div class="mark-complete">
+          <div class="mc-text"><b>One press, five commands, correct order.</b><span>Next: the file that calls the scheduler and decides which mode you are in.</span></div>
+          <button class="complete-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>Mark as complete</span></button>
+        </div>
+
+      </div><!-- /prose -->
+    </div><!-- /content-inner -->
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="/assets/js/course.js"></script>
+  <script src="/assets/js/site.js"></script>
+  <script src="/assets/js/widgets.js"></script>
+</body>
+</html>

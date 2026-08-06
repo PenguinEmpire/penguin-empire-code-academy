@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>At the Competition · Penguin Empire 2551</title>
+  <meta name="description" content="The programmer's job at a competition: what is different at a field, the pre-match checklist, the console triage table, and what not to change between matches." />
+  <link rel="icon" href="/assets/img/logo-2551.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Aldrich&family=Russo+One&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/brand.css" />
+  <link rel="stylesheet" href="/assets/css/layout.css" />
+  <link rel="stylesheet" href="/assets/css/lesson.css" />
+</head>
+<body data-page="lesson" data-lesson="frc-game-day">
+  <main id="main" class="content">
+    <div class="content-inner">
+
+      <!-- ===================== HEADER ===================== -->
+      <header class="lesson-hero">
+        <nav class="crumbs" aria-label="Breadcrumb">
+          <a href="/">Home</a><span class="sep">/</span>
+          <a href="/syllabus.html">Phase 2 · FRC</a><span class="sep">/</span>
+          <span>Unit 12 · Game Day</span>
+        </nav>
+        <span class="badge badge--ocean">Unit 12</span>
+        <h1 class="lesson-title">At the Competition</h1>
+        <p class="lesson-lede">The last lesson of the course, and it has no code in it. On game day the code is
+          finished. What is left is knowing what to look at.</p>
+        <div class="lesson-meta">
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg> 20 min</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h2v-4H3zM9 20h2V10H9zM15 20h2V4h-2z"/></svg> Beginner</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2zM18 3v16"/></svg> Needs: everything</span>
+        </div>
+      </header>
+
+      <!-- ===================== GOAL ===================== -->
+      <div class="goal">
+        <div class="goal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div>
+        <div>
+          <h2>Your goal</h2>
+          <p>Do the programmer's job at a competition. Get the robot on the field, watch the right things, and
+            diagnose the errors you will actually see.</p>
+        </div>
+      </div>
+
+      <nav class="toc" aria-label="On this page">
+        <strong>On this page</strong>
+        <ol>
+          <li><a href="#why">Why this matters</a></li>
+          <li><a href="#different">What is different at a competition</a></li>
+          <li><a href="#laptop">Only one laptop can do this</a></li>
+          <li><a href="#checklist">The pre-match checklist</a></li>
+          <li><a href="#triage">Console triage</a></li>
+          <li><a href="#isolate">Isolation, faster</a></li>
+          <li><a href="#change">What to change between matches</a></li>
+          <li><a href="#challenges">Practice challenges</a></li>
+          <li><a href="#exercise">Project: PenguinBot's competition checklist</a></li>
+          <li><a href="#closing">Closing the course</a></li>
+          <li><a href="#checkpoint">Checkpoint</a></li>
+        </ol>
+      </nav>
+
+      <div class="prose">
+
+        <!-- ===================== WHY ===================== -->
+        <h2 id="why"><span class="section-h"><span class="num">1</span> Why this matters</span></h2>
+
+        <div class="callout callout--why">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></div>
+          <div class="c-title">Your job is not to coach the driver</div>
+          <div class="c-body">
+            <p>This surprises people, so it is worth saying plainly and early. During a match, the programmer's job
+              is three things.</p>
+            <ul>
+              <li><strong>Not</strong> telling the driver what to do. That is the drive coach's role, and two
+                voices in a driver's ear is worse than one.</li>
+              <li><strong>Watching the console for errors.</strong> A line reading <code>CAN ID 16 timed out</code>
+                means a wrong ID or, more often, a wiring break. And you now know that ID 16 is the back-left
+                steering module.</li>
+              <li><strong>Answering the driver's questions.</strong> "Did the arm actually go up?" is a question
+                only you can answer, because you are the one looking at the numbers.</li>
+            </ul>
+            <p>It is a quieter job than people expect, and a more useful one. The team's most valuable ninety
+              seconds are the ones between matches, and what you noticed during the match is what makes those
+              count.</p>
+          </div>
+        </div>
+
+        <!-- ===================== DIFFERENT ===================== -->
+        <h2 id="different"><span class="section-h"><span class="num">2</span> What is different at a competition</span></h2>
+        <p>Three things, and all three of them are yours.</p>
+        <ul>
+          <li>The <strong>radio must be imaged at the field's setup station</strong> before you play, with a
+            different configuration from the one you use at home. And you <strong>re-image it at home
+            afterwards</strong>, or nothing works in the shop on Monday.</li>
+          <li>You go <strong>to the field with the drive team</strong>, carrying the driver-station laptop.</li>
+          <li>You plug in <strong>three things</strong>: Ethernet to the field, the controller over USB, and
+            power.</li>
+        </ul>
+
+        <div class="callout callout--season">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
+          <div class="c-title">Verify for current season</div>
+          <div class="c-body"><p>The radio imaging procedure is <strong>the most likely item on this page to have
+            changed</strong>. Radio hardware and its setup flow have both moved between seasons, and so has how a
+            driver station connects to the field.</p>
+            <p>Check this season's documentation and ask an experienced team member before your first event. The
+              rest of this page, meaning the checklist discipline and the triage reasoning, does not change.</p></div>
+        </div>
+
+        <!-- ===================== LAPTOP ===================== -->
+        <h2 id="laptop"><span class="section-h"><span class="num">3</span> Only one laptop can do this</span></h2>
+        <p>From Unit 2: the Driver Station is Windows only. The team's Macs cannot enable the robot. Three
+          consequences that bite at eight in the morning.</p>
+        <ul>
+          <li>Everyone's code has to reach <strong>that</strong> laptop before the first match.</li>
+          <li>That laptop has to be <strong>charged</strong>, and its charger has to be in the bag.</li>
+          <li>In a pinch you can write code <strong>on it</strong>.</li>
+        </ul>
+
+        <div class="callout callout--tip">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12c.7.7 1 1.4 1 2h6c0-.6.3-1.3 1-2a7 7 0 0 0-4-12z"/></svg></div>
+          <div class="c-title">Whatever you do not have, the show goes on</div>
+          <div class="c-body"><p>One of this team's captains had his own laptop die mid-season and wrote code on
+            the driver-station laptop for the rest of the year. The robot did not care. Neither did the code.</p>
+            <p>If you are worried that you do not have the right machine, or the right setup, or enough
+              experience: that is worth remembering. The constraints are almost always smaller than they
+              feel.</p></div>
+        </div>
+
+        <!-- ===================== CHECKLIST ===================== -->
+        <h2 id="checklist"><span class="section-h"><span class="num">4</span> The pre-match checklist</span></h2>
+        <p>This is the central artifact of the lesson. It expands the bring-up checklist you wrote in Unit 2 with a
+          competition's constraints.</p>
+
+        <h3>In the pit</h3>
+        <ol class="checklist" data-key="pe2551.gameday.pit">
+          <li>Correct code deployed to the robot. Confirm the version, do not assume.</li>
+          <li>Charged battery, secured.</li>
+          <li>Limelight re-tuned for this venue's lighting.</li>
+          <li>Autonomous routine selected in the chooser.</li>
+          <li>Mechanisms move by hand. Nothing jammed from the last match.</li>
+        </ol>
+
+        <h3>At the field</h3>
+        <ol class="checklist" data-key="pe2551.gameday.field">
+          <li>Robot placed on the marked start position, correct heading.</li>
+          <li>Plug in Ethernet, controller and power.</li>
+          <li>Driver Station open. Controller assigned to port 0.</li>
+          <li>Communication green.</li>
+          <li>Robot Code green.</li>
+          <li>Joystick green.</li>
+          <li>Console clear of errors before the match starts.</li>
+        </ol>
+
+        <h3>After the match</h3>
+        <ol class="checklist" data-key="pe2551.gameday.after">
+          <li>Write down what you saw while you still remember it.</li>
+          <li>Fix what you can in the pit. Note what you cannot.</li>
+        </ol>
+
+        <div class="callout callout--tip">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12c.7.7 1 1.4 1 2h6c0-.6.3-1.3 1-2a7 7 0 0 0-4-12z"/></svg></div>
+          <div class="c-title">During the match: watch the console, not the robot</div>
+          <div class="c-body"><p>Everyone watches the robot. Every single person in the stands is watching the
+            robot, and your teammates are watching it too.</p>
+            <p><strong>Nobody else is watching the console</strong>, and it is the only place a fault announces
+              itself. Note anything that appears, along with roughly when it appeared.</p></div>
+        </div>
+
+        <!-- ===================== TRIAGE ===================== -->
+        <h2 id="triage"><span class="section-h"><span class="num">5</span> Console triage</span></h2>
+        <p>This is the whole course collapsed into diagnosis, and it is what you will come back to this page for.</p>
+
+        <div class="tablewrap">
+          <table class="data">
+            <thead><tr><th>What you see</th><th>Most likely</th><th>Check</th><th>Taught in</th></tr></thead>
+            <tbody>
+              <tr><td><code>CAN ID n timed out</code></td><td>A wiring break, more often than a wrong ID</td><td>The CAN chain at and before that device</td><td>Unit 2</td></tr>
+              <tr><td>Communication red</td><td>Radio still booting, or the field connection</td><td>Wait one to two minutes, then check the Ethernet</td><td>Unit 1</td></tr>
+              <tr><td>Robot Code red</td><td>Code not deployed, or it crashed</td><td>Redeploy, and read the console for an exception</td><td>Unit 2</td></tr>
+              <tr><td>Joystick red</td><td>Controller not assigned</td><td>Drag it into port 0 in the Driver Station</td><td>Unit 8</td></tr>
+              <tr><td>All green, nothing moves</td><td>The robot is not Enabled</td><td>Enable it</td><td>Unit 2</td></tr>
+              <tr><td>One mechanism dead, others fine</td><td>That device's ID or wiring</td><td>Vendor client: does it see the device at all?</td><td>Unit 2</td></tr>
+              <tr><td>Auto did nothing</td><td>A step hung with no timeout, or the wrong routine selected</td><td>The chooser, then the console</td><td>Unit 11</td></tr>
+              <tr><td>Vision never aims</td><td>Camera not re-tuned for this venue, or no valid tag</td><td>Re-tune, and check the published tag ID</td><td>Unit 10</td></tr>
+              <tr><td>Mechanism moves, then stops</td><td>A current limit, or a fault</td><td>Graph the current, check sticky faults</td><td>Unit 2</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout callout--tip">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12c.7.7 1 1.4 1 2h6c0-.6.3-1.3 1-2a7 7 0 0 0-4-12z"/></svg></div>
+          <div class="c-title">Why row one names a location</div>
+          <div class="c-body"><p><code>CAN ID 16 timed out</code> reads instantly as <em>back-left steering</em>,
+            with no map and nobody to ask.</p>
+            <p>That is not luck. It is the grouped ID scheme you set up back in Unit 2, paying out under time
+              pressure in exactly the situation it was designed for. If you ever wondered whether that convention
+              was worth the effort, this is the answer.</p></div>
+        </div>
+
+        <!-- ===================== ISOLATE ===================== -->
+        <h2 id="isolate"><span class="section-h"><span class="num">6</span> Isolation, faster</span></h2>
+        <p>The four-step procedure from Unit 2 still applies, and it matters more here than it did in the shop.</p>
+
+        <div class="diagram">1. Turn the mechanism by hand with the robot off.   -> is it mechanically free?
+2. Apply a test voltage from the vendor client.     -> does the motor turn at all?
+3. Does the client see the device on the bus?       -> is it addressed correctly?
+4. THEN read your code.                             -> and only then.
+</div>
+
+        <p>Between matches you have minutes rather than hours. Cheap checks that eliminate whole categories of cause
+          are worth <em>more</em> under time pressure, not less. Reading code first is the slowest possible
+          approach, and it is what everyone does when they are panicking.</p>
+
+        <!-- ===================== CHANGE ===================== -->
+        <h2 id="change"><span class="section-h"><span class="num">7</span> What to change between matches</span></h2>
+
+        <div class="tablewrap">
+          <table class="data">
+            <thead><tr><th>Do</th><th>Do not</th></tr></thead>
+            <tbody>
+              <tr><td>Fix a clear, understood fault: a broken wire, a wrong constant, a missing timeout</td><td>Deploy a change you have not tested because you think it will help</td></tr>
+              <tr><td>Switch to the simpler autonomous routine if the complex one failed and you do not know why</td><td>Re-tune PID at a competition unless something mechanical actually changed</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">At a competition, prefer a known-working robot over a better one</div>
+          <div class="c-body"><p>An untested deploy between matches is how a working robot becomes a broken one,
+            and you will not find out which you have until the match has already started.</p>
+            <p>The tuning story from Unit 6, with the bent parts and the mechanism that came off, happens fastest
+              under pressure. Six minutes and an audience is the worst possible environment for changing a gain.</p></div>
+        </div>
+
+        <!-- ===================== CHALLENGES ===================== -->
+        <h2 id="challenges"><span class="section-h"><span class="num">8</span> Practice challenges</span></h2>
+
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">Triage</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Mid-match the console prints <code>CAN ID 16 timed out</code>. This code has
+              worked all weekend. What is your first move?</p>
+            <div class="options">
+              <label class="option" data-explain="The code has not changed and it worked all weekend. Redeploying mid-match is also not possible."><input type="radio" name="q-tri" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Redeploy the code</span></label>
+              <label class="option" data-correct data-explain="Right on both counts. You cannot fix it mid-match, and the grouped ID scheme tells you exactly where to look afterwards."><input type="radio" name="q-tri" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Note it, and after the match check the wiring at the back-left steering module</span></label>
+              <label class="option" data-explain="That is the drive coach's call, and it treats the symptom rather than telling anyone what is wrong."><input type="radio" name="q-tri" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Tell the driver to avoid turning left</span></label>
+              <label class="option" data-explain="It worked all weekend, so the number is right. Changing it would break the module that is currently fine."><input type="radio" name="q-tri" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Change the CAN ID in the code</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">Role boundaries</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">During a match the driver is lining up badly and you can see it. What do you
+              do?</p>
+            <div class="options">
+              <label class="option" data-explain="That is the drive coach's job. Two voices in a driver's ear is worse than one, even when both are right."><input type="radio" name="q-role" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Tell them how to line up</span></label>
+              <label class="option" data-correct data-explain="Yes. That is the job, and it is the one nobody else on the team is doing."><input type="radio" name="q-role" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Keep watching the console, and answer if they ask you something</span></label>
+              <label class="option" data-explain="Never. There is one driver and one controller, and swapping mid-match is worse than any lineup."><input type="radio" name="q-role" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Take the controller</span></label>
+              <label class="option" data-explain="Only for a genuine safety problem, and that is a call you make out loud, with the team, not silently."><input type="radio" name="q-role" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Disable the robot</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="order"
+             data-win="Physical setup, then connection, then the indicators, then the one setting that decides the first fifteen seconds. Then your actual job."
+             data-lose="Robot placed first, because the start pose is a promise your autonomous depends on. Then the three plugs, then the three indicators, then the chooser, and then watch the console.">
+          <div class="challenge-head"><span class="ch-kind">Put in order</span><span class="ch-title">At the field</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Drag these into the order they happen.</p>
+            <ul class="order-list">
+              <li class="order-item" data-pos="3"><span class="grip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h16M4 16h16"/></svg></span><span>Check Communication, Robot Code and Joystick</span></li>
+              <li class="order-item" data-pos="1"><span class="grip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h16M4 16h16"/></svg></span><span>Place the robot on the marked start position</span></li>
+              <li class="order-item" data-pos="5"><span class="grip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h16M4 16h16"/></svg></span><span>Watch the console during the match</span></li>
+              <li class="order-item" data-pos="2"><span class="grip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h16M4 16h16"/></svg></span><span>Plug in Ethernet, controller and power</span></li>
+              <li class="order-item" data-pos="4"><span class="grip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h16M4 16h16"/></svg></span><span>Confirm the autonomous routine is selected</span></li>
+            </ul>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">Six minutes</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Autonomous did nothing last match and you are not sure why. Six minutes
+              until the next one. What do you do?</p>
+            <div class="options">
+              <label class="option" data-explain="No time, and untested code between matches is how you lose a robot that otherwise mostly works."><input type="radio" name="q-six" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Rewrite the autonomous routine</span></label>
+              <label class="option" data-explain="Nothing points at the gains, and this is exactly the pressure that breaks mechanisms."><input type="radio" name="q-six" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Re-tune the arm's gains</span></label>
+              <label class="option" data-correct data-explain="Exactly. Known-working beats better, and you still score the points for leaving the line."><input type="radio" name="q-six" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Switch the chooser to the simple routine, and investigate after the match</span></label>
+              <label class="option" data-explain="You already know it does not work. Running it again gets you the same nothing."><input type="radio" name="q-six" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Run it again and hope</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="text"
+             data-win="Wait. The radio takes a minute or two to come up. More field time is lost to impatience here than to any actual fault."
+             data-lose="Wait one to two minutes for the radio to boot. It is the same advice as Unit 1, and it is still the most common false alarm in FRC.">
+          <div class="challenge-head"><span class="ch-kind">Predict</span><span class="ch-title">Communication red</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">You get to the field, plug everything in, and Communication is red. Before
+              touching anything, what do you do?</p>
+            <div class="answer-row">
+              <input class="answer-input" type="text" placeholder="one word" data-answer="wait|wait 1-2 minutes|wait a minute|wait for the radio|wait two minutes|wait a bit|just wait" aria-label="Your answer" />
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <!-- ===================== MISTAKES ===================== -->
+        <h2 id="mistakes"><span class="section-h"><span class="num">9</span> Common mistakes</span></h2>
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">Watch out for these</div>
+          <div class="c-body">
+            <ul>
+              <li><strong>Coaching the driver.</strong> The drive coach coaches. You watch the console and answer
+                questions, which is the job nobody else is doing.</li>
+              <li><strong>Thinking there is nothing to watch when the robot is working.</strong> The console is
+                where a fault announces itself before it becomes a failure. A timeout in match three is why you
+                check a connector before match four.</li>
+              <li><strong>Believing you can fix anything between matches.</strong> You have minutes. Prefer
+                switching to a known-working configuration over deploying an untested fix.</li>
+              <li><strong>Imaging the radio only once.</strong> Imaged at the field for the competition, re-imaged
+                at home afterwards. Both directions.</li>
+              <li><strong>Assuming any laptop can run the match.</strong> One Windows laptop, charged, with its
+                charger in the bag.</li>
+              <li><strong>Assuming vision will work because it worked in the shop.</strong> Different lighting.
+                Re-tune at the venue.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- ===================== EXERCISE ===================== -->
+        <div class="exercise" id="exercise">
+          <div class="exercise-head">
+            <div class="ex-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4L12 17l-6.3 4.4L8 14 2 9.4h7.6z"/></svg></div>
+            <div>
+              <div class="ex-kicker">Build it · PenguinBot</div>
+              <h3>PenguinBot's competition checklist</h3>
+            </div>
+          </div>
+          <div class="exercise-body">
+            <p>PenguinBot is finished. Intake, arm, closed-loop control, commands, bindings, swerve, vision, and an
+              autonomous routine with a fallback. This is the last thing it needs, and it is not code.</p>
+            <p>Write the checklist your team will actually use. Not a generic one. PenguinBot's, with its real
+              numbers and its real failure modes.</p>
+            <ol class="task-list">
+              <li><b>Pit checklist</b>, before the robot leaves for the field.</li>
+              <li><b>Field checklist</b>, from arriving to the match starting.</li>
+              <li><b>During the match</b>, what you watch and what you write down.</li>
+              <li><b>Post-match</b>, what you record and what you check.</li>
+              <li><b>Triage card</b>, the five errors most likely on <em>this</em> robot with the first check for
+                each. Use PenguinBot's real CAN map so an ID reads as a location.</li>
+              <li><b>One paragraph</b> on three things you will not do at a competition, and why.</li>
+            </ol>
+
+            <details class="reveal">
+              <summary><svg class="rv-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg> Reveal the solution</summary>
+              <div class="reveal-body">
+                <p><b>1. Pit</b></p>
+                <ul>
+                  <li>Correct code deployed. Check the version, do not assume the last person deployed.</li>
+                  <li>Battery charged and secured.</li>
+                  <li>Arm moves freely by hand through its full range. Intake roller turns freely.</li>
+                  <li><b>Limelight re-tuned for this venue's lighting.</b></li>
+                  <li>The scoring tag IDs in <code>VisionConstants</code> match this field's tags.</li>
+                  <li>Autonomous routine chosen, and if in doubt set to the simple leave-the-line one.</li>
+                  <li>Charger and spare battery in the cart.</li>
+                </ul>
+
+                <p><b>2. Field</b></p>
+                <ul>
+                  <li>Robot on the marked start position, correct heading. The autonomous start pose depends on
+                    it.</li>
+                  <li>Plug in Ethernet, controller, power.</li>
+                  <li>Driver Station open, controller dragged into port 0.</li>
+                  <li>Communication green, waiting one to two minutes if not.</li>
+                  <li>Robot Code green. Joystick green.</li>
+                  <li>Console clear before the match starts.</li>
+                  <li>The chooser shows the routine we actually intend.</li>
+                </ul>
+
+                <p><b>3. During the match.</b> Watch the console, not the robot. Write down any line that appears,
+                  with roughly when. Answer the driver if asked. Otherwise stay quiet.</p>
+
+                <p><b>4. Post-match.</b> Write it down before you talk to anyone, because you will forget within
+                  ninety seconds. What appeared in the console, did autonomous do what it should, did anything
+                  behave oddly. Graph the arm and intake current if a mechanism cut out. Clear sticky faults only
+                  after you have found the cause.</p>
+
+                <p><b>5. PenguinBot triage card</b></p>
+                <div class="tablewrap">
+                  <table class="data">
+                    <thead><tr><th>Error</th><th>First check</th></tr></thead>
+                    <tbody>
+                      <tr><td><code>CAN ID 2 timed out</code></td><td>Intake roller SparkMax, connector and CAN wiring</td></tr>
+                      <tr><td><code>CAN ID 3 timed out</code></td><td>Arm pivot SparkMax, the same</td></tr>
+                      <tr><td><code>CAN ID 16 timed out</code></td><td><b>Back-left steering</b>, the CAN chain at that corner</td></tr>
+                      <tr><td>Arm does not reach its setpoint</td><td>Is it homed? Is something jammed? Did the timeout fire?</td></tr>
+                      <tr><td>Robot will not aim</td><td>Is a valid tag visible? Was the Limelight re-tuned for this venue?</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <p><b>6. Three things I will not do</b></p>
+                <ol class="task-list">
+                  <li><b>Deploy an untested change between matches.</b> A robot that works imperfectly beats one
+                    that does not work at all, and I will not know which I have until the match starts.</li>
+                  <li><b>Re-tune PID at a competition</b> unless something mechanical actually changed. Bad gains
+                    bend parts, and I would be doing it in six minutes under pressure.</li>
+                  <li><b>Coach the driver.</b> That is the drive coach's job. Mine is the console, and if I am
+                    talking I am not reading it.</li>
+                </ol>
+              </div>
+            </details>
+          </div>
+        </div>
+
+        <!-- ===================== CLOSING ===================== -->
+        <h2 id="closing"><span class="section-h"><span class="num">10</span> Closing the course</span></h2>
+
+        <p>Twelve units ago you had never created a motor object.</p>
+        <p>PenguinBot now runs an intake, reads its own arm position, holds a setpoint under closed-loop control,
+          sequences behaviours with real end conditions, responds to a driver, drives field-centrically, aims itself
+          at an AprilTag, and runs a full scoring routine with nobody touching the controls.</p>
+        <p>Every one of those is a thing your team's robot needs somebody to do.</p>
+
+        <div class="callout callout--tip">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12c.7.7 1 1.4 1 2h6c0-.6.3-1.3 1-2a7 7 0 0 0-4-12z"/></svg></div>
+          <div class="c-title">The last piece of advice</div>
+          <div class="c-body"><p>It comes from the person who recorded the onboarding this course was built
+            from.</p>
+            <p><strong>Do not be afraid to say when something does not make sense. Keep poking at it until it
+              clicks. That matters more than nodding along.</strong></p></div>
+        </div>
+
+        <!-- ===================== CHECKPOINT ===================== -->
+        <div class="checkpoint" id="checkpoint">
+          <div class="checkpoint-head">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            <h3>Checkpoint</h3>
+            <span class="cp-score">0 / 5</span>
+          </div>
+          <div class="checkpoint-body">
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q1.</span> What is the programmer's main job during a match?</div>
+              <div class="options">
+                <label class="option" data-explain="That is the drive coach's job, and two voices is worse than one."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Coaching the driver</span></label>
+                <label class="option" data-correct data-explain="Yes, and it is the job nobody else on the team is doing."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Watching the console and answering the driver's questions</span></label>
+                <label class="option" data-explain="One driver, one controller. Operating a mechanism separately is not how a match works."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Operating a mechanism</span></label>
+                <label class="option" data-explain="Useful for somebody. Not you, and not now."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Filming the match</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q2.</span> What three things get plugged in at the field?</div>
+              <div class="options">
+                <label class="option" data-explain="No display goes to the field. The driver station laptop's own screen is all you get."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Power, a display, and USB</span></label>
+                <label class="option" data-correct data-explain="Right, and knowing this in advance makes setup take one minute instead of five."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Ethernet, the controller, and power</span></label>
+                <label class="option" data-explain="The radio is on the robot, not on the laptop. You never plug a radio into the driver station."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Ethernet, power, and the radio</span></label>
+                <label class="option" data-explain="Ethernet is how the laptop reaches the field. Without it you have a charged laptop and no robot."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Just power and the controller</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q3.</span> When does the radio get imaged?</div>
+              <div class="options">
+                <label class="option" data-explain="It changes for competition. A season-start imaging will not carry you through an event."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Once, at the start of the season</span></label>
+                <label class="option" data-correct data-explain="Both directions, and forgetting the second one is why nothing works in the shop on Monday."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">At the field before you play, and re-imaged at home afterwards</span></label>
+                <label class="option" data-explain="Once per event, not once per match. You would never get through a schedule otherwise."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Before every match</span></label>
+                <label class="option" data-explain="It is a deliberate step, and it belongs to you rather than to the event staff."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Never, it is automatic</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q4.</span> Autonomous failed and you do not know why, with six minutes to the next match.</div>
+              <div class="options">
+                <label class="option" data-explain="No time, and untested code is a bigger risk than a simpler routine that you know works."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Rewrite it</span></label>
+                <label class="option" data-explain="That is how a working robot becomes a broken one, and you find out on the field."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Deploy your best guess at a fix</span></label>
+                <label class="option" data-correct data-explain="Correct. At a competition, prefer a known-working robot over a better one."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Select the simple fallback routine and investigate afterwards</span></label>
+                <label class="option" data-explain="You would give up the points for leaving the line, and gain nothing in return."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Skip autonomous entirely</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q5.</span> <code>CAN ID 16 timed out</code> appears. On PenguinBot, what is device 16?</div>
+              <div class="options">
+                <label class="option" data-explain="That is 2. The grouped scheme puts mechanism motors in the low numbers."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The intake roller</span></label>
+                <label class="option" data-explain="That is 3, with its follower on 4."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The arm pivot</span></label>
+                <label class="option" data-correct data-explain="Yes, and being able to say that in two seconds is exactly why the IDs were grouped by mechanism back in Unit 2."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The back-left swerve steering motor</span></label>
+                <label class="option" data-explain="That is 1, and it is a reserved ID that never moves."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The power distribution hub</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check my answers</button></div>
+          </div>
+        </div>
+
+        <!-- ===================== COMPLETE ===================== -->
+        <div class="mark-complete">
+          <div class="mc-text"><b>That is the whole course.</b><span>Go and program a robot.</span></div>
+          <button class="complete-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>Mark as complete</span></button>
+        </div>
+
+      </div><!-- /prose -->
+    </div><!-- /content-inner -->
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="/assets/js/course.js"></script>
+  <script src="/assets/js/site.js"></script>
+  <script src="/assets/js/widgets.js"></script>
+</body>
+</html>

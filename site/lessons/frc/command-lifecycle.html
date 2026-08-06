@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Command Lifecycle · Penguin Empire 2551</title>
+  <meta name="description" content="initialize, execute, isFinished and end. The four methods every robot behaviour is built from, watched tick by tick as a flywheel spins up in a live scheduler." />
+  <link rel="icon" href="/assets/img/logo-2551.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Aldrich&family=Russo+One&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/brand.css" />
+  <link rel="stylesheet" href="/assets/css/layout.css" />
+  <link rel="stylesheet" href="/assets/css/lesson.css" />
+</head>
+<body data-page="lesson" data-lesson="frc-command-lifecycle">
+  <main id="main" class="content">
+    <div class="content-inner">
+
+      <!-- ===================== HEADER ===================== -->
+      <header class="lesson-hero">
+        <nav class="crumbs" aria-label="Breadcrumb">
+          <a href="/">Home</a><span class="sep">/</span>
+          <a href="/syllabus.html">Phase 2 · FRC</a><span class="sep">/</span>
+          <span>Unit 7 · Structuring Behavior</span>
+        </nav>
+        <span class="badge badge--ocean">Unit 7</span>
+        <h1 class="lesson-title">The Command Lifecycle</h1>
+        <p class="lesson-lede">Four methods. Every behaviour your robot performs, from raising an arm to running a
+          whole autonomous routine, is built out of these four and nothing else.</p>
+        <div class="lesson-meta">
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg> 30 min</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h2v-4H3zM9 20h2V10H9zM15 20h2V4h-2z"/></svg> Intermediate</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2zM18 3v16"/></svg> Needs: Unit 6</span>
+        </div>
+      </header>
+
+      <!-- ===================== GOAL ===================== -->
+      <div class="goal">
+        <div class="goal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div>
+        <div>
+          <h2>Your goal</h2>
+          <p>Write a Command with all four lifecycle methods, and predict exactly which one runs on which tick.</p>
+        </div>
+      </div>
+
+      <nav class="toc" aria-label="On this page">
+        <strong>On this page</strong>
+        <ol>
+          <li><a href="#why">Why this matters</a></li>
+          <li><a href="#four">The four methods</a></li>
+          <li><a href="#finished">isFinished is the whole point</a></li>
+          <li><a href="#end">end and the interrupted flag</a></li>
+          <li><a href="#tick">What the scheduler does in one tick</a></li>
+          <li><a href="#run">Watch a flywheel spin up</a></li>
+          <li><a href="#never">The command that never ends</a></li>
+          <li><a href="#challenges">Practice challenges</a></li>
+          <li><a href="#mistakes">Common mistakes</a></li>
+          <li><a href="#exercise">Project: The arm gets a command</a></li>
+          <li><a href="#checkpoint">Checkpoint</a></li>
+        </ol>
+      </nav>
+
+      <div class="prose">
+
+        <!-- ===================== WHY ===================== -->
+        <h2 id="why"><span class="section-h"><span class="num">1</span> Why this matters</span></h2>
+
+        <div class="callout callout--why">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></div>
+          <div class="c-title">The flywheel, finally</div>
+          <div class="c-body">
+            <p>Unit 3 used a flywheel to explain why some behaviours need an end, and promised you would watch one
+              run. Here it is.</p>
+            <p>A flywheel is heavy and hard to start, and once it is moving it holds its speed. You cannot shoot
+              until it reaches 4000 RPM. Slam it to full power to get there quickly and you cook the motor, which
+              Unit 4 covered at length. Ease it up and you have to <em>know</em> when it is ready.</p>
+            <p>You have every piece already. An encoder that reports velocity, from Unit 5. A safe output limit,
+              from Unit 4. The idea of a behaviour with an end, from Unit 3. What has been missing is the thing
+              that calls your code every 20 milliseconds and asks, over and over, whether you are done yet.</p>
+            <p>That thing is the <strong>CommandScheduler</strong>. In the sandbox below you will watch it work,
+              tick by tick, and see exactly how many cycles the flywheel needs.</p>
+          </div>
+        </div>
+
+        <!-- ===================== FOUR ===================== -->
+        <h2 id="four"><span class="section-h"><span class="num">2</span> The four methods</span></h2>
+
+        <div class="callout callout--verified">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4 12 14.01l-3-3"/></svg></div>
+          <div class="c-title">Verified names · use the right-hand column</div>
+          <div class="c-body">
+            <p>You will hear these called by informal nicknames. The real method names are what you type.</p>
+            <div class="tablewrap">
+              <table class="data">
+                <thead><tr><th>Often called</th><th>Real method</th><th>Runs</th></tr></thead>
+                <tbody>
+                  <tr><td>start</td><td><code>initialize()</code></td><td><strong>Once</strong>, when the command begins</td></tr>
+                  <tr><td>periodic</td><td><code>execute()</code></td><td><strong>Repeatedly</strong>, every 20 ms while active</td></tr>
+                  <tr><td>end</td><td><code>end(boolean interrupted)</code></td><td><strong>Once</strong>, when the command stops</td></tr>
+                  <tr><td>isFinished</td><td><code>isFinished()</code></td><td><strong>Every cycle</strong>, and returning true ends the command</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <p>Here is the skeleton. Every command you write for the rest of your FRC career looks like this.</p>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">SpinUpFlywheel.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">import edu.wpi.first.wpilibj2.command.Command;
+
+public class SpinUpFlywheel extends Command {
+
+    private final Flywheel flywheel;
+    private static final double TARGET_RPM = 4000.0;
+
+    // The command is HANDED the mechanism. It never builds hardware itself.
+    public SpinUpFlywheel(Flywheel flywheel) {
+        this.flywheel = flywheel;
+    }
+
+    @Override
+    public void initialize() {
+        // once, at the start
+    }
+
+    @Override
+    public void execute() {
+        flywheel.setSpeed(0.8);                        // every 20 ms while scheduled
+    }
+
+    @Override
+    public boolean isFinished() {
+        return flywheel.getVelocity() &gt;= TARGET_RPM;   // checked every cycle
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        flywheel.stop();                               // once, whatever stopped it
+    }
+}</code></pre>
+        </div>
+
+        <p>Three things worth naming in that class.</p>
+        <ul>
+          <li><b>The constructor takes the mechanism.</b> A command reaches hardware by being handed it, never by
+            creating a motor itself. If every command built its own <code>SparkMax(5, ...)</code> you would have
+            several objects fighting over one motor.</li>
+          <li><b>The <code>0.8</code> is the 80 percent rule</b>, not a coincidence.</li>
+          <li><b><code>isFinished</code> reads a sensor.</b> This is why Unit 5 had to come first. Without a velocity
+            reading there is no end condition, only a guess.</li>
+        </ul>
+
+        <div class="callout callout--season">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
+          <div class="c-title">Verify for current season</div>
+          <div class="c-body"><p>The base class name has changed before. Current WPILib uses
+            <code>extends Command</code>, and older projects say <code>extends CommandBase</code>. If you open a
+            repository from a previous season and see the older name, that is why. The four method names have been
+            stable throughout.</p>
+            <p>Modern WPILib also offers shorter ways to build simple commands through factory methods. They are
+              worth learning later. Writing the class by hand once is what makes the lifecycle visible, so do that
+              first.</p></div>
+        </div>
+
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">execute() and periodic() are not the same method</div>
+          <div class="c-body">
+            <p>These get confused more than any other pair in the framework, so learn the difference now.</p>
+            <ul>
+              <li><code>execute()</code> belongs to a <strong>Command</strong> and runs only while that command is
+                scheduled.</li>
+              <li><code>periodic()</code> belongs to a <strong>Subsystem</strong> and runs <strong>always</strong>,
+                scheduled or not.</li>
+            </ul>
+            <p>Both are on the same 20 millisecond loop. Different owners, different lifetimes. The next lesson
+              prints them side by side.</p>
+          </div>
+        </div>
+
+        <!-- ===================== FINISHED ===================== -->
+        <h2 id="finished"><span class="section-h"><span class="num">3</span> isFinished is the whole point</span></h2>
+        <p>Return <code>true</code> and the command ends immediately. Return <code>false</code> and it never ends on
+          its own. Both are legitimate.</p>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">two valid end conditions</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">// Ends when the arm arrives.
+@Override
+public boolean isFinished() {
+    return arm.atSetpoint();
+}
+
+// Never ends on its own. Correct for "run while the button is held".
+@Override
+public boolean isFinished() {
+    return false;
+}</code></pre>
+        </div>
+
+        <p>Notice the first one. That is <code>atSetpoint()</code> from the previous lesson, moved here unchanged,
+          exactly as promised.</p>
+        <p><code>isFinished()</code> is checked every cycle, and it is checked <em>after</em> <code>execute()</code>.
+          A command that reports finished on its very first check still gets one <code>execute()</code> call. You
+          will prove that in the challenges.</p>
+
+        <!-- ===================== END ===================== -->
+        <h2 id="end"><span class="section-h"><span class="num">4</span> end and the interrupted flag</span></h2>
+        <p><code>end()</code> takes a boolean, and that boolean is information you cannot get anywhere else.</p>
+
+        <div class="tablewrap">
+          <table class="data">
+            <thead><tr><th>Value</th><th>Means</th></tr></thead>
+            <tbody>
+              <tr><td><code>interrupted == false</code></td><td>You finished normally. <code>isFinished()</code> returned true</td></tr>
+              <tr><td><code>interrupted == true</code></td><td>Something stopped you: the button was released, another command took the mechanism, or the robot was disabled</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>Those two cases often deserve different handling. "The arm reached the setpoint" and "the driver let go
+          halfway" are not the same event, and <code>end()</code> is the only place you can tell them apart.</p>
+
+        <div class="callout callout--tip">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12c.7.7 1 1.4 1 2h6c0-.6.3-1.3 1-2a7 7 0 0 0-4-12z"/></svg></div>
+          <div class="c-title">The rule that never changes</div>
+          <div class="c-body"><p><strong>Stop the motor in <code>end()</code>, on both paths.</strong> It is the only
+            method guaranteed to run when a command stops. Forgetting it is how a mechanism keeps driving after its
+            command has been interrupted, which is a genuinely dangerous bug.</p></div>
+        </div>
+
+        <!-- ===================== TICK ===================== -->
+        <h2 id="tick"><span class="section-h"><span class="num">5</span> What the scheduler does in one tick</span></h2>
+        <p>One call to <code>CommandScheduler.getInstance().run()</code> is one 20 millisecond tick of the robot.
+          Inside it, in this order:</p>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">one tick</span><span class="code-spacer"></span></div>
+<pre><code>1. every registered Subsystem's periodic()            // next lesson
+2. poll the controller buttons and triggers           // Unit 8
+3. for each scheduled Command:
+       execute()
+       if (isFinished()) { end(false); unschedule it; }
+4. schedule default commands for unused subsystems    // next lesson</code></pre>
+        </div>
+
+        <p>Separately, and this catches people out: <code>schedule(command)</code> calls <code>initialize()</code>
+          <strong>immediately</strong>, not on the next tick. By the time the first <code>run()</code> happens,
+          initialization has already occurred.</p>
+
+        <p>PenguinSim prints its own view of this. Here is a short run with the scheduler's trace turned on.</p>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">scheduler trace</span><span class="code-spacer"></span></div>
+<pre><code>  [sim] CommandScheduler, one row per 20 ms robot loop.
+   t(s)  cyc  subsystem periodic()   command execute()      isFinished()
+  -----  ---  ---------------------- ---------------------- ------------
+   0.00    -  &gt;&gt; SpinUpFlywheel.initialize()
+   0.00    1  -                      SpinUpFlywheel         false
+   0.02    2  -                      SpinUpFlywheel         false
+   0.04    3  -                      SpinUpFlywheel         false
+   0.06    4  -                      SpinUpFlywheel         false
+   0.08    5  -                      SpinUpFlywheel         TRUE
+   0.08    -  &lt;&lt; SpinUpFlywheel.end(interrupted = false)
+   0.10    6  -                      -                      -
+   0.12    7  -                      -                      -</code></pre>
+        </div>
+
+        <p>Read the timestamps. <code>initialize()</code> happened at 0.00 before cycle 1 existed. The command
+          executed on cycles 1 through 5, reported finished on cycle 5, and ended at the same instant. From cycle 6
+          onward the scheduler is still running at full speed with nothing to do, which is the normal state of a
+          robot between driver inputs.</p>
+
+        <div class="callout callout--season">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
+          <div class="c-title">Verify for current season</div>
+          <div class="c-body"><p>The ordering above is what this course teaches and what PenguinSim implements.
+            Check the current WPILib documentation if you need to rely on the precise position of button polling
+            relative to subsystem <code>periodic()</code>, since that detail has moved between versions. What has not
+            changed is that <code>execute()</code> runs before <code>isFinished()</code> within a cycle, and that
+            <code>schedule()</code> initializes right away.</p></div>
+        </div>
+
+        <!-- ===================== RUN ===================== -->
+        <h2 id="run"><span class="section-h"><span class="num">6</span> Watch a flywheel spin up</span></h2>
+
+        <div class="callout callout--note">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg></div>
+          <div class="c-title">Sim units</div>
+          <div class="c-body"><p>The real flywheel target is 4000 RPM, which is what the class above uses. PenguinSim
+            reports degrees per second and its mechanism tops out near 80 at the 80 percent limit, so the sandbox
+            targets 60 instead. The lifecycle is identical either way, and the lifecycle is the lesson.</p></div>
+        </div>
+
+        <div class="sandbox" data-compiler data-sim data-title="The command lifecycle">
+          <script type="text/x-java" class="sb-src">
+// Real robot code would start with:
+//   import edu.wpi.first.wpilibj2.command.Command;
+//   import edu.wpi.first.wpilibj2.command.CommandScheduler;
+
+public class Main {
+
+    // The mechanism. A plain class for now. Next lesson makes it a Subsystem.
+    static class Flywheel {
+        private final SparkMax motor = new SparkMax(5, MotorType.kBrushless);
+        void setSpeed(double s) { motor.set(s); }
+        void stop()             { motor.set(0); }
+        double getVelocity()    { return motor.getEncoder().getVelocity(); }
+    }
+
+    static class SpinUpFlywheel extends Command {
+        private final Flywheel flywheel;
+        private static final double TARGET = 60.0;     // <-- CHANGE ME
+        private int executeCount = 0;
+
+        SpinUpFlywheel(Flywheel flywheel) { this.flywheel = flywheel; }
+
+        @Override public void initialize() {
+            System.out.println("initialize()   <-- once, at the start");
+        }
+
+        @Override public void execute() {
+            executeCount++;
+            flywheel.setSpeed(0.8);                    // <-- CHANGE ME
+            System.out.printf("  execute() #%-2d   velocity = %7.2f%n",
+                              executeCount, flywheel.getVelocity());
+        }
+
+        @Override public boolean isFinished() {
+            boolean done = flywheel.getVelocity() >= TARGET;
+            if (done) System.out.println("  isFinished() -> TRUE");
+            return done;
+        }
+
+        @Override public void end(boolean interrupted) {
+            flywheel.stop();
+            System.out.println("end(interrupted=" + interrupted + ")   <-- once, at the stop");
+            System.out.println("execute() ran " + executeCount + " times.");
+        }
+    }
+
+    public static void main(String[] args) {
+        CommandScheduler.getInstance().setTraceEnabled(false);   // our command prints its own
+
+        Flywheel flywheel = new Flywheel();
+        CommandScheduler.getInstance().schedule(new SpinUpFlywheel(flywheel));
+
+        for (int tick = 1; tick <= 60; tick++) {
+            CommandScheduler.getInstance().run();      // one 20 ms tick
+        }
+    }
+}
+          </script>
+        </div>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code>[sim] SparkMax on CAN ID 5 (kBrushless) is alive.
+initialize()   <-- once, at the start
+  execute() #1    velocity =    0.00
+  execute() #2    velocity =    9.60
+  execute() #3    velocity =   18.05
+  execute() #4    velocity =   25.48
+  execute() #5    velocity =   32.02
+  execute() #6    velocity =   37.78
+  execute() #7    velocity =   42.85
+  execute() #8    velocity =   47.31
+  execute() #9    velocity =   51.23
+  execute() #10   velocity =   54.68
+  execute() #11   velocity =   57.72
+  execute() #12   velocity =   60.39
+  isFinished() -> TRUE
+end(interrupted=false)   <-- once, at the stop
+execute() ran 12 times.</code></pre>
+        </div>
+
+        <p>That output is the entire lesson in one block.</p>
+        <ul>
+          <li><code>initialize()</code> printed once, before anything else.</li>
+          <li><code>execute()</code> printed twelve times, once per tick.</li>
+          <li><code>isFinished()</code> printed TRUE once, and only on the tick where the condition became true.</li>
+          <li><code>end()</code> printed once, last.</li>
+        </ul>
+
+        <p>Look at <code>execute() #1</code>. The velocity is 0.00, even though this cycle just commanded 0.8 output.
+          That is not a bug. <code>execute()</code> reads the velocity <em>before</em> this tick's 20 milliseconds of
+          motion have happened. Every reading you take in <code>execute()</code> describes the state at the start of
+          the cycle. The flywheel needed twelve cycles, 240 milliseconds, and if you tried to shoot on cycle one you
+          would fire into a stationary wheel.</p>
+
+        <!-- ===================== NEVER ===================== -->
+        <h2 id="never"><span class="section-h"><span class="num">7</span> The command that never ends</span></h2>
+        <p>Now break it deliberately. Set <code>TARGET</code> to <code>100.0</code> and run it again.</p>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code>  execute() #57   velocity =   79.94
+  execute() #58   velocity =   79.95
+  execute() #59   velocity =   79.95
+  execute() #60   velocity =   79.96</code></pre>
+        </div>
+
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">Notice what did not happen</div>
+          <div class="c-body">
+            <p>No <code>isFinished() -&gt; TRUE</code>. No <code>end()</code>. No error, no warning, no exception. The
+              command simply ran all sixty ticks and was still running when the loop stopped.</p>
+            <p>At 0.8 output the mechanism cannot exceed about 80, so a target of 100 can never be met. On a real
+              robot this command runs forever, holding the flywheel, and <strong>anything sequenced after it never
+              starts</strong>.</p>
+            <p>This is one of the hardest bugs in FRC to find, precisely because nothing goes wrong. Things just
+              stop happening. The robot looks fine, the code is running, and the next step of your autonomous
+              routine is waiting for a condition that will never be true.</p>
+            <p>The defence is a timeout, and the exercise below adds one.</p>
+          </div>
+        </div>
+
+        <p>Two more experiments worth running.</p>
+        <ul>
+          <li>Set <code>isFinished()</code> to <code>return false;</code>. Same result. Sixty executes, no
+            <code>end()</code>. This is what a "run while held" command looks like when nothing releases it.</li>
+          <li>Drop the output in <code>execute()</code> from <code>0.8</code> to <code>0.4</code>. The ceiling halves,
+            so a target of 60 also becomes unreachable. The end condition and the output are not independent
+            choices.</li>
+        </ul>
+
+        <div class="callout callout--tip">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12c.7.7 1 1.4 1 2h6c0-.6.3-1.3 1-2a7 7 0 0 0-4-12z"/></svg></div>
+          <div class="c-title">You have written this shape twice already</div>
+          <div class="c-body">
+            <p>In <a href="/lessons/frc/relative-absolute.html">Relative vs. Absolute Encoders</a> you wrote a
+              homing routine that started, ran until it hit a hard stop, and finished. In
+              <a href="/lessons/frc/pid-syntax.html">PIDController in Code</a> you wrote
+              <code>startMove()</code>, <code>moveToward()</code> and <code>atSetpoint()</code>.</p>
+            <p>Both times you invented this lifecycle by hand because the problem demanded it. All the framework does
+              is agree on the names and call them for you on a reliable 20 millisecond schedule.</p>
+          </div>
+        </div>
+
+        <!-- ===================== CHALLENGES ===================== -->
+        <h2 id="challenges"><span class="section-h"><span class="num">8</span> Practice challenges</span></h2>
+
+        <div class="challenge" data-kind="text"
+             data-win="Once. The scheduler runs execute() and then checks isFinished(), so even a command that is finished from the start gets one execute."
+             data-lose="Once. Within a single tick the scheduler calls execute() first and isFinished() second. So it executes once, reports finished, and ends.">
+          <div class="challenge-head"><span class="ch-kind">Predict</span><span class="ch-title">Instantly finished</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">You change <code>isFinished()</code> to <code>return true;</code>
+              unconditionally. How many times does <code>execute()</code> run?</p>
+            <div class="answer-row">
+              <input class="answer-input" type="text" placeholder="a number" data-answer="1|once|one|1 time|one time" aria-label="Your answer" />
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+            <details class="reveal">
+              <summary><svg class="rv-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg> Hint</summary>
+              <div class="reveal-body"><p>Look at the order inside one tick in section 5.</p></div>
+            </details>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">Which method</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Where do you stop the motor?</p>
+            <div class="options">
+              <label class="option" data-explain="That method answers a question. Giving it side effects means the mechanism changes state depending on how often something asks whether you are done."><input type="radio" name="q-stop" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>isFinished()</code></span></label>
+              <label class="option" data-explain="That is where you keep it going. Stopping there would stop the motor on every cycle."><input type="radio" name="q-stop" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>execute()</code></span></label>
+              <label class="option" data-correct data-explain="Yes. It is the only method guaranteed to run when the command stops, whether it finished or was interrupted."><input type="radio" name="q-stop" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>end(boolean interrupted)</code></span></label>
+              <label class="option" data-explain="That is the beginning. Stopping the motor there would end the behaviour before it started."><input type="radio" name="q-stop" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>initialize()</code></span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">The interrupted flag</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">A driver releases the button halfway through an arm command. What runs?</p>
+            <div class="options">
+              <label class="option" data-explain="Something always gets the chance to clean up. That is the entire reason end() exists."><input type="radio" name="q-int" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Nothing. The command just stops</span></label>
+              <label class="option" data-explain="isFinished() never returned true, because the arm never arrived. Nothing about releasing a button makes an end condition become true."><input type="radio" name="q-int" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>isFinished()</code> returns true, then <code>end(false)</code></span></label>
+              <label class="option" data-correct data-explain="Correct. Interrupted, and telling the two cases apart is exactly what the flag is for."><input type="radio" name="q-int" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>end(true)</code></span></label>
+              <label class="option" data-explain="initialize() runs only when a command starts, and this one is stopping."><input type="radio" name="q-int" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>initialize()</code> runs again</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="fib"
+             data-win="Four methods. Every command you ever write uses these and only these."
+             data-lose="initialize once at the start, execute every cycle, isFinished as the end condition, and end once on the way out.">
+          <div class="challenge-head"><span class="ch-kind">Fill in the blanks</span><span class="ch-title">The lifecycle</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Name each method from what it does.</p>
+<pre class="fib"><span class="blank" data-answer="initialize"></span>()      // once, when the command begins
+<span class="blank" data-answer="execute"></span>()      // every 20 ms while active
+<span class="blank" data-answer="isFinished"></span>()      // return true to end
+<span class="blank" data-answer="end"></span>(boolean interrupted)   // once, when it stops</pre>
+            <div class="challenge-actions">
+              <button class="btn btn--sm check-btn" type="button">Check</button>
+              <button class="btn btn--sm btn--ghost reset-btn" type="button">Reset</button>
+            </div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">execute or periodic</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">What is the difference between <code>execute()</code> and
+              <code>periodic()</code>?</p>
+            <div class="options">
+              <label class="option" data-explain="Different owners and different lifetimes. They only look alike because both run on the 20 millisecond loop."><input type="radio" name="q-ep" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">They are the same thing with two names</span></label>
+              <label class="option" data-correct data-explain="Right, and this is flagged specifically because it is the most confused pair in the framework."><input type="radio" name="q-ep" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>execute()</code> runs only while its command is scheduled, <code>periodic()</code> always runs</span></label>
+              <label class="option" data-explain="Same 20 millisecond loop for both. Neither is faster than the other."><input type="radio" name="q-ep" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>periodic()</code> runs more often</span></label>
+              <label class="option" data-explain="That is initialize(). execute() runs repeatedly."><input type="radio" name="q-ep" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>execute()</code> runs once</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="text"
+             data-win="It never finishes. No error and no crash. The command runs forever and anything sequenced after it never starts."
+             data-lose="It never finishes. The mechanism cannot reach that value at that output, so isFinished() is never true. Nothing errors. The robot just quietly stops making progress.">
+          <div class="challenge-head"><span class="ch-kind">Predict</span><span class="ch-title">An impossible condition</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Your <code>isFinished()</code> waits for a velocity the mechanism cannot
+              reach at the output <code>execute()</code> commands. What happens?</p>
+            <div class="answer-row">
+              <input class="answer-input" type="text" placeholder="what happens?" data-answer="never finishes|it never ends|runs forever|never ends|it never finishes|nothing|it runs forever|never" aria-label="Your answer" />
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <!-- ===================== MISTAKES ===================== -->
+        <h2 id="mistakes"><span class="section-h"><span class="num">9</span> Common mistakes</span></h2>
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">Watch out for these</div>
+          <div class="c-body">
+            <ul>
+              <li><strong>Thinking <code>initialize()</code> runs every cycle.</strong> Once, when the command
+                starts. <code>execute()</code> is the every-cycle one.</li>
+              <li><strong>Reading <code>end()</code> as "succeeded."</strong> It runs whenever the command stops. The
+                <code>interrupted</code> flag is how you tell the two cases apart.</li>
+              <li><strong>Treating <code>return false</code> as a bug.</strong> A command that never ends on its own
+                is a valid design for behaviour that should run while a button is held.</li>
+              <li><strong>Building a motor inside a command.</strong> Commands are handed their mechanism. Two
+                objects for one motor means two things fighting over it.</li>
+              <li><strong>Forgetting to stop the motor in <code>end()</code>.</strong> The mechanism keeps driving
+                after the command is gone, and nothing tells you.</li>
+              <li><strong>Assuming an unreachable end condition will error.</strong> Nothing errors. That silence is
+                what makes it so hard to find.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- ===================== EXERCISE ===================== -->
+        <div class="exercise" id="exercise">
+          <div class="exercise-head">
+            <div class="ex-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4L12 17l-6.3 4.4L8 14 2 9.4h7.6z"/></svg></div>
+            <div>
+              <div class="ex-kicker">Build it · PenguinBot</div>
+              <h3>The arm gets a command</h3>
+            </div>
+          </div>
+          <div class="exercise-body">
+            <p>Your <code>Arm</code> has <code>startMove()</code>, <code>goToScore()</code>,
+              <code>atSetpoint()</code>, <code>stop()</code> and <code>isHomed()</code>. Nothing calls them on the
+              right ticks. Write the command that does.</p>
+            <ol class="task-list">
+              <li><b>Constructor</b> takes an <code>Arm</code> and stores it. Do not create a motor inside the
+                command.</li>
+              <li><b><code>initialize()</code></b> calls <code>arm.startMove()</code> to clear stale controller
+                state.</li>
+              <li><b><code>execute()</code></b> runs one controller cycle toward the scoring setpoint.</li>
+              <li><b><code>isFinished()</code></b> is true when the arm is at the setpoint.</li>
+              <li><b><code>end(boolean interrupted)</code></b> stops the arm and prints a different message for each
+                case.</li>
+              <li><b>Bonus 1.</b> Refuse to run when the arm is not homed. Finish immediately rather than driving to
+                a setpoint that means nothing.</li>
+              <li><b>Bonus 2.</b> Add a timeout. If the arm has not arrived within 100 ticks, finish anyway.
+                Something is jammed, and a command that runs forever is worse than one that gives up.</li>
+            </ol>
+
+            <div class="sandbox" data-compiler data-sim data-title="Your turn: ArmToScoreCommand">
+              <script type="text/x-java" class="sb-src">
+// On a real robot:
+//   import edu.wpi.first.wpilibj2.command.Command;
+//   import edu.wpi.first.wpilibj2.command.CommandScheduler;
+
+public class Main {
+
+    // Your Arm from Unit 6, unchanged.
+    static class Arm {
+        private final SparkMax pivot = new SparkMax(3, MotorType.kBrushless);
+        static final double SCORE_POSITION = 50.0;
+        private final PIDController pid = new PIDController(0.02, 0.0, 0.0);
+        private boolean homed = false;
+
+        Arm() { pid.setTolerance(1.0); }
+
+        double getPosition() { return pivot.getEncoder().getPosition(); }
+        boolean isHomed()    { return homed; }
+        boolean atSetpoint() { return pid.atSetpoint(); }
+        void home()      { pivot.getEncoder().setPosition(0.0); homed = true; }
+        void startMove() { pid.reset(); }
+        void stop()      { pivot.set(0); }
+        void goToScore() {
+            if (!homed) { stop(); return; }
+            double o = pid.calculate(getPosition(), SCORE_POSITION);
+            pivot.set(Math.max(-0.8, Math.min(0.8, o)));
+        }
+    }
+
+    static class ArmToScoreCommand extends Command {
+        private final Arm arm;
+        private static final int TIMEOUT_TICKS = 100;
+        private int ticks = 0;
+
+        ArmToScoreCommand(Arm arm) { this.arm = arm; }
+
+        // 1) initialize() -- reset the controller, zero the tick counter
+
+
+        // 2) execute() -- one cycle toward the setpoint, count the tick
+
+
+        // 3) isFinished() -- setpoint reached, OR not homed, OR timed out
+
+
+        // 4) end(boolean) -- always stop, and say which case it was
+
+
+    }
+
+    public static void main(String[] args) {
+        CommandScheduler.getInstance().setTraceEnabled(false);
+        Arm arm = new Arm();
+
+        System.out.println("A) not homed:");
+        CommandScheduler.getInstance().schedule(new ArmToScoreCommand(arm));
+        CommandScheduler.getInstance().run();
+
+        System.out.println("B) homed, run to completion:");
+        arm.home();
+        CommandScheduler.getInstance().schedule(new ArmToScoreCommand(arm));
+        for (int t = 1; t <= 150; t++) CommandScheduler.getInstance().run();
+
+        System.out.println("C) interrupted halfway:");
+        arm.home();
+        Command c = new ArmToScoreCommand(arm);
+        CommandScheduler.getInstance().schedule(c);
+        for (int t = 1; t <= 30; t++) CommandScheduler.getInstance().run();
+        CommandScheduler.getInstance().cancel(c);
+    }
+}
+              </script>
+            </div>
+
+            <p>Working code prints this:</p>
+            <div class="code">
+              <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code>[sim] SparkMax on CAN ID 3 (kBrushless) is alive.
+A) not homed:
+  finished at 0.00 after 1 ticks
+B) homed, run to completion:
+  finished at 49.07 after 68 ticks
+C) interrupted halfway:
+  INTERRUPTED at 32.51 after 30 ticks</code></pre>
+            </div>
+            <p>Case A is the point from section 3 made concrete. The command was finished before it started, and it
+              still got exactly one <code>execute()</code>.</p>
+
+            <details class="reveal">
+              <summary><svg class="rv-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg> Reveal the solution</summary>
+              <div class="reveal-body">
+                <div class="code with-lines">
+                  <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">ArmToScoreCommand.java · solution</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">import edu.wpi.first.wpilibj2.command.Command;
+
+public class ArmToScoreCommand extends Command {
+
+    private final Arm arm;
+    private static final int TIMEOUT_TICKS = 100;   // 2 seconds
+    private int ticks = 0;
+
+    // The command is HANDED the mechanism. It never creates hardware itself.
+    public ArmToScoreCommand(Arm arm) {
+        this.arm = arm;
+    }
+
+    @Override
+    public void initialize() {
+        ticks = 0;
+        arm.startMove();          // clears stale integral and previous error
+    }
+
+    @Override
+    public void execute() {
+        ticks++;
+        arm.goToScore();          // ONE controller cycle toward the setpoint
+    }
+
+    @Override
+    public boolean isFinished() {
+        if (!arm.isHomed()) {
+            return true;          // Bonus 1: no known zero, no setpoint. Do not guess.
+        }
+        if (ticks &gt;= TIMEOUT_TICKS) {
+            System.out.println("  TIMED OUT, is something jammed?");
+            return true;          // Bonus 2: give up rather than run forever
+        }
+        return arm.atSetpoint();
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        arm.stop();               // ALWAYS. This is the only guaranteed exit.
+        System.out.printf("  %s at %.2f after %d ticks%n",
+            interrupted ? "INTERRUPTED" : "finished", arm.getPosition(), ticks);
+    }
+}</code></pre>
+                </div>
+                <p>Four things in that solution are worth more than the syntax.</p>
+                <ul>
+                  <li><b>The constructor takes the arm, it does not build one.</b> If every command made its own
+                    motor object on CAN ID 3 you would have several objects issuing conflicting commands to one
+                    piece of hardware. This is the dependency injection idea from Phase 1 doing real work.</li>
+                  <li><b><code>end()</code> stops the arm on both paths.</b> Not inside an <code>if</code>. Forgetting
+                    this is how a mechanism keeps driving after its command was interrupted.</li>
+                  <li><b>The timeout is not decoration.</b> Section 7 showed you a command that never finished and
+                    never complained. The timeout turns that silence into a printed message.</li>
+                  <li><b>Bonus 1 returns true rather than throwing.</b> A command that cannot safely do its job
+                    should end quietly, not crash the robot in the middle of a match.</li>
+                </ul>
+              </div>
+            </details>
+            <p>Your command works. But <code>Arm</code> is still a plain class. Nothing stops two commands from
+              grabbing it at the same time, and nothing runs its housekeeping when no command is scheduled. That is
+              the next lesson.</p>
+          </div>
+        </div>
+
+        <!-- ===================== CHECKPOINT ===================== -->
+        <div class="checkpoint" id="checkpoint">
+          <div class="checkpoint-head">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            <h3>Checkpoint</h3>
+            <span class="cp-score">0 / 5</span>
+          </div>
+          <div class="checkpoint-body">
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q1.</span> How often does <code>initialize()</code> run?</div>
+              <div class="options">
+                <label class="option" data-explain="That is execute(). initialize() is the once-only one."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Every 20 ms</span></label>
+                <label class="option" data-correct data-explain="Yes, and it happens the moment the command is scheduled, not on the next tick."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Once, when the command begins</span></label>
+                <label class="option" data-explain="Once per scheduling. Schedule the same command again and it initializes again, which is exactly what you want."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Once per match</span></label>
+                <label class="option" data-explain="Commands behave identically in every mode. Nothing about the lifecycle is mode-specific."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Only in autonomous</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q2.</span> What does returning <code>false</code> from <code>isFinished()</code> forever mean?</div>
+              <div class="options">
+                <label class="option" data-explain="Nothing errors. That is precisely what makes an unreachable end condition hard to find."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The command errors out</span></label>
+                <label class="option" data-explain="It never stopped, so there is nothing to restart. It just keeps executing."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The command restarts</span></label>
+                <label class="option" data-correct data-explain="Correct, and that is a legitimate design for behaviour that should run while a button is held."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The command never ends on its own, so something else must stop it</span></label>
+                <label class="option" data-explain="end() runs only when the command actually stops, which in this case never happens by itself."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>end()</code> runs immediately</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q3.</span> Which method is guaranteed to run when a command stops, however it stops?</div>
+              <div class="options">
+                <label class="option" data-explain="It may never have returned true. An interrupted command is stopped from outside, without its end condition ever being met."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>isFinished()</code></span></label>
+                <label class="option" data-explain="That is the start of the command, not the end of it."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>initialize()</code></span></label>
+                <label class="option" data-correct data-explain="Yes, which is exactly why it is where you stop the motor."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>end(boolean interrupted)</code></span></label>
+                <label class="option" data-explain="It stops running at that point. That is what stopping means."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>execute()</code></span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q4.</span> Inside one scheduler tick, what is the order for a scheduled command?</div>
+              <div class="options">
+                <label class="option" data-explain="Backwards. You would be checking whether you are done before doing anything this cycle."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>isFinished()</code>, then <code>execute()</code></span></label>
+                <label class="option" data-correct data-explain="Right, which is why even a command that is finished from the very start still gets one execute()."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>execute()</code>, then <code>isFinished()</code>, then <code>end(false)</code> if finished</span></label>
+                <label class="option" data-explain="initialize() and end() run once each per scheduling, not once per tick."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">All four, every tick</span></label>
+                <label class="option" data-explain="Sequentially, in one thread, every 20 milliseconds. Nothing in the scheduler is concurrent."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">They run in parallel</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q5.</span> Your command's <code>isFinished()</code> waits for a speed the mechanism cannot reach. What do you observe?</div>
+              <div class="options">
+                <label class="option" data-explain="Nothing crashes. The code is doing exactly what you told it to."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A crash</span></label>
+                <label class="option" data-explain="Nothing warns you. There is no way for the framework to know your condition is impossible."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A warning in the console</span></label>
+                <label class="option" data-correct data-explain="Exactly, and that silence is what makes it hard to find. A timeout turns it into a visible failure."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Nothing. The command runs forever and everything after it never starts</span></label>
+                <label class="option" data-explain="It never stopped, so it never restarts. It is one long run of the same command."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The command restarts every tick</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check my answers</button></div>
+          </div>
+        </div>
+
+        <!-- ===================== COMPLETE ===================== -->
+        <div class="mark-complete">
+          <div class="mc-text"><b>You can write a behaviour with a real end.</b><span>Next: the class that owns a mechanism and stops two commands fighting over it.</span></div>
+          <button class="complete-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>Mark as complete</span></button>
+        </div>
+
+      </div><!-- /prose -->
+    </div><!-- /content-inner -->
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="/assets/js/course.js"></script>
+  <script src="/assets/js/site.js"></script>
+  <script src="/assets/js/widgets.js"></script>
+</body>
+</html>

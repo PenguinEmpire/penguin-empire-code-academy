@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CTRE Generator vs. YAGSL · Penguin Empire 2551</title>
+  <meta name="description" content="Choosing a swerve code generator, what you have to measure before it can produce anything, the encoder offset step that always bites, and why hardware decides this rather than software." />
+  <link rel="icon" href="/assets/img/logo-2551.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Aldrich&family=Russo+One&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/brand.css" />
+  <link rel="stylesheet" href="/assets/css/layout.css" />
+  <link rel="stylesheet" href="/assets/css/lesson.css" />
+</head>
+<body data-page="lesson" data-lesson="frc-swerve-generators">
+  <main id="main" class="content">
+    <div class="content-inner">
+
+      <!-- ===================== HEADER ===================== -->
+      <header class="lesson-hero">
+        <nav class="crumbs" aria-label="Breadcrumb">
+          <a href="/">Home</a><span class="sep">/</span>
+          <a href="/syllabus.html">Phase 2 · FRC</a><span class="sep">/</span>
+          <span>Unit 9 · Driving</span>
+        </nav>
+        <span class="badge badge--ocean">Unit 9</span>
+        <h1 class="lesson-title">CTRE Generator vs. YAGSL</h1>
+        <p class="lesson-lede">Nobody on your team is going to write swerve kinematics. What you will do is choose
+          a generator, measure a robot accurately, and know which symptom means which setup mistake.</p>
+        <div class="lesson-meta">
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg> 20 min</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h2v-4H3zM9 20h2V10H9zM15 20h2V4h-2z"/></svg> Advanced</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2zM18 3v16"/></svg> Needs: Field-Centric Swerve</span>
+        </div>
+      </header>
+
+      <!-- ===================== GOAL ===================== -->
+      <div class="goal">
+        <div class="goal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div>
+        <div>
+          <h2>Your goal</h2>
+          <p>Choose the right swerve code generator for a team's hardware, and describe what you have to supply it
+            before it can produce anything.</p>
+        </div>
+      </div>
+
+      <nav class="toc" aria-label="On this page">
+        <strong>On this page</strong>
+        <ol>
+          <li><a href="#why">Why this matters</a></li>
+          <li><a href="#generate">Why generate at all</a></li>
+          <li><a href="#two">The two options</a></li>
+          <li><a href="#needs">What the generator needs from you</a></li>
+          <li><a href="#offsets">Encoder offsets, the step that always bites</a></li>
+          <li><a href="#generated">What generated code means for you</a></li>
+          <li><a href="#challenges">Practice challenges</a></li>
+          <li><a href="#mistakes">Common mistakes</a></li>
+          <li><a href="#exercise">Project: The drivetrain decision document</a></li>
+          <li><a href="#checkpoint">Checkpoint</a></li>
+        </ol>
+      </nav>
+
+      <div class="prose">
+
+        <!-- ===================== WHY ===================== -->
+        <h2 id="why"><span class="section-h"><span class="num">1</span> Why this matters</span></h2>
+
+        <div class="callout callout--why">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></div>
+          <div class="c-title">Eight Krakens or a harder afternoon</div>
+          <div class="c-body">
+            <p>The CTRE Swerve Generator is, by our curriculum's account, fast and easy. You feed it your robot's
+              dimensions and centre of mass and it writes the swerve code for you to import.</p>
+            <p>There is one condition. <strong>It requires eight Kraken and CTRE motors.</strong> Not works best
+              with. Requires.</p>
+            <p>So this is not really a software decision. It was made months earlier, when somebody ordered motors.
+              If your drivetrain is all CTRE, take the easy path. If it is mixed, or REV, you need
+              <strong>YAGSL</strong>, which works across brands and is harder to set up.</p>
+            <p>That is the honest shape of a lot of FRC engineering. The best tool is the one your hardware allows,
+              and your hardware was chosen before you got here.</p>
+          </div>
+        </div>
+
+        <!-- ===================== GENERATE ===================== -->
+        <h2 id="generate"><span class="section-h"><span class="num">2</span> Why generate at all</span></h2>
+        <p>Recall what the previous lesson described. Four modules, each needing an angle and a speed derived from
+          three driver inputs and the gyro heading. Wheel angles optimised so a module turns 90 degrees rather than
+          270. Odometry, so the robot tracks where it is. Per-module closed-loop control on both motors.</p>
+        <p>That is a large amount of trigonometry which has to be exactly right, and every team in FRC needs the
+          same trigonometry. Our curriculum's own note is that students rarely write swerve from scratch.</p>
+
+        <!-- ===================== TWO ===================== -->
+        <h2 id="two"><span class="section-h"><span class="num">3</span> The two options</span></h2>
+
+        <div class="tablewrap">
+          <table class="data">
+            <thead><tr><th></th><th>CTRE Swerve Generator</th><th>YAGSL</th></tr></thead>
+            <tbody>
+              <tr><td>Lives in</td><td>Phoenix Tuner</td><td>A vendor library you install</td></tr>
+              <tr><td>Hardware</td><td><strong>Requires CTRE</strong>, eight Kraken and CTRE motors</td><td><strong>Cross-brand</strong>, works with what you have</td></tr>
+              <tr><td>Setup</td><td>Fast and easy</td><td>Harder</td></tr>
+              <tr><td>You supply</td><td>Robot dimensions and centre of mass</td><td>Configuration describing the modules</td></tr>
+              <tr><td>Output</td><td>Code you import into your project</td><td>A library you configure and call</td></tr>
+              <tr><td>Choose it when</td><td>Your drivetrain is all CTRE</td><td>Mixed or non-CTRE hardware</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>YAGSL stands for Yet Another Generic Swerve Library, and the name tells you its priority. It is generic.
+          It does not care what motors you bought, and you pay for that flexibility in setup time.</p>
+
+        <div class="callout callout--season">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
+          <div class="c-title">Verify for current season, and take this one seriously</div>
+          <div class="c-body"><p>This is one of the two most volatile lessons in the whole track. Tool names,
+            which application hosts the generator, configuration file formats, version numbers and licensing all
+            change between seasons.</p>
+            <p>Read both vendors' current documentation before you start, and check whether CTRE's swerve features
+              need a licence or activation for your season. The <em>decision criterion</em> on this page, which is
+              that hardware decides the tool, and the <em>list of measurements</em> in section 4 are stable. Nothing
+              else here is.</p></div>
+        </div>
+
+        <div class="callout callout--note">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg></div>
+          <div class="c-title">There is deliberately no Java on this page</div>
+          <div class="c-body"><p>Neither of this course's sources verifies a swerve API, and the drive-request calls
+            differ between the two tools and between versions of each. Printing an invented method signature here
+            would teach you a call that does not exist.</p>
+            <p>The reference you should actually read is <strong>your own team's generated drive subsystem</strong>,
+              in your own project, for your own season. Open it. It is a subsystem like any other, and after Unit 7
+              you can read one.</p></div>
+        </div>
+
+        <!-- ===================== NEEDS ===================== -->
+        <h2 id="needs"><span class="section-h"><span class="num">4</span> What the generator needs from you</span></h2>
+        <p>This is the most transferable part of the lesson, because it is true of both tools and of PathPlanner in
+          Unit 11.</p>
+
+        <div class="tablewrap">
+          <table class="data">
+            <thead><tr><th>Value</th><th>Why it is needed</th></tr></thead>
+            <tbody>
+              <tr><td>Track width and wheelbase</td><td>The kinematics is entirely about where the wheels sit relative to the centre</td></tr>
+              <tr><td>Mass and moment of inertia</td><td>How heavy it is and how hard it is to spin</td></tr>
+              <tr><td>Centre of mass</td><td>Where the weight actually sits, which is rarely the geometric middle</td></tr>
+              <tr><td>Gear ratios and wheel diameter</td><td>To convert motor rotations into metres travelled</td></tr>
+              <tr><td>CAN IDs for eight motors and four encoders</td><td>So the code addresses the right device</td></tr>
+              <tr><td>Steering encoder offsets</td><td>So each module knows which reading means straight forward</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>That fourth row is the conversion factor problem from <a href="/lessons/frc/encoders.html">Unit 5</a>, at
+          drivetrain scale. The encoder counts motor rotations, and the code needs metres.</p>
+
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">Measurements are inputs to correctness</div>
+          <div class="c-body"><p>A generator fed the wrong wheelbase produces code that compiles, deploys, runs and
+            drives slightly wrong forever. There is no error message for a mistyped dimension, and there never will
+            be, because the software has no way to know what your robot is shaped like.</p>
+            <p>Get a tape measure. Measure wheel centre to wheel centre, not edge to edge. Have a second person
+              check the number before it goes into the tool.</p></div>
+        </div>
+
+        <!-- ===================== OFFSETS ===================== -->
+        <h2 id="offsets"><span class="section-h"><span class="num">5</span> Encoder offsets, the step that always bites</span></h2>
+        <p>Each steering module's absolute encoder reads <em>some</em> angle when the wheel points straight forward,
+          and it is never zero. It depends on how the encoder happened to be bolted on.</p>
+        <p>So setup involves physically aligning all four wheels forward and recording what each encoder reads at
+          that moment. Those four numbers become the module offsets.</p>
+
+        <div class="diagram">  offsets correct                 one offset wrong
+
+    /     /                         /     /
+   /     /                         /     /       three modules agree
+       robot                           robot
+    /     /                         /     \      one module points
+   /     /                         /       \     somewhere else
+
+  all four agree.                 the odd wheel drags sideways.
+  robot drives straight.          robot crabs, and that module
+                                  is audibly fighting the others.
+</div>
+
+        <div class="callout callout--tip">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12c.7.7 1 1.4 1 2h6c0-.6.3-1.3 1-2a7 7 0 0 0-4-12z"/></svg></div>
+          <div class="c-title">Learn the symptom, not just the procedure</div>
+          <div class="c-body"><p><strong>One wheel fighting three</strong> is the signature of a wrong encoder
+            offset. The robot drives crabwise instead of straight, and one module makes a noise the others do
+            not.</p>
+            <p>Compare that with the gyro bug from the last lesson, where <em>all</em> motion is rotated
+              consistently and nothing fights anything. Two different symptoms, two different causes, and telling
+              them apart in the pits saves you an hour.</p></div>
+        </div>
+
+        <p>Offsets are also not a one-time thing. Re-check them after any mechanical work on a module. A module that
+          has been apart is a module whose offset you no longer know.</p>
+
+        <!-- ===================== GENERATED ===================== -->
+        <h2 id="generated"><span class="section-h"><span class="num">6</span> What generated code means for you</span></h2>
+        <ul>
+          <li><b>You will have a drive subsystem you did not write.</b> That is fine and it is normal.</li>
+          <li><b>You will still write the commands that use it</b>, exactly like every other subsystem.</li>
+          <li><b>Do not hand-edit generated files.</b> Change the configuration and regenerate, or your edits
+            disappear the next time anybody regenerates, which will happen at the worst possible moment.</li>
+          <li><b>It is still a subsystem.</b> It registers with the scheduler, it has a <code>periodic()</code>, and
+            commands require it. Everything from Unit 7 applies to it unchanged.</li>
+        </ul>
+
+        <p>That last point is why Unit 9 comes after Unit 7. A student who understands subsystems can open a
+          generated drive subsystem and read it. A student who does not has an opaque black box that either works
+          or does not.</p>
+
+        <p>What you will call on it is, in plain terms, a request to <em>translate at this speed in this direction
+          while rotating at this rate, field-centric</em>. That is three numbers, and they come from the two sticks.
+          Your teleop binding reads the sticks, applies the deadband from the controllers lesson, and passes them
+          in. The exact method name is a question for your season's documentation.</p>
+
+        <!-- ===================== CHALLENGES ===================== -->
+        <h2 id="challenges"><span class="section-h"><span class="num">7</span> Practice challenges</span></h2>
+
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">Pick the generator</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Your drivetrain has eight Kraken motors. Which tool?</p>
+            <div class="options">
+              <label class="option" data-explain="It would work, and you would be choosing the harder setup for no reason at all."><input type="radio" name="q-g1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">YAGSL</span></label>
+              <label class="option" data-correct data-explain="Right. All-CTRE hardware is exactly its requirement, and it is the fast path."><input type="radio" name="q-g1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The CTRE Swerve Generator</span></label>
+              <label class="option" data-explain="Heavy trigonometry that is already solved correctly elsewhere, by people who have tested it on hundreds of robots."><input type="radio" name="q-g1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Write it by hand</span></label>
+              <label class="option" data-explain="They differ in hardware requirements and in setup effort, which is the entire content of the comparison table."><input type="radio" name="q-g1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Either, they are identical</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">Mixed hardware</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Your drivetrain has four Krakens for drive and four REV motors for steering.
+              Which tool?</p>
+            <div class="options">
+              <label class="option" data-explain="It requires CTRE motors throughout, and half your drivetrain is not."><input type="radio" name="q-g2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The CTRE Swerve Generator</span></label>
+              <label class="option" data-correct data-explain="Correct. Cross-brand support is the entire reason it exists."><input type="radio" name="q-g2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">YAGSL</span></label>
+              <label class="option" data-explain="They would each own the same drivetrain and issue conflicting commands to it. Not workable."><input type="radio" name="q-g2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Both, one per half of the drivetrain</span></label>
+              <label class="option" data-explain="Sometimes the right hardware answer, and it is not the software answer to the question asked. You have the motors you have."><input type="radio" name="q-g2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Swap the REV motors out</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="order"
+             data-win="Measure, address, align, generate, import, and then test slowly. Every step before the last one is an input to correctness."
+             data-lose="Physical facts first: dimensions, CAN IDs, encoder offsets, because the generator can only be as right as what you tell it. Then generate, import, and test at low speed.">
+          <div class="challenge-head"><span class="ch-kind">Put in order</span><span class="ch-title">Setting up generated swerve</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Drag these into the order they have to happen.</p>
+            <ul class="order-list">
+              <li class="order-item" data-pos="4"><span class="grip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h16M4 16h16"/></svg></span><span>Feed the dimensions and mass into the generator</span></li>
+              <li class="order-item" data-pos="1"><span class="grip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h16M4 16h16"/></svg></span><span>Measure the wheelbase and track width</span></li>
+              <li class="order-item" data-pos="6"><span class="grip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h16M4 16h16"/></svg></span><span>Drive slowly and check that forward is forward</span></li>
+              <li class="order-item" data-pos="2"><span class="grip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h16M4 16h16"/></svg></span><span>Set and record CAN IDs for all eight motors</span></li>
+              <li class="order-item" data-pos="5"><span class="grip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h16M4 16h16"/></svg></span><span>Import the generated code into the project</span></li>
+              <li class="order-item" data-pos="3"><span class="grip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h16M4 16h16"/></svg></span><span>Align all four wheels forward and record the encoder offsets</span></li>
+            </ul>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">Read the symptom</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Your generated swerve is installed. Asked to drive straight forward, the
+              robot drifts sideways and one wheel is audibly fighting. Most likely cause?</p>
+            <div class="options">
+              <label class="option" data-explain="That would rotate all motion consistently. It would not make one wheel disagree with the other three."><input type="radio" name="q-sym" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The gyro is zeroed wrong</span></label>
+              <label class="option" data-correct data-explain="Exactly. One wheel fighting three is the signature, and it is the first thing to check."><input type="radio" name="q-sym" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">One module's steering encoder offset is wrong</span></label>
+              <label class="option" data-explain="Too much gain causes oscillation and chatter, which you met in Unit 6. It does not cause a consistent drift in one direction."><input type="radio" name="q-sym" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A gain is too high</span></label>
+              <label class="option" data-explain="Then that module would time out and stop entirely, and the Driver Station would tell you which CAN ID. It would not fight."><input type="radio" name="q-sym" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A CAN wire is broken</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="fib"
+             data-win="Hardware decides the tool. That is the whole decision."
+             data-lose="The CTRE generator needs eight Kraken and CTRE motors. YAGSL is the cross-brand option, at the cost of a harder setup.">
+          <div class="challenge-head"><span class="ch-kind">Fill in the blanks</span><span class="ch-title">The decision</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Complete the rule.</p>
+<pre class="fib">The CTRE generator requires <span class="blank" data-answer="8|eight"></span> <span class="blank" data-answer="Kraken|CTRE|Kraken/CTRE|CTRE motors|Kraken motors"></span> motors.
+<span class="blank" data-answer="YAGSL|yagsl"></span> works across brands but is harder to set up.</pre>
+            <div class="challenge-actions">
+              <button class="btn btn--sm check-btn" type="button">Check</button>
+              <button class="btn btn--sm btn--ghost reset-btn" type="button">Reset</button>
+            </div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <!-- ===================== MISTAKES ===================== -->
+        <h2 id="mistakes"><span class="section-h"><span class="num">8</span> Common mistakes</span></h2>
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">Watch out for these</div>
+          <div class="c-body">
+            <ul>
+              <li><strong>Thinking a generator means you do not understand swerve.</strong> You need field-centric
+                behaviour, module geometry and encoder offsets to configure one at all. What you skip is retyping
+                solved trigonometry.</li>
+              <li><strong>Trying to use the CTRE generator with REV motors.</strong> It requires CTRE hardware
+                throughout. That is what YAGSL is for.</li>
+              <li><strong>Expecting the generator to work out the robot's dimensions.</strong> You measure them and
+                type them in, and a wrong number produces code that drives wrong forever with no error.</li>
+              <li><strong>Hand-editing a generated file.</strong> Regenerate instead. Hand edits disappear the next
+                time anyone regenerates.</li>
+              <li><strong>Treating a generated drivetrain as not a real subsystem.</strong> It is one. Everything
+                from Unit 7 applies.</li>
+              <li><strong>Treating encoder offsets as a one-time setup.</strong> Re-check after any mechanical work
+                on a module.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- ===================== EXERCISE ===================== -->
+        <div class="exercise" id="exercise">
+          <div class="exercise-head">
+            <div class="ex-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4L12 17l-6.3 4.4L8 14 2 9.4h7.6z"/></svg></div>
+            <div>
+              <div class="ex-kicker">Build it · PenguinBot</div>
+              <h3>The drivetrain decision document</h3>
+            </div>
+          </div>
+          <div class="exercise-body">
+            <p>PenguinBot's CAN map reserves IDs 10 to 17 for eight swerve motors and nothing has been generated
+              yet. Write the document a team would actually produce before starting.</p>
+            <ol class="task-list">
+              <li><b>State the hardware and the generator that follows from it</b>, with a one sentence
+                justification.</li>
+              <li><b>List every measurement and value you need to collect</b> before running the generator, and who
+                on the team you would get each one from.</li>
+              <li><b>Write the encoder offset procedure</b> as numbered steps somebody else could follow without
+                asking you anything.</li>
+              <li><b>Write the first-drive test plan</b>: what you check, in what order, at what speed.</li>
+              <li><b>State what would change</b> in your answer if half the drivetrain were REV.</li>
+            </ol>
+
+            <details class="reveal">
+              <summary><svg class="rv-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg> Reveal the solution</summary>
+              <div class="reveal-body">
+                <p><b>1.</b> PenguinBot runs eight Krakens, drive on 10 to 13 and steer on 14 to 17. All CTRE, so
+                  the <b>CTRE Swerve Generator</b>. It is the fast path and our hardware meets its requirement
+                  exactly.</p>
+
+                <p><b>2. What to collect</b></p>
+                <div class="tablewrap">
+                  <table class="data">
+                    <thead><tr><th>Value</th><th>From</th></tr></thead>
+                    <tbody>
+                      <tr><td>Track width and wheelbase, wheel centre to wheel centre</td><td>Mechanical, measured and then checked by a second person</td></tr>
+                      <tr><td>Robot mass, with battery and bumpers</td><td>Mechanical, weighed rather than estimated</td></tr>
+                      <tr><td>Centre of mass</td><td>Mechanical or CAD</td></tr>
+                      <tr><td>Drive gear ratio and wheel diameter</td><td>Mechanical, or the module's spec sheet</td></tr>
+                      <tr><td>CAN IDs for eight motors and four encoders</td><td>Programming, set in the vendor client from the CAN map</td></tr>
+                      <tr><td>Steering encoder offsets</td><td>Programming, measured during setup</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <p><b>3. Encoder offset procedure</b></p>
+                <ol class="task-list">
+                  <li>Put the robot on blocks so the wheels turn freely.</li>
+                  <li>Rotate all four wheels by hand until they point straight forward and are parallel. Use a
+                    straight edge across each pair. Eyeballing it is not good enough.</li>
+                  <li>In the vendor client, read and write down each steering encoder's current reading.</li>
+                  <li>Enter those four readings as the module offsets in the generator's configuration.</li>
+                  <li>Regenerate, deploy, and re-check. Commanded to zero, all four wheels should return to
+                    straight forward.</li>
+                </ol>
+
+                <p><b>4. First-drive test plan</b>, on blocks first and then on the floor, slowly.</p>
+                <ol class="task-list">
+                  <li><b>On blocks, enabled, no stick input.</b> Nothing should move. If a module creeps, its offset
+                    or its closed loop is wrong.</li>
+                  <li><b>On blocks, stick forward.</b> All four wheels should point forward and spin the same
+                    way.</li>
+                  <li><b>On blocks, right stick only.</b> Wheels should splay tangentially and spin to rotate the
+                    robot.</li>
+                  <li><b>On the floor, low speed, robot facing the driver.</b> Push forward. It should move away in
+                    a straight line.</li>
+                  <li><b>Rotate the robot 90 degrees by hand, re-zero nothing, push forward again.</b> Field-centric
+                    means it should still travel in the same direction across the field. If it does not, the gyro or
+                    the field-centric flag is wrong.</li>
+                  <li>Only then, raise the speed.</li>
+                </ol>
+                <p>Step 5 is the one people skip, and it is the only step that actually tests field-centric
+                  control.</p>
+
+                <p><b>5. If half were REV</b>, the CTRE generator is unavailable, because it requires CTRE hardware
+                  throughout. It would be YAGSL, and we would budget significantly more setup time. The physical
+                  measurements and the encoder offset procedure are identical either way, because those are facts
+                  about the robot rather than about the software.</p>
+              </div>
+            </details>
+            <p>PenguinBot can now move across the field. It still has no idea where it is. Unit 10 is seeing.</p>
+          </div>
+        </div>
+
+        <!-- ===================== CHECKPOINT ===================== -->
+        <div class="checkpoint" id="checkpoint">
+          <div class="checkpoint-head">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            <h3>Checkpoint</h3>
+            <span class="cp-score">0 / 4</span>
+          </div>
+          <div class="checkpoint-body">
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q1.</span> What is the CTRE Swerve Generator's hard requirement?</div>
+              <div class="options">
+                <label class="option" data-explain="Not the stated constraint. The constraint is about the motors on the drivetrain."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A specific roboRIO version</span></label>
+                <label class="option" data-correct data-explain="Yes, and hardware therefore decides whether this tool is available to you at all."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Eight Kraken and CTRE motors</span></label>
+                <label class="option" data-explain="Vision is unrelated to drivetrain generation and is Unit 10."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A Limelight</span></label>
+                <label class="option" data-explain="PathPlanner is Unit 11 and is a separate tool with its own requirements."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">PathPlanner installed</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q2.</span> What does YAGSL give you that the CTRE generator does not?</div>
+              <div class="options">
+                <label class="option" data-explain="Not the stated trade-off. Neither source claims one is faster on the field."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Better performance</span></label>
+                <label class="option" data-correct data-explain="Right, at the cost of a harder setup. That is the whole trade."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Cross-brand hardware support</span></label>
+                <label class="option" data-explain="Both provide it. Field-centric control is a property of swerve, not of the tool."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Field-centric control</span></label>
+                <label class="option" data-explain="Neither claims that. Tuning is still yours, using the recipe from Unit 6."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Automatic PID tuning</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q3.</span> Why does the generator need your robot's dimensions?</div>
+              <div class="options">
+                <label class="option" data-explain="Any dashboard display is incidental. The numbers are used by the maths."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">For the dashboard display</span></label>
+                <label class="option" data-correct data-explain="Exactly, and a wrong number produces code that drives wrong with no error message ever."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The kinematics is entirely about where the wheels are relative to the centre</span></label>
+                <label class="option" data-explain="Inspection is a separate process carried out by event staff with their own measuring tools."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">To check the robot is legal</span></label>
+                <label class="option" data-explain="It has no way to measure anything. It is a program on a laptop that has never seen your robot."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It does not, it measures them itself</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q4.</span> The robot drifts sideways when asked to drive straight, and one wheel is fighting. First suspicion?</div>
+              <div class="options">
+                <label class="option" data-explain="That rotates all motion together. It does not make one wheel disagree with the other three."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The gyro zero</span></label>
+                <label class="option" data-correct data-explain="Correct. One module pointing differently from the other three is exactly this symptom."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A wrong steering encoder offset on one module</span></label>
+                <label class="option" data-explain="That module would time out and stop, and the Driver Station would name the CAN ID. It would not fight."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A broken CAN wire</span></label>
+                <label class="option" data-explain="The wrong generator would not have produced working code at all. Three modules behaving correctly rules it out."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The wrong generator</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check my answers</button></div>
+          </div>
+        </div>
+
+        <!-- ===================== COMPLETE ===================== -->
+        <div class="mark-complete">
+          <div class="mc-text"><b>Unit 9 done. PenguinBot can cross the field.</b><span>Next: giving it some idea of where it is.</span></div>
+          <button class="complete-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>Mark as complete</span></button>
+        </div>
+
+      </div><!-- /prose -->
+    </div><!-- /content-inner -->
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="/assets/js/course.js"></script>
+  <script src="/assets/js/site.js"></script>
+  <script src="/assets/js/widgets.js"></script>
+</body>
+</html>

@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The PathPlanner Workflow · Penguin Empire 2551</title>
+  <meta name="description" content="Drawing a route on a field, what the app needs before it can compute anything, why the start pose is the same bug as an unhomed encoder, and why a path alone will not score." />
+  <link rel="icon" href="/assets/img/logo-2551.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Aldrich&family=Russo+One&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/brand.css" />
+  <link rel="stylesheet" href="/assets/css/layout.css" />
+  <link rel="stylesheet" href="/assets/css/lesson.css" />
+</head>
+<body data-page="lesson" data-lesson="frc-pathplanner">
+  <main id="main" class="content">
+    <div class="content-inner">
+
+      <!-- ===================== HEADER ===================== -->
+      <header class="lesson-hero">
+        <nav class="crumbs" aria-label="Breadcrumb">
+          <a href="/">Home</a><span class="sep">/</span>
+          <a href="/syllabus.html">Phase 2 · FRC</a><span class="sep">/</span>
+          <span>Unit 11 · Autonomous</span>
+        </nav>
+        <span class="badge badge--ocean">Unit 11</span>
+        <h1 class="lesson-title">The PathPlanner Workflow</h1>
+        <p class="lesson-lede">You draw a route on a field and it works out the motor commands to follow it,
+          approximately. That last word is doing enormous work, and this lesson is mostly about it.</p>
+        <div class="lesson-meta">
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg> 25 min</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h2v-4H3zM9 20h2V10H9zM15 20h2V4h-2z"/></svg> Advanced</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2zM18 3v16"/></svg> Needs: Unit 10</span>
+        </div>
+      </header>
+
+      <!-- ===================== GOAL ===================== -->
+      <div class="goal">
+        <div class="goal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div>
+        <div>
+          <h2>Your goal</h2>
+          <p>Describe how a PathPlanner routine is built, and explain why a drawn path alone is not enough to score
+            reliably.</p>
+        </div>
+      </div>
+
+      <nav class="toc" aria-label="On this page">
+        <strong>On this page</strong>
+        <ol>
+          <li><a href="#why">Why this matters</a></li>
+          <li><a href="#last">Why autonomous is last</a></li>
+          <li><a href="#app">PathPlanner is an app</a></li>
+          <li><a href="#pose">The start pose is a promise</a></li>
+          <li><a href="#blocks">The three building blocks</a></li>
+          <li><a href="#workflow">The workflow, end to end</a></li>
+          <li><a href="#vision">Drive approximately, correct precisely</a></li>
+          <li><a href="#challenges">Practice challenges</a></li>
+          <li><a href="#mistakes">Common mistakes</a></li>
+          <li><a href="#exercise">Project: Design PenguinBot's autonomous</a></li>
+          <li><a href="#checkpoint">Checkpoint</a></li>
+        </ol>
+      </nav>
+
+      <div class="prose">
+
+        <!-- ===================== WHY ===================== -->
+        <h2 id="why"><span class="section-h"><span class="num">1</span> Why this matters</span></h2>
+
+        <div class="callout callout--why">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></div>
+          <div class="c-title">PathPlanner is approximate, and it has to be</div>
+          <div class="c-body">
+            <p>Our curriculum's description of the tool ends with one word carrying all the weight: it computes the
+              motor power and swerve commands to follow your route, <strong>approximately</strong>.</p>
+            <p>Think about what it is working from. Your typed-in weight, moment of inertia and dimensions, which
+              are close rather than exact. It cannot know that the carpet is more worn in front of the scoring
+              station, that your battery is at 12.1 volts instead of 12.8, that a wheel tread has glazed over, or
+              that somebody bumped you in the first two seconds.</p>
+            <p>So a path gets you <strong>close</strong>. The prescription that follows immediately in the source is
+              to pair it with alignment and position correction code, which is your PID and your vision. Which you
+              built last unit.</p>
+            <p>That is the shape of a real autonomous routine. <strong>Drive approximately, then correct
+              precisely.</strong> A team that trusts the path alone scores in practice and misses at
+              competition.</p>
+          </div>
+        </div>
+
+        <!-- ===================== LAST ===================== -->
+        <h2 id="last"><span class="section-h"><span class="num">2</span> Why autonomous is last</span></h2>
+        <p>Autonomous is the opening seconds of a match, where the robot runs itself with nobody driving. Points are
+          on the line and nobody can help it.</p>
+
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">You cannot build a reliable autonomous until mechanics and vision work</div>
+          <div class="c-body"><p>This is the fourth time this course has said it, and it is the point our curriculum
+            repeats more than any other.</p>
+            <p>The reason is mechanical rather than motivational. <strong>An autonomous routine is literally a
+              sequence of your mechanism and vision commands.</strong> Until those commands work, there is nothing
+              to sequence. A team that starts building auto in week two ends up debugging the arm through an
+              autonomous routine, which is the hardest possible way to debug an arm.</p></div>
+        </div>
+
+        <div class="callout callout--season">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
+          <div class="c-title">Verify for current season</div>
+          <div class="c-body"><p>How long the autonomous period lasts and what it scores are game-specific and
+            change every year. This lesson deliberately states no duration and no point values. Read this season's
+            game manual.</p></div>
+        </div>
+
+        <!-- ===================== APP ===================== -->
+        <h2 id="app"><span class="section-h"><span class="num">3</span> PathPlanner is an app</span></h2>
+        <p>It is a desktop application, not a library you write against. It shows you a visual field. You place a
+          <strong>start pose</strong> and draw the robot's route through <strong>waypoints</strong>. It saves path
+          files that your robot code later loads by name.</p>
+        <p>Like the swerve generator, it needs the robot's physical facts before it can compute anything: weight,
+          moment of inertia and dimensions. It is simulating your robot to work out what your robot can actually
+          do.</p>
+        <p>Wrong numbers there produce a path the robot cannot follow, and there is no error message. Just a robot
+          that overshoots every corner.</p>
+
+        <div class="callout callout--season">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
+          <div class="c-title">Why there is no PathPlanner code on this page</div>
+          <div class="c-body"><p>Our sources name the concepts, which are paths, named commands, wait commands and
+            the autonomous picker, and give no PathPlanner API at all. Registering named commands and assembling a
+            routine both need real method signatures, and PathPlanner's have changed between versions.</p>
+            <p>Printing a guess would teach you a call that does not exist. The <strong>workflow</strong> below and
+              the <strong>approximate-then-correct pattern</strong> are the stable parts, and they are what this
+              lesson is actually for. Get the API from the current PathPlanner documentation.</p></div>
+        </div>
+
+        <!-- ===================== POSE ===================== -->
+        <h2 id="pose"><span class="section-h"><span class="num">4</span> The start pose is a promise</span></h2>
+        <p>A path begins at a stated position <strong>and heading</strong>. If the robot is placed on the field
+          somewhere else, every subsequent movement is offset by that error, and the error compounds along the
+          route.</p>
+
+        <div class="diagram">   what you drew                  what happened
+
+   [start]                        [start]
+      |                              \        robot placed 30 cm left
+      |                               \
+      v                                v
+   [in front of goal]             [30 cm left of the goal]
+                                   and every later waypoint
+                                   inherits the same offset
+</div>
+
+        <div class="callout callout--tip">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12c.7.7 1 1.4 1 2h6c0-.6.3-1.3 1-2a7 7 0 0 0-4-12z"/></svg></div>
+          <div class="c-title">Three units, one idea</div>
+          <div class="c-body">
+            <p>You have now met this bug three times.</p>
+            <ul>
+              <li><b>Unit 5.</b> A relative encoder that was never homed. Position 9.0 means nothing.</li>
+              <li><b>Unit 9.</b> A gyro zeroed while the robot faced sideways. Every stick input is rotated.</li>
+              <li><b>Unit 11.</b> A robot placed somewhere other than the declared start pose. Every waypoint is
+                offset.</li>
+            </ul>
+            <p><strong>A position means nothing until you know where zero is.</strong> That is the strongest
+              recurring idea in this whole track, and all three cases are solved the same way: establish zero
+              deliberately, before it matters, and check it.</p>
+          </div>
+        </div>
+
+        <p>The practical consequence is a game-day item rather than a code change. The robot has to be placed on the
+          field the same way every single match. Teams mark the floor, line up against the field's own markings, and
+          have somebody whose pre-match job is to check it. It is a programming problem solved with tape.</p>
+
+        <!-- ===================== BLOCKS ===================== -->
+        <h2 id="blocks"><span class="section-h"><span class="num">5</span> The three building blocks</span></h2>
+
+        <div class="tablewrap">
+          <table class="data">
+            <thead><tr><th>Block</th><th>What it is</th><th>Example</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Path</strong></td><td>Point A to point B, drawn on the field</td><td>Drive from the start line to the scoring position</td></tr>
+              <tr><td><strong>Named command</strong></td><td>One of <em>your</em> commands, registered under a name so a path can call it</td><td><code>"scoreGamePiece"</code>, <code>"aimAtTag"</code></td></tr>
+              <tr><td><strong>Wait command</strong></td><td>Pause for a number of seconds</td><td>Wait for the piece to settle before moving off</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout callout--tip">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12c.7.7 1 1.4 1 2h6c0-.6.3-1.3 1-2a7 7 0 0 0-4-12z"/></svg></div>
+          <div class="c-title">Named commands are the commands you already wrote</div>
+          <div class="c-body"><p>This should land as a relief. <code>ScoreSequence</code>,
+            <code>AimAtTagCommand</code>, <code>ArmToScoreCommand</code>. You register them under names and the
+            routine calls them.</p>
+            <p>Autonomous adds almost no new code. That is what "auto is a sequence of the commands you already
+              wrote" means in practice, and it is the whole payoff of having built things in this order.</p></div>
+        </div>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">the shape, in comments</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">// SHAPE ONLY. Get the verified API from the current PathPlanner docs.
+//
+// At startup, register the commands PathPlanner may call by name:
+//     "scoreGamePiece"  -&gt;  new ScoreSequence(arm, intake)
+//     "aimAtTag"        -&gt;  new AimAtTagCommand(drive, limelight)
+//
+// Then RobotContainer.getAutonomousCommand() returns the routine you
+// assembled, and Robot.autonomousInit() schedules it, exactly as in Unit 8.</code></pre>
+        </div>
+
+        <p>Notice that last line. Nothing new happens at the <code>Robot.java</code> level. The stub you wrote in
+          Unit 8 finally returns something, and the code that schedules it was already there.</p>
+
+        <!-- ===================== WORKFLOW ===================== -->
+        <h2 id="workflow"><span class="section-h"><span class="num">6</span> The workflow, end to end</span></h2>
+
+        <div class="diagram">1. Enter the robot's physical constants into PathPlanner.
+2. Place the start pose, matching where the robot will really be placed.
+3. Draw the path or paths.
+4. In your code, REGISTER your existing commands as named commands.
+5. Assemble paths, named commands and waits into a routine.
+6. Expose the routine through the autonomous picker in RobotContainer.
+7. Test it. On the actual floor. Repeatedly.
+8. Add vision correction where precision matters.
+</div>
+
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">Step 7 is a step, not a formality</div>
+          <div class="c-body"><p>An autonomous routine that has been run twice is not tested.</p>
+            <p>Battery voltage changes how hard the robot accelerates. Carpet condition changes how it grips.
+              Starting position varies by a few centimetres every time a human puts it down. A routine that works
+              once can fail in a way that scores zero, and you will not know which until you have run it enough
+              times to see the variation.</p></div>
+        </div>
+
+        <!-- ===================== VISION ===================== -->
+        <h2 id="vision"><span class="section-h"><span class="num">7</span> Drive approximately, correct precisely</span></h2>
+
+        <div class="diagram">Path:              drive to roughly in front of the goal
+                   (approximate, fast, covers metres)
+                          |
+                          v
+AimAtTagCommand:   close the last few degrees
+                   (precise, slow, covers degrees)
+                          |
+                          v
+ScoreSequence:     the commands you already had
+</div>
+
+        <p>The path covers three metres in two seconds and does not need precision to do it. Vision covers the last
+          few degrees, where precision is the entire point.</p>
+        <p>Doing it the other way round fails in both directions. Using vision for the long haul would be slow and
+          would require a tag in view the whole way. Using the path for the final alignment would miss.</p>
+        <p>The split goes exactly where the cost of an error starts to exceed the cost of the time it takes to
+          correct it.</p>
+
+        <!-- ===================== CHALLENGES ===================== -->
+        <h2 id="challenges"><span class="section-h"><span class="num">8</span> Practice challenges</span></h2>
+
+        <div class="challenge" data-kind="order"
+             data-win="Physical facts, then the route, then your existing commands, then the routine, and then a lot of testing."
+             data-lose="PathPlanner needs the robot's physical facts before it can compute anything, and a start pose before it can draw a route. Your named commands already exist, so you are registering rather than writing. And testing is a step, not a formality.">
+          <div class="challenge-head"><span class="ch-kind">Put in order</span><span class="ch-title">The workflow</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Drag these into the order they have to happen.</p>
+            <ul class="order-list">
+              <li class="order-item" data-pos="4"><span class="grip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h16M4 16h16"/></svg></span><span>Register your existing commands as named commands</span></li>
+              <li class="order-item" data-pos="1"><span class="grip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h16M4 16h16"/></svg></span><span>Enter the robot's weight and dimensions</span></li>
+              <li class="order-item" data-pos="6"><span class="grip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h16M4 16h16"/></svg></span><span>Expose the routine in the autonomous picker</span></li>
+              <li class="order-item" data-pos="2"><span class="grip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h16M4 16h16"/></svg></span><span>Place the start pose where the robot will really be placed</span></li>
+              <li class="order-item" data-pos="7"><span class="grip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h16M4 16h16"/></svg></span><span>Test it repeatedly on the real floor</span></li>
+              <li class="order-item" data-pos="3"><span class="grip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h16M4 16h16"/></svg></span><span>Draw the path</span></li>
+              <li class="order-item" data-pos="5"><span class="grip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h16M4 16h16"/></svg></span><span>Assemble paths, named commands and waits into a routine</span></li>
+            </ul>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">Why add vision</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Your path puts the robot in front of the goal. Why add an aiming command
+              after it?</p>
+            <div class="options">
+              <label class="option" data-explain="Collision avoidance is a separate concern, and the path was drawn to avoid obstacles in the first place."><input type="radio" name="q-vis" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The path might crash into something</span></label>
+              <label class="option" data-correct data-explain="Exactly our curriculum's own prescription: pair the path with position correction code."><input type="radio" name="q-vis" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">PathPlanner is approximate, so vision closes the last few degrees</span></label>
+              <label class="option" data-explain="Vision is slower, which is exactly why it is used only for the final correction rather than the whole route."><input type="radio" name="q-vis" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Vision is faster than driving a path</span></label>
+              <label class="option" data-explain="Nothing requires it except wanting to score reliably, which turns out to be a strong enough reason."><input type="radio" name="q-vis" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">PathPlanner requires it</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">The start pose</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">The routine is tested and perfect. At competition the robot is placed 30 cm
+              further left than usual. What happens?</p>
+            <div class="options">
+              <label class="option" data-explain="It has no idea where the robot actually is. It only knows where you told it the robot would start."><input type="radio" name="q-pose" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">PathPlanner detects it and corrects</span></label>
+              <label class="option" data-correct data-explain="Right, and it is why teams mark the floor and check placement before every single match."><input type="radio" name="q-pose" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Every movement is offset by roughly that error, and it compounds</span></label>
+              <label class="option" data-explain="They start from a stated pose. Get the pose wrong and everything after it is wrong by the same amount."><input type="radio" name="q-pose" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Nothing, paths are relative to wherever it starts</span></label>
+              <label class="option" data-explain="It moves confidently, to all the wrong places. That is what makes this failure so convincing to watch."><input type="radio" name="q-pose" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The robot refuses to move</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">Named commands</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">What is a named command?</p>
+            <div class="options">
+              <label class="option" data-explain="PathPlanner writes paths, not behaviours. It has no idea your robot has an arm."><input type="radio" name="q-nc" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A command PathPlanner writes for you</span></label>
+              <label class="option" data-correct data-explain="Yes, and it is why autonomous adds so little new code to a project that was built in the right order."><input type="radio" name="q-nc" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">One of your existing commands, registered under a name a routine can call</span></label>
+              <label class="option" data-explain="Naming a class is not the same as registering it. The registration is an explicit step you write."><input type="radio" name="q-nc" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Any command class with a name</span></label>
+              <label class="option" data-explain="Waits are a separate block with their own entry in the table."><input type="radio" name="q-nc" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A wait with a label on it</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="text"
+             data-win="Starting position and battery voltage. Both change what the same code does, and neither is visible anywhere in the code."
+             data-lose="Where the robot was placed, meaning the start pose it assumes, and the battery's voltage. Carpet condition is a good third. All three change the robot's behaviour without changing a line of code.">
+          <div class="challenge-head"><span class="ch-kind">Predict</span><span class="ch-title">It worked all week</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Autonomous fails at competition after working in the workshop all week. Name
+              the two most likely causes that are not in the code.</p>
+            <div class="answer-row">
+              <input class="answer-input" type="text" placeholder="two things" data-answer="starting position and battery|placement and battery|start pose and battery|placement and voltage|starting position and voltage|battery and placement|battery and starting position|position and battery" aria-label="Your answer" />
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <!-- ===================== MISTAKES ===================== -->
+        <h2 id="mistakes"><span class="section-h"><span class="num">9</span> Common mistakes</span></h2>
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">Watch out for these</div>
+          <div class="c-body">
+            <ul>
+              <li><strong>Expecting the robot to go exactly where you drew.</strong> It gets close, from approximate
+                physical constants, and it cannot see the carpet or the battery. Close, then correct.</li>
+              <li><strong>Writing new commands for autonomous.</strong> It reuses the commands you already wrote for
+                teleop, which is the whole reason it is built last.</li>
+              <li><strong>Believing the robot knows where it is.</strong> It knows where it <em>thinks</em> it is,
+                starting from the pose you declared. Vision is how it checks.</li>
+              <li><strong>Building autonomous while the arm is still being tuned.</strong> Auto is a sequence of
+                those commands. Until they work there is nothing to sequence.</li>
+              <li><strong>Thinking one successful run means it works.</strong> Run it ten times, on a fresh battery
+                and a flat one, from a slightly wrong starting position.</li>
+              <li><strong>Using waits to sequence steps.</strong> Use them for physical settling time. For "has the
+                previous step finished," that is what <code>isFinished()</code> is for.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- ===================== EXERCISE ===================== -->
+        <div class="exercise" id="exercise">
+          <div class="exercise-head">
+            <div class="ex-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4L12 17l-6.3 4.4L8 14 2 9.4h7.6z"/></svg></div>
+            <div>
+              <div class="ex-kicker">Build it · PenguinBot</div>
+              <h3>Design PenguinBot's autonomous</h3>
+            </div>
+          </div>
+          <div class="exercise-body">
+            <p>PenguinBot can drive field-centrically, aim at a tag, and score from one button. Every command an
+              autonomous routine needs already exists. Nothing sequences them without a human. Write the design
+              document, and the next lesson builds it.</p>
+            <ol class="task-list">
+              <li><b>Write the routine as an ordered list</b> of paths, named commands and waits, with a one-line
+                justification for each.</li>
+              <li><b>State the start pose in words</b>, where on the field and facing which way, and how the team
+                will guarantee the robot is placed there.</li>
+              <li><b>List which existing commands need registering.</b> Note how many new command classes you have
+                to write. The answer should be small, and if it is not, something earlier went wrong.</li>
+              <li><b>Mark which steps are approximate and which are precise</b>, and say why the split is where it
+                is.</li>
+              <li><b>Write the test plan.</b> What you would vary between runs, and how many runs before you trust
+                it.</li>
+            </ol>
+
+            <details class="reveal">
+              <summary><svg class="rv-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg> Reveal the solution</summary>
+              <div class="reveal-body">
+                <p><b>1. The routine</b></p>
+                <div class="tablewrap">
+                  <table class="data">
+                    <thead><tr><th>#</th><th>Block</th><th>Why</th></tr></thead>
+                    <tbody>
+                      <tr><td>1</td><td><b>Path</b>, start line to in front of the scoring position</td><td>Fast, covers most of the distance. Approximate is fine here</td></tr>
+                      <tr><td>2</td><td><b>Named command</b>, <code>aimAtTag</code></td><td>Closes the last few degrees precisely, which the path cannot</td></tr>
+                      <tr><td>3</td><td><b>Named command</b>, <code>scoreGamePiece</code></td><td>Arm up, outtake, wait, arm down. Already built and tested in teleop</td></tr>
+                      <tr><td>4</td><td><b>Wait</b>, a fraction of a second</td><td>Let the robot settle before moving off so the piece is not dragged</td></tr>
+                      <tr><td>5</td><td><b>Path</b>, scoring position to out of the way</td><td>Clears the space and positions us for teleop</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <p><b>2. Start pose.</b> On the start line at the left-hand field marking, facing the far end of the
+                  field. Guaranteed by floor tape lined up with the field's own markings, a photo in the pit as a
+                  reference, and one person whose pre-match job is to check the placement and say it out loud.</p>
+                <p>This is the same "what does zero mean" problem as homing an encoder and zeroing the gyro, and
+                  like both of those it is solved before the match rather than during it.</p>
+
+                <p><b>3. Named commands to register:</b> <code>scoreGamePiece</code> mapped to
+                  <code>ScoreSequence</code>, and <code>aimAtTag</code> mapped to <code>AimAtTagCommand</code>.</p>
+                <p><b>New command classes to write: zero.</b> Everything is already built and already tested in
+                  teleop, which is exactly what building auto last buys you.</p>
+
+                <p><b>4. Approximate versus precise.</b></p>
+                <ul>
+                  <li>Steps 1 and 5, the paths, are <b>approximate</b>. They cover metres, and being 10 cm off does
+                    not matter because step 2 will fix it.</li>
+                  <li>Step 2, vision, is <b>precise</b>. It covers a few degrees, and there 10 cm does matter.</li>
+                </ul>
+                <p>The split sits at the point where the cost of an error starts to exceed the cost of the time
+                  spent correcting it.</p>
+
+                <p><b>5. Test plan.</b> Ten runs minimum, varying deliberately.</p>
+                <ul>
+                  <li>Three on a fresh battery and three on a half-drained one, because voltage changes
+                    acceleration.</li>
+                  <li>Two from a deliberately mis-placed start, five to ten centimetres off. Does vision recover
+                    it?</li>
+                  <li>Two with the tag partially blocked. Does the validity guard do its job, or does the routine
+                    hang?</li>
+                </ul>
+                <p>Trust it when it scores in at least nine of them, <strong>and</strong> when the one failure is
+                  understood rather than shrugged at.</p>
+              </div>
+            </details>
+            <p>You have designed it. The next lesson builds the routine, watches it run step by step, and makes sure
+              a jammed mechanism cannot cost you the whole autonomous period.</p>
+          </div>
+        </div>
+
+        <!-- ===================== CHECKPOINT ===================== -->
+        <div class="checkpoint" id="checkpoint">
+          <div class="checkpoint-head">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            <h3>Checkpoint</h3>
+            <span class="cp-score">0 / 4</span>
+          </div>
+          <div class="checkpoint-body">
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q1.</span> Why is autonomous the last unit in this course?</div>
+              <div class="options">
+                <label class="option" data-explain="PathPlanner does the hard maths for you. The constraint is dependency, not difficulty."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It is the hardest</span></label>
+                <label class="option" data-correct data-explain="Yes, and this is the point our curriculum repeats more than any other."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It is a sequence of mechanism and vision commands, so those must work first</span></label>
+                <label class="option" data-explain="It is worth a great many match points, and a reliable auto is one of the clearest markers of a well-run programming team."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It is the least important</span></label>
+                <label class="option" data-explain="The game does change annually, and that is not why autonomous comes last in a course."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The rules change every year</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q2.</span> What does PathPlanner need from you before it can generate anything?</div>
+              <div class="options">
+                <label class="option" data-explain="It also needs to know what your robot is, because it is simulating your robot to work out what it can do."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Just the drawn route</span></label>
+                <label class="option" data-correct data-explain="Right, the same physical facts the swerve generator wanted, for the same reason."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The robot's physical constants, plus a start pose</span></label>
+                <label class="option" data-explain="Vision is separate. PathPlanner has no idea you have a camera."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The AprilTag IDs</span></label>
+                <label class="option" data-explain="It computes its own path-following behaviour. Your arm's gains are unrelated to it."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Your arm's PID gains</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q3.</span> What is a named command?</div>
+              <div class="options">
+                <label class="option" data-explain="Paths and named commands are two different blocks with different jobs."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A path with a label</span></label>
+                <label class="option" data-correct data-explain="Exactly, and it is why autonomous needs almost no new code."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">An existing command of yours, registered under a name</span></label>
+                <label class="option" data-explain="The same commands run in teleop. Nothing about them is mode-specific."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A command that only runs in autonomous</span></label>
+                <label class="option" data-explain="PathPlanner supplies paths and waits. The behaviours are entirely yours."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A PathPlanner built-in behaviour</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q4.</span> Why pair a path with vision correction?</div>
+              <div class="options">
+                <label class="option" data-explain="They work well over distance. That is exactly what they are for."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Paths do not work</span></label>
+                <label class="option" data-explain="Not an engineering reason, and not one you can put in a design document."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Vision is more interesting</span></label>
+                <label class="option" data-correct data-explain="Correct. Drive approximately, then correct precisely, and put the split where error starts costing more than time."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Paths are approximate and the last few degrees need precision</span></label>
+                <label class="option" data-explain="No rule requires vision. Plenty of successful robots have none."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The rules require it</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check my answers</button></div>
+          </div>
+        </div>
+
+        <!-- ===================== COMPLETE ===================== -->
+        <div class="mark-complete">
+          <div class="mc-text"><b>You can design an autonomous routine.</b><span>Next: building it, and making sure one jammed mechanism cannot cost you the whole period.</span></div>
+          <button class="complete-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>Mark as complete</span></button>
+        </div>
+
+      </div><!-- /prose -->
+    </div><!-- /content-inner -->
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="/assets/js/course.js"></script>
+  <script src="/assets/js/site.js"></script>
+  <script src="/assets/js/widgets.js"></script>
+</body>
+</html>

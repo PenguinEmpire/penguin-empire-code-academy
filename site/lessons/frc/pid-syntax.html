@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PIDController in Code · Penguin Empire 2551</title>
+  <meta name="description" content="WPILib's PIDController class: the constructor, calculate(measurement, setpoint), setTolerance and atSetpoint, reset, and the argument swap that silently drives your mechanism the wrong way." />
+  <link rel="icon" href="/assets/img/logo-2551.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Aldrich&family=Russo+One&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/brand.css" />
+  <link rel="stylesheet" href="/assets/css/layout.css" />
+  <link rel="stylesheet" href="/assets/css/lesson.css" />
+</head>
+<body data-page="lesson" data-lesson="frc-pid-syntax">
+  <main id="main" class="content">
+    <div class="content-inner">
+
+      <!-- ===================== HEADER ===================== -->
+      <header class="lesson-hero">
+        <nav class="crumbs" aria-label="Breadcrumb">
+          <a href="/">Home</a><span class="sep">/</span>
+          <a href="/syllabus.html">Phase 2 · FRC</a><span class="sep">/</span>
+          <span>Unit 6 · Closed-Loop Control</span>
+        </nav>
+        <span class="badge badge--ocean">Unit 6</span>
+        <h1 class="lesson-title">PIDController in Code</h1>
+        <p class="lesson-lede">You already wrote a working controller by hand. This lesson swaps it for the class
+          every other FRC programmer uses, so you can read their code and they can read yours.</p>
+        <div class="lesson-meta">
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg> 25 min</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h2v-4H3zM9 20h2V10H9zM15 20h2V4h-2z"/></svg> Intermediate</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2zM18 3v16"/></svg> Needs: The Tuning Recipe</span>
+        </div>
+      </header>
+
+      <!-- ===================== GOAL ===================== -->
+      <div class="goal">
+        <div class="goal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div>
+        <div>
+          <h2>Your goal</h2>
+          <p>Replace a hand-written P controller with WPILib's <code>PIDController</code>, and use
+            <code>atSetpoint()</code> to know when the mechanism has arrived.</p>
+        </div>
+      </div>
+
+      <nav class="toc" aria-label="On this page">
+        <strong>On this page</strong>
+        <ol>
+          <li><a href="#why">Why this matters</a></li>
+          <li><a href="#worth">What the class gives you</a></li>
+          <li><a href="#syntax">The verified syntax</a></li>
+          <li><a href="#order">The argument order trap</a></li>
+          <li><a href="#tolerance">Tolerance and atSetpoint</a></li>
+          <li><a href="#reset">reset and stale state</a></li>
+          <li><a href="#where">Where the controller lives</a></li>
+          <li><a href="#run">Run it, then break it on purpose</a></li>
+          <li><a href="#challenges">Practice challenges</a></li>
+          <li><a href="#mistakes">Common mistakes</a></li>
+          <li><a href="#exercise">Project: The arm goes closed-loop for real</a></li>
+          <li><a href="#checkpoint">Checkpoint</a></li>
+        </ol>
+      </nav>
+
+      <div class="prose">
+
+        <!-- ===================== WHY ===================== -->
+        <h2 id="why"><span class="section-h"><span class="num">1</span> Why this matters</span></h2>
+
+        <div class="callout callout--why">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></div>
+          <div class="c-title">The technique this team dropped, and why</div>
+          <div class="c-body">
+            <p>Motion profiling is a more sophisticated way of moving a mechanism. Instead of reacting to the error
+              you plan a smooth speed curve in advance and follow it. It is a real improvement for large moves.</p>
+            <p>This team tried it and stopped using it. Not because it was too hard, and not because it did not
+              work. They stopped because <strong>the syntax changed between seasons</strong> and keeping up with a
+              moving API cost more time than the technique returned.</p>
+            <p>That is a useful thing to hear early, because it frames what is worth learning.
+              <code>PIDController</code> is worth learning because it is small, it is stable across seasons, and it
+              is used on nearly every FRC robot. You will type <code>new PIDController(kP, kI, kD)</code> for years.
+              Motion profiling you can look up in the season you actually need it.</p>
+          </div>
+        </div>
+
+        <!-- ===================== WORTH ===================== -->
+        <h2 id="worth"><span class="section-h"><span class="num">2</span> What the class gives you</span></h2>
+        <p>You wrote a working P controller in four lines last lesson. The honest first question is why bother with
+          a class at all.</p>
+
+        <div class="tablewrap">
+          <table class="data">
+            <thead><tr><th>Your hand-written version</th><th><code>PIDController</code></th></tr></thead>
+            <tbody>
+              <tr><td><code>kP * error</code>, and nothing else</td><td>All three terms, correctly scaled by time</td></tr>
+              <tr><td>You track previous error yourself</td><td>It tracks previous error and the running integral</td></tr>
+              <tr><td>You compare against a tolerance by hand</td><td><code>setTolerance()</code> and <code>atSetpoint()</code></td></tr>
+              <tr><td>Stale values if you reuse it</td><td><code>reset()</code></td></tr>
+              <tr><td>Only you can read it</td><td>Every FRC programmer recognises it instantly</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>Be clear about the honest answer: <strong>for a P-only controller your four lines are genuinely
+          fine.</strong> The class earns its place the moment you want I, or D, or tolerance checking, or a teammate
+          who can read what you wrote. On this team that is all four, so use the class.</p>
+
+        <!-- ===================== SYNTAX ===================== -->
+        <h2 id="syntax"><span class="section-h"><span class="num">3</span> The verified syntax</span></h2>
+
+        <div class="callout callout--verified">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4 12 14.01l-3-3"/></svg></div>
+          <div class="c-title">Verified syntax · WPILib</div>
+          <div class="c-body">
+            <div class="code with-lines">
+              <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Arm.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">import edu.wpi.first.math.controller.PIDController;
+
+// Three doubles, in this order: kP, kI, kD
+PIDController pid = new PIDController(0.05, 0.0, 0.0);
+
+double current = motor.getEncoder().getPosition();
+double output  = pid.calculate(current, 50.0);   // (measurement, setpoint)
+motor.set(output);                               // a percent output, same as Unit 4</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <p>Four things to notice.</p>
+        <ul>
+          <li><b>The constructor takes three doubles</b> in the order <code>kP</code>, <code>kI</code>,
+            <code>kD</code>. There are no names attached, only positions. Get the order wrong and it compiles
+            perfectly and behaves strangely.</li>
+          <li><b><code>calculate</code> takes the measurement first and the setpoint second.</b> Section 4 is about
+            what happens when you get that backwards, because it is the most common mistake on this page.</li>
+          <li><b>The output goes straight into <code>set()</code>.</b> This is where Units 4, 5 and 6 join up.
+            Encoder reading in, percent output out.</li>
+          <li><b>It still returns numbers outside the motor's range.</b> Adopting the class does not remove your
+            clamp.</li>
+        </ul>
+
+        <p>Here is the same thing with PenguinBot's real numbers and the clamp Unit 6 has drilled into you.</p>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Arm.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">import edu.wpi.first.math.controller.PIDController;
+
+// One controller, created once, tuned in the previous lesson.
+private final PIDController armPid = new PIDController(0.2, 0.0, 0.0);
+
+public void moveToward(double setpoint) {
+    double output = armPid.calculate(getPosition(), setpoint);
+    setSpeed(output);      // setSpeed clamps to 0.8. The controller will not.
+}</code></pre>
+        </div>
+
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">The class has never heard of the 80 percent rule</div>
+          <div class="c-body"><p>With <code>kP = 0.2</code> and the arm stowed at 0.0 rotations, the error is 9.0
+            and <code>calculate</code> returns <strong>1.8</strong>. That is 180 percent output. WPILib will not warn
+            you, because from its point of view it did the arithmetic you asked for.</p>
+            <p>Your clamp is still mandatory, on every closed loop, forever. Nothing about adopting the class moves
+              that responsibility off you.</p></div>
+        </div>
+
+        <!-- ===================== ORDER ===================== -->
+        <h2 id="order"><span class="section-h"><span class="num">4</span> The argument order trap</span></h2>
+        <p><code>calculate(measurement, setpoint)</code>. Measurement first. Target second.</p>
+        <p>Both arguments are <code>double</code>, so swapping them compiles without a warning. What it does is flip
+          the sign of the error, which flips the sign of every output, which means the controller drives the
+          mechanism <strong>away</strong> from the target. And because the mechanism is moving away, the error grows,
+          so the output grows, so it never turns around.</p>
+        <p>You will run this in the sandbox in section 8. The arm ends up at minus 178 with the motor still pinned at
+          full reverse.</p>
+
+        <!-- ===================== TOLERANCE ===================== -->
+        <h2 id="tolerance"><span class="section-h"><span class="num">5</span> Tolerance and atSetpoint</span></h2>
+        <p>Two calls turn "how far off am I" into a yes or no answer.</p>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Arm.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">pid.setTolerance(0.25);        // rotations. what counts as arrived
+
+double output = pid.calculate(getPosition(), 9.0);
+
+if (pid.atSetpoint()) {        // true when the last calculate saw an error inside 0.25
+    // we are there
+}</code></pre>
+        </div>
+
+        <div class="callout callout--season">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
+          <div class="c-title">Verify for current season</div>
+          <div class="c-body"><p><code>setTolerance</code>, <code>atSetpoint</code> and <code>reset</code> are not in
+            our curriculum's verified syntax boxes, which only cover the constructor and
+            <code>calculate</code>. They are long-standing parts of the WPILib class and PenguinSim provides them,
+            but check the current WPILib documentation for their exact signatures before you rely on them. The
+            three-argument constructor and <code>calculate(measurement, setpoint)</code> you can treat as
+            verified.</p></div>
+        </div>
+
+        <div class="callout callout--tip">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12c.7.7 1 1.4 1 2h6c0-.6.3-1.3 1-2a7 7 0 0 0-4-12z"/></svg></div>
+          <div class="c-title">Remember this call, because Unit 7 needs it</div>
+          <div class="c-body"><p><code>atSetpoint()</code> is going to become a command's <code>isFinished()</code>,
+            unchanged, in the very next unit. Every mechanism that has to finish before the next step can begin uses
+            exactly this call. It is the most important method on the page.</p></div>
+        </div>
+
+        <p>One honest caveat. <code>atSetpoint()</code> reports on the most recent <code>calculate()</code> call. Ask
+          it without having called <code>calculate()</code> this cycle and you get a stale answer. It also does not
+          mean the mechanism has <em>stopped</em>. An arm travelling fast can be inside tolerance for one cycle on
+          its way straight past.</p>
+
+        <!-- ===================== RESET ===================== -->
+        <h2 id="reset"><span class="section-h"><span class="num">6</span> reset and stale state</span></h2>
+        <p>A <code>PIDController</code> remembers things between calls. It keeps the accumulated integral and the
+          previous error, because it needs both to compute I and D.</p>
+        <p>That memory is a problem when you reuse the controller. Suppose you send the arm up, interrupt it halfway,
+          and send it up again ten seconds later. The leftover integral from the first attempt is still sitting in
+          the object, and the first output of the second attempt jumps for no reason you can see in the code.</p>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Arm.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">// Call this once when a move BEGINS, not every cycle.
+public void startMove() {
+    pid.reset();      // clears the accumulated integral and the previous error
+}</code></pre>
+        </div>
+
+        <p>The rule is short: <strong>reset the controller when a behaviour starts.</strong> In Unit 7 "when a
+          behaviour starts" gets a proper name, and it is <code>initialize()</code>.</p>
+
+        <!-- ===================== WHERE ===================== -->
+        <h2 id="where"><span class="section-h"><span class="num">7</span> Where the controller lives</span></h2>
+        <p>One <code>PIDController</code> per mechanism, created once, stored in a field.</p>
+
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">Never construct one inside a method that runs every cycle</div>
+          <div class="c-body">
+            <div class="code with-lines">
+              <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">wrong</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">public void moveToward(double setpoint) {
+    PIDController pid = new PIDController(0.2, 0.0, 0.0);   // WRONG
+    setSpeed(pid.calculate(getPosition(), setpoint));
+}</code></pre>
+            </div>
+            <p style="margin-top:12px">That is a brand new controller fifty times a second, each one with no memory
+              of the one before it. The integral never accumulates, so I does nothing. There is no previous error, so
+              D does nothing. <code>atSetpoint()</code> is answering about a controller that was born this cycle.</p>
+            <p>Nothing errors. Nothing warns. It compiles, it runs, and a P-only controller works well enough that
+              you may not notice for weeks. Then you add a D term to fix an oscillation and it changes nothing, and
+              you have no idea why.</p>
+          </div>
+        </div>
+
+        <!-- ===================== RUN ===================== -->
+        <h2 id="run"><span class="section-h"><span class="num">8</span> Run it, then break it on purpose</span></h2>
+
+        <div class="callout callout--note">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg></div>
+          <div class="c-title">Sim units again</div>
+          <div class="c-body"><p>PenguinSim works in degrees, so the sandbox targets 50.0 with a gain of 0.02 and a
+            tolerance of 1.0. PenguinBot's real arm targets 9.0 rotations with a gain of 0.2 and a tolerance of 0.25,
+            which is what every real-robot block on this page shows. The API is identical either way.</p></div>
+        </div>
+
+        <div class="sandbox" data-compiler data-sim data-title="PIDController">
+          <script type="text/x-java" class="sb-src">
+// Real robot code would start with:
+//   import edu.wpi.first.math.controller.PIDController;
+//   import com.revrobotics.spark.SparkMax;
+//   import com.revrobotics.spark.SparkLowLevel.MotorType;
+
+public class Main {
+    public static void main(String[] args) {
+        final double TARGET  = 50.0;   // the arm's scoring setpoint
+        final double MAX_OUT = 0.8;    // the 80 percent rule. the controller does NOT know it
+
+        SparkMax arm = new SparkMax(3, MotorType.kBrushless);
+
+        PIDController pid = new PIDController(0.02, 0.0, 0.0);   // kP, kI, kD  <-- CHANGE ME
+        pid.setTolerance(1.0);
+
+        for (int tick = 1; tick <= 120; tick++) {
+            double position = arm.getEncoder().getPosition();
+            double raw      = pid.calculate(position, TARGET);       // (measurement, setpoint)
+            double output   = Math.max(-MAX_OUT, Math.min(MAX_OUT, raw));
+            arm.set(output);
+
+            PenguinSim.step();
+
+            if (tick <= 3 || tick % 15 == 0) {
+                System.out.printf("tick %3d   pos %6.2f   raw %6.2f   out %5.2f   atSetpoint %b%n",
+                                  tick, position, raw, output, pid.atSetpoint());
+            }
+            if (pid.atSetpoint()) {
+                arm.set(0);
+                System.out.println("arrived at tick " + tick + ", stopping");
+                break;
+            }
+        }
+    }
+}
+          </script>
+        </div>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code>[sim] SparkMax on CAN ID 3 (kBrushless) is alive.
+tick   1   pos   0.00   raw   1.00   out  0.80   atSetpoint false
+tick   2   pos   0.19   raw   1.00   out  0.80   atSetpoint false
+tick   3   pos   0.55   raw   0.99   out  0.80   atSetpoint false
+tick  15   pos  12.62   raw   0.75   out  0.75   atSetpoint false
+tick  30   pos  31.49   raw   0.37   out  0.37   atSetpoint false
+tick  45   pos  42.91   raw   0.14   out  0.14   atSetpoint false
+tick  60   pos  47.90   raw   0.04   out  0.04   atSetpoint false
+arrived at tick 68, stopping</code></pre>
+        </div>
+
+        <p>Read the <code>raw</code> and <code>out</code> columns together. On tick 1 the controller asks for 1.00
+          and the clamp cuts it to 0.80. By tick 15 the controller is asking for 0.75, which is under the limit, so
+          the two columns agree from there on. That is the clamp doing its job and then getting out of the way.</p>
+
+        <h3>Experiment 1 · swap the arguments</h3>
+        <p>Change <code>pid.calculate(position, TARGET)</code> to <code>pid.calculate(TARGET, position)</code>. It
+          compiles.</p>
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code>tick   1   pos   0.00   raw  -1.00   out -0.80   atSetpoint false
+tick  30   pos -34.95   raw  -1.70   out -0.80   atSetpoint false
+tick  60   pos -82.67   raw  -2.65   out -0.80   atSetpoint false
+tick  90   pos -130.67   raw  -3.61   out -0.80   atSetpoint false
+tick 120   pos -178.67   raw  -4.57   out -0.80   atSetpoint false</code></pre>
+        </div>
+        <p>The arm runs the wrong way and never comes back. Worse, look at the <code>raw</code> column: it is
+          <em>growing</em>. The further the arm gets from the target the harder the controller pushes it away, so
+          there is no point at which this recovers. On a real robot this is a mechanism driving into its hard stop at
+          full power and staying there.</p>
+
+        <h3>Experiment 2 · use an untuned gain</h3>
+        <p>Set the gain to <code>0.005</code>. The loop runs all 120 ticks, <code>atSetpoint</code> stays false the
+          whole time, and the "arrived" line never prints. The class does not rescue a bad number. It only does the
+          arithmetic.</p>
+
+        <h3>Experiment 3 · delete the clamp</h3>
+        <p>Replace <code>output</code> with <code>raw</code> in the call to <code>arm.set()</code>. At this gain the
+          simulator immediately reports being commanded outside the legal range, and the fried-motor warning from
+          Unit 4 fires.</p>
+
+        <!-- ===================== CHALLENGES ===================== -->
+        <h2 id="challenges"><span class="section-h"><span class="num">9</span> Practice challenges</span></h2>
+
+        <div class="challenge" data-kind="fib"
+             data-win="Tuned gain, calculate, and PenguinBot's scoring setpoint. That is the whole API you need this season."
+             data-lose="The gain is the 0.2 you tuned last lesson. The method is calculate, and its arguments are measurement first, setpoint second, which is 9.0 rotations for the arm.">
+          <div class="challenge-head"><span class="ch-kind">Fill in the blanks</span><span class="ch-title">The verified syntax</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Complete PenguinBot's arm controller.</p>
+<pre class="fib">PIDController pid = new PIDController(<span class="blank" data-answer="0.2|0.20"></span>, 0.0, 0.0);
+double output = pid.<span class="blank" data-answer="calculate"></span>(arm.getPosition(), <span class="blank" data-answer="9.0|9|9.00"></span>);</pre>
+            <div class="challenge-actions">
+              <button class="btn btn--sm check-btn" type="button">Check</button>
+              <button class="btn btn--sm btn--ghost reset-btn" type="button">Reset</button>
+            </div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="text"
+             data-win="The wrong way, and it never turns around. Swapping the arguments flips the sign of every output, and because the arm is now moving away from the target the error grows, so the output grows too."
+             data-lose="The wrong way. calculate works out setpoint minus measurement, so swapping the two flips the sign of every output. It compiles perfectly, which is what makes it nasty.">
+          <div class="challenge-head"><span class="ch-kind">Predict</span><span class="ch-title">Swapped arguments</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">You write <code>pid.calculate(TARGET, position)</code> by mistake. The arm
+              starts at 0.0 and the target is above it. Which way does the arm move?</p>
+            <div class="answer-row">
+              <input class="answer-input" type="text" placeholder="which way?" data-answer="down|the wrong way|backwards|backward|negative|wrong direction|away|away from the target|wrong way" aria-label="Your answer" />
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">What comes back</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">PenguinBot's arm is stowed at 0.0 rotations, the setpoint is 9.0, and the
+              gain is 0.2. What does <code>calculate</code> return on the first call?</p>
+            <div class="options">
+              <label class="option" data-explain="That is what your clamp produces afterwards. The controller returned something bigger and your code cut it down."><input type="radio" name="q-raw" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">0.8</span></label>
+              <label class="option" data-explain="PIDController does not clamp to the motor's range at all. It has no idea a motor is involved."><input type="radio" name="q-raw" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">1.0</span></label>
+              <label class="option" data-correct data-explain="Yes. 0.2 times 9.0. The controller has no idea what a motor can accept, which is exactly why you clamp."><input type="radio" name="q-raw" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">1.8</span></label>
+              <label class="option" data-explain="That is the error, before the gain is applied to it."><input type="radio" name="q-raw" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">9.0</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">Where does it live</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Where should the <code>PIDController</code> object be created?</p>
+            <div class="options">
+              <label class="option" data-explain="Then it is brand new every cycle with no memory. I and D silently stop working and atSetpoint reports on a controller that was born this cycle."><input type="radio" name="q-live" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Inside the method that runs every 20 ms</span></label>
+              <label class="option" data-correct data-explain="Correct. One controller per mechanism, constructed once, owned by the class that owns the mechanism."><input type="radio" name="q-live" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">As a field, created once</span></label>
+              <label class="option" data-explain="The class that owns the mechanism owns its controller. Handing it out means anyone can call calculate and corrupt the state."><input type="radio" name="q-live" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Somewhere central, shared between mechanisms</span></label>
+              <label class="option" data-explain="The gains can live in a constants file. The controller object holds live state, which is behaviour, and behaviour belongs with the mechanism."><input type="radio" name="q-live" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">In a constants file with the gains</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">Why reset</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Why call <code>reset()</code> when an arm move starts?</p>
+            <div class="options">
+              <label class="option" data-explain="That is setPosition on the encoder, a completely different thing. reset does not touch the sensor."><input type="radio" name="q-reset" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">To zero the encoder</span></label>
+              <label class="option" data-correct data-explain="Yes. Stale integral and previous error from an earlier run make the first output of the new run jump for no visible reason."><input type="radio" name="q-reset" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">To clear accumulated state from a previous run</span></label>
+              <label class="option" data-explain="The setpoint is an argument to calculate. reset does not set it."><input type="radio" name="q-reset" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">To set the setpoint</span></label>
+              <label class="option" data-explain="Nothing requires it. It is a correctness habit, and the symptom of skipping it is a first cycle that behaves oddly and then settles down."><input type="radio" name="q-reset" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">WPILib requires it before every move</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <!-- ===================== MISTAKES ===================== -->
+        <h2 id="mistakes"><span class="section-h"><span class="num">10</span> Common mistakes</span></h2>
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">Watch out for these</div>
+          <div class="c-body">
+            <ul>
+              <li><strong>Thinking the controller moves the motor.</strong> It returns a number. You still call
+                <code>set()</code>, and you still clamp first.</li>
+              <li><strong>Putting the setpoint first.</strong> Measurement first, setpoint second. It compiles either
+                way and only one of them works.</li>
+              <li><strong>Expecting the class to replace tuning.</strong> It does the arithmetic. The numbers are
+                still yours and they still describe your mechanism.</li>
+              <li><strong>Constructing a controller every cycle.</strong> That throws away exactly the state that
+                makes I, D and <code>atSetpoint()</code> work, and nothing warns you.</li>
+              <li><strong>Reading <code>atSetpoint()</code> as "the mechanism has stopped."</strong> It means the
+                last <code>calculate()</code> saw a small error. A fast arm can be inside tolerance while sailing
+                straight through.</li>
+              <li><strong>Getting the constructor order wrong.</strong> <code>kP</code>, <code>kI</code>,
+                <code>kD</code>. Putting a gain in the I slot that belonged in the P slot gives you a mechanism that
+                winds up and takes off.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- ===================== EXERCISE ===================== -->
+        <div class="exercise" id="exercise">
+          <div class="exercise-head">
+            <div class="ex-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4L12 17l-6.3 4.4L8 14 2 9.4h7.6z"/></svg></div>
+            <div>
+              <div class="ex-kicker">Build it · PenguinBot</div>
+              <h3>The arm goes closed-loop for real</h3>
+            </div>
+          </div>
+          <div class="exercise-body">
+            <p>Your <code>Arm</code> has a hand-written controller, a tuned gain, a homing routine and an
+              <code>atSetpoint</code> helper you wrote yourself. Rewrite it to use <code>PIDController</code>.</p>
+            <ol class="task-list">
+              <li><b>One controller field</b> with the tuned gain, and <code>setTolerance</code> in the
+                constructor.</li>
+              <li><b><code>moveToward(double setpoint)</code></b>: calculate, clamp, set. Still one cycle.</li>
+              <li><b><code>goToScore()</code> and <code>goToStowed()</code></b> as wrappers over it.</li>
+              <li><b><code>atSetpoint()</code></b> delegating to the controller instead of doing the arithmetic
+                yourself.</li>
+              <li><b><code>startMove()</code></b> calling <code>reset()</code>.</li>
+              <li><b>Keep the <code>isHomed()</code> guard.</b></li>
+              <li><b>Bonus.</b> Add a follower motor on CAN ID 4 that mirrors the pivot, so the arm has two motors.
+                Notice how much of the controller code has to change.</li>
+            </ol>
+
+            <div class="sandbox" data-compiler data-sim data-title="Your turn: Arm with PIDController">
+              <script type="text/x-java" class="sb-src">
+// On a real robot:
+//   import com.revrobotics.spark.SparkMax;
+//   import com.revrobotics.spark.SparkLowLevel.MotorType;
+//   import edu.wpi.first.math.controller.PIDController;
+
+public class Main {
+
+    static class Arm {
+        private final SparkMax pivot = new SparkMax(3, MotorType.kBrushless);
+        // bonus: a follower on CAN ID 4
+
+        public  static final double SCORE_POSITION  = 50.0;
+        public  static final double STOWED_POSITION = 0.0;
+        private static final double TOLERANCE       = 1.0;
+        private static final double MAX_OUTPUT      = 0.8;
+
+        private boolean homed = false;
+
+        // 1) one PIDController field, gain 0.02, and setTolerance in the constructor
+
+
+        public double getPosition() { return pivot.getEncoder().getPosition(); }
+        public boolean isHomed()    { return homed; }
+
+        public void home() {
+            pivot.getEncoder().setPosition(0.0);
+            homed = true;
+        }
+
+        // 2) setSpeed that clamps, and stop()
+
+
+        // 3) startMove() -- reset the controller
+
+
+        // 4) moveToward(double) -- calculate, clamp, set. refuse if not homed
+
+
+        // 5) atSetpoint() -- delegate to the controller
+
+
+        // 6) goToScore() and goToStowed()
+
+
+    }
+
+    public static void main(String[] args) {
+        Arm arm = new Arm();
+        arm.home();
+
+        arm.startMove();
+        System.out.println("Raising to score:");
+        for (int tick = 1; tick <= 150; tick++) {
+            arm.goToScore();
+            PenguinSim.step();
+            if (tick % 30 == 0) System.out.printf("  tick %3d   pos %6.2f   atSetpoint %b%n",
+                                                 tick, arm.getPosition(), arm.atSetpoint());
+            if (arm.atSetpoint()) { arm.stop();
+                System.out.println("  arrived at tick " + tick); break; }
+        }
+
+        arm.startMove();
+        System.out.println("Stowing:");
+        for (int tick = 1; tick <= 150; tick++) {
+            arm.goToStowed();
+            PenguinSim.step();
+            if (tick % 30 == 0) System.out.printf("  tick %3d   pos %6.2f   atSetpoint %b%n",
+                                                 tick, arm.getPosition(), arm.atSetpoint());
+            if (arm.atSetpoint()) { arm.stop();
+                System.out.println("  arrived at tick " + tick); break; }
+        }
+    }
+}
+              </script>
+            </div>
+
+            <p>Working code prints this:</p>
+            <div class="code">
+              <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code>[sim] SparkMax on CAN ID 3 (kBrushless) is alive.
+[sim] SparkMax on CAN ID 4 (kBrushless) is alive.
+Raising to score:
+  tick  30   pos  32.51   atSetpoint false
+  tick  60   pos  48.09   atSetpoint false
+  arrived at tick 68
+Stowing:
+  tick  30   pos  17.45   atSetpoint false
+  tick  60   pos   1.92   atSetpoint false
+  arrived at tick 68</code></pre>
+            </div>
+            <p>Both moves take 68 cycles, which is what you would expect from a controller that only knows about the
+              size of the error and not about which direction it is going.</p>
+
+            <details class="reveal">
+              <summary><svg class="rv-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg> Reveal the solution</summary>
+              <div class="reveal-body">
+                <p>Real-robot version, with real imports and PenguinBot's numbers in rotations.</p>
+                <div class="code with-lines">
+                  <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Arm.java · solution</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import edu.wpi.first.math.controller.PIDController;
+
+public class Arm {
+    private final SparkMax pivot    = new SparkMax(3, MotorType.kBrushless);
+    private final SparkMax follower = new SparkMax(4, MotorType.kBrushless);   // bonus
+
+    public  static final double SCORE_POSITION  = 9.0;    // rotations
+    public  static final double STOWED_POSITION = 0.0;
+    private static final double TOLERANCE       = 0.25;
+    private static final double MAX_OUTPUT      = 0.8;    // the team's 80 percent rule
+
+    // One controller, created once. Tuned in the previous lesson.
+    private final PIDController pid = new PIDController(0.2, 0.0, 0.0);
+
+    private boolean homed = false;
+
+    public Arm() {
+        pid.setTolerance(TOLERANCE);
+    }
+
+    public double getPosition() { return pivot.getEncoder().getPosition(); }
+    public boolean isHomed()    { return homed; }
+    public boolean atSetpoint() { return pid.atSetpoint(); }
+
+    public void home() {
+        pivot.getEncoder().setPosition(0.0);
+        homed = true;
+    }
+
+    public void setSpeed(double speed) {
+        double safe = Math.max(-MAX_OUTPUT, Math.min(MAX_OUTPUT, speed));
+        pivot.set(safe);
+        follower.set(safe);      // bonus: two motors, one method
+    }
+
+    public void stop() {
+        pivot.set(0);
+        follower.set(0);
+    }
+
+    // Call once when a move BEGINS. Clears stale integral and previous error.
+    public void startMove() {
+        pid.reset();
+    }
+
+    // Call EVERY 20 ms while the arm should be holding a setpoint.
+    public void moveToward(double setpoint) {
+        if (!homed) { stop(); return; }
+        double output = pid.calculate(getPosition(), setpoint);   // measurement, setpoint
+        setSpeed(output);                                          // setSpeed clamps
+    }
+
+    public void goToScore()  { moveToward(SCORE_POSITION);  }
+    public void goToStowed() { moveToward(STOWED_POSITION); }
+}</code></pre>
+                </div>
+                <p>Put that next to the hand-written version from two lessons ago. Almost nothing changed. That is
+                  the point. The class is a small convenience over arithmetic you already understand, which is
+                  precisely why you wrote it by hand first.</p>
+                <ul>
+                  <li><code>setSpeed</code> still clamps. Adopting the class did not remove the 80 percent rule, and
+                    keeping the clamp inside <code>setSpeed</code> means the bonus follower is protected too.</li>
+                  <li>The bonus is one line. Nothing outside <code>Arm</code> knows the arm gained a motor, and the
+                    controller did not change at all. That is the ownership rule from Unit 3 paying rent.</li>
+                </ul>
+
+                <div class="callout callout--tip">
+                  <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12c.7.7 1 1.4 1 2h6c0-.6.3-1.3 1-2a7 7 0 0 0-4-12z"/></svg></div>
+                  <div class="c-title">Look at the shape of what you just wrote</div>
+                  <div class="c-body">
+                    <ul>
+                      <li><code>startMove()</code>, which runs once at the beginning.</li>
+                      <li><code>moveToward()</code>, which runs every cycle.</li>
+                      <li><code>atSetpoint()</code>, which answers whether you are done.</li>
+                    </ul>
+                    <p>That is <code>initialize()</code>, <code>execute()</code> and <code>isFinished()</code>. You
+                      have now written a Command by hand, twice, without knowing it had a name. Unit 7 gives it
+                      one.</p>
+                  </div>
+                </div>
+              </div>
+            </details>
+            <p>Unit 6 is finished and PenguinBot's arm arrives where you tell it. But something has to call
+              <code>moveToward()</code> every 20 milliseconds, and something has to notice when it is finished so the
+              next step can start. Nothing in your code does either yet. That is Unit 7.</p>
+          </div>
+        </div>
+
+        <!-- ===================== CHECKPOINT ===================== -->
+        <div class="checkpoint" id="checkpoint">
+          <div class="checkpoint-head">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            <h3>Checkpoint</h3>
+            <span class="cp-score">0 / 5</span>
+          </div>
+          <div class="checkpoint-body">
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q1.</span> What order does the <code>PIDController</code> constructor take its arguments?</div>
+              <div class="options">
+                <label class="option" data-explain="Reversed. It compiles and gives you a controller with the D gain doing P's job."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">kD, kI, kP</span></label>
+                <label class="option" data-correct data-explain="Yes, and getting it wrong is silent. There is no error, only strange behaviour."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">kP, kI, kD</span></label>
+                <label class="option" data-explain="None of those are constructor arguments. The setpoint goes to calculate and the tolerance goes to setTolerance."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">setpoint, tolerance, gain</span></label>
+                <label class="option" data-explain="They are three positional doubles with no names attached, so order is the only thing distinguishing them."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It does not matter, they are named</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q2.</span> What does <code>calculate(current, setpoint)</code> return?</div>
+              <div class="options">
+                <label class="option" data-explain="It does not move anything and it does not predict a position. It returns a command for the motor."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The new position</span></label>
+                <label class="option" data-explain="The error is an input to the calculation, not its result. You can get it separately with getPositionError."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The error</span></label>
+                <label class="option" data-correct data-explain="Correct, and it may well be outside the range a motor accepts, which is why you clamp it before passing it on."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A percent output to feed into <code>motor.set()</code></span></label>
+                <label class="option" data-explain="That is atSetpoint, which is a separate call and returns a boolean."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Whether you have arrived</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q3.</span> You accidentally write <code>calculate(setpoint, measurement)</code>. What happens?</div>
+              <div class="options">
+                <label class="option" data-explain="Both arguments are doubles, so the compiler has no way to tell them apart. This is exactly why the mistake is dangerous."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It fails to compile</span></label>
+                <label class="option" data-explain="Nothing throws. The mechanism moves, confidently, in the wrong direction."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It throws an exception at runtime</span></label>
+                <label class="option" data-correct data-explain="Right, and it gets worse over time. As the mechanism moves further away the error grows, so the wrong-way output grows too."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It compiles and drives the mechanism away from the target</span></label>
+                <label class="option" data-explain="Only if the measurement and the setpoint happen to be equal, which is the one case where the bug is invisible."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Nothing, the arithmetic is symmetric</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q4.</span> Why create the <code>PIDController</code> once as a field?</div>
+              <div class="options">
+                <label class="option" data-explain="Object creation is not the concern here. The concern is what gets thrown away with the old object."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Constructing objects is slow</span></label>
+                <label class="option" data-correct data-explain="Right, and nothing errors. It quietly behaves like a P-only controller with an unreliable arrival check."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A controller created each cycle has no memory, so I, D and <code>atSetpoint()</code> stop working</span></label>
+                <label class="option" data-explain="It is legal and compiles fine. The language will not stop you, which is what makes it a real hazard."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">WPILib forbids it</span></label>
+                <label class="option" data-explain="Gains can live in a constants file. The controller itself holds live state and belongs with the mechanism."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It has to live in a constants file</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q5.</span> Why did this team stop using motion profiling?</div>
+              <div class="options">
+                <label class="option" data-explain="It works, and plenty of teams use it successfully."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It did not work</span></label>
+                <label class="option" data-explain="That was not the stated reason. The reason was about maintenance cost, not ability."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It was too advanced for students</span></label>
+                <label class="option" data-correct data-explain="Exactly. That is a real engineering trade-off about maintenance cost, and it is why this course teaches the small stable class instead."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The syntax changed between seasons and keeping up cost more than it returned</span></label>
+                <label class="option" data-explain="It is purely software. No extra hardware is involved."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It requires extra hardware</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check my answers</button></div>
+          </div>
+        </div>
+
+        <!-- ===================== COMPLETE ===================== -->
+        <div class="mark-complete">
+          <div class="mc-text"><b>Unit 6 done. The arm arrives where you tell it.</b><span>Next: the thing that calls your code every 20 ms and notices when it is finished.</span></div>
+          <button class="complete-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>Mark as complete</span></button>
+        </div>
+
+      </div><!-- /prose -->
+    </div><!-- /content-inner -->
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="/assets/js/course.js"></script>
+  <script src="/assets/js/site.js"></script>
+  <script src="/assets/js/widgets.js"></script>
+</body>
+</html>

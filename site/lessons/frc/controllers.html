@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Controllers, Ports &amp; the Driver Station · Penguin Empire 2551</title>
+  <meta name="description" content="PS5Controller versus CommandPS5Controller, what a port number really refers to, the four trigger conditions, and why cross() is not x()." />
+  <link rel="icon" href="/assets/img/logo-2551.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Aldrich&family=Russo+One&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/brand.css" />
+  <link rel="stylesheet" href="/assets/css/layout.css" />
+  <link rel="stylesheet" href="/assets/css/lesson.css" />
+</head>
+<body data-page="lesson" data-lesson="frc-controllers">
+  <main id="main" class="content">
+    <div class="content-inner">
+
+      <!-- ===================== HEADER ===================== -->
+      <header class="lesson-hero">
+        <nav class="crumbs" aria-label="Breadcrumb">
+          <a href="/">Home</a><span class="sep">/</span>
+          <a href="/syllabus.html">Phase 2 · FRC</a><span class="sep">/</span>
+          <span>Unit 8 · Wiring It Together</span>
+        </nav>
+        <span class="badge badge--ocean">Unit 8</span>
+        <h1 class="lesson-title">Controllers, Ports &amp; the Driver Station</h1>
+        <p class="lesson-lede">Two controller classes that look almost identical and do completely different jobs,
+          plus the four words that decide what a button press actually means.</p>
+        <div class="lesson-meta">
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg> 25 min</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h2v-4H3zM9 20h2V10H9zM15 20h2V4h-2z"/></svg> Intermediate</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2zM18 3v16"/></svg> Needs: Unit 7</span>
+        </div>
+      </header>
+
+      <!-- ===================== GOAL ===================== -->
+      <div class="goal">
+        <div class="goal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div>
+        <div>
+          <h2>Your goal</h2>
+          <p>Choose between the two controller classes, explain what a port number means, and predict which of
+            <code>onTrue</code>, <code>onFalse</code> and <code>whileTrue</code> fires when.</p>
+        </div>
+      </div>
+
+      <nav class="toc" aria-label="On this page">
+        <strong>On this page</strong>
+        <ol>
+          <li><a href="#why">Why this matters</a></li>
+          <li><a href="#two">Two controller classes</a></li>
+          <li><a href="#port">The number is a port</a></li>
+          <li><a href="#conditions">The four trigger conditions</a></li>
+          <li><a href="#sticks">Sticks are not buttons</a></li>
+          <li><a href="#run">Watch the edges fire</a></li>
+          <li><a href="#challenges">Practice challenges</a></li>
+          <li><a href="#mistakes">Common mistakes</a></li>
+          <li><a href="#exercise">Project: PenguinBot gets a driver</a></li>
+          <li><a href="#checkpoint">Checkpoint</a></li>
+        </ol>
+      </nav>
+
+      <div class="prose">
+
+        <!-- ===================== WHY ===================== -->
+        <h2 id="why"><span class="section-h"><span class="num">1</span> Why this matters</span></h2>
+
+        <div class="callout callout--why">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></div>
+          <div class="c-title">Cross, not lacrosse</div>
+          <div class="c-body">
+            <p>On the call where this team wired up the ChairBot's controller there was real confusion about the
+              button called "the cross." Somebody heard "lacrosse."</p>
+            <p>It is a funny moment and it sits exactly where the curriculum makes a genuine error. The narrator
+              calls the PS5 X button <code>.x()</code>. It is not.</p>
+          </div>
+        </div>
+
+        <div class="callout callout--verified">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4 12 14.01l-3-3"/></svg></div>
+          <div class="c-title">The PS5 face buttons</div>
+          <div class="c-body">
+            <p>On a PS5 controller the four face buttons are <code>cross()</code>, <code>circle()</code>,
+              <code>square()</code> and <code>triangle()</code>.</p>
+            <p><code>.x()</code> is Xbox vocabulary, alongside <code>.a()</code>, <code>.b()</code> and
+              <code>.y()</code>. It will not compile against a PS5 controller. This is the single most likely line
+              to be copied wrong out of a video, so check it every time.</p>
+          </div>
+        </div>
+
+        <!-- ===================== TWO ===================== -->
+        <h2 id="two"><span class="section-h"><span class="num">2</span> Two controller classes</span></h2>
+        <p>There are two classes for the same physical controller. The difference between them is most of this
+          lesson.</p>
+
+        <div class="tablewrap">
+          <table class="data">
+            <thead><tr><th></th><th><code>PS5Controller</code></th><th><code>CommandPS5Controller</code></th></tr></thead>
+            <tbody>
+              <tr><td>Gives you</td><td>The <strong>state</strong> of buttons and axes</td><td>Triggers that <strong>run a command</strong> when a state changes</td></tr>
+              <tr><td>Returns</td><td>Booleans and doubles</td><td>Trigger objects you attach commands to</td></tr>
+              <tr><td>Runs commands</td><td>No</td><td>Yes</td></tr>
+              <tr><td>Use when</td><td>You need to read a value every cycle</td><td>Almost always, in a command-based robot</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">two constructors</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">// Plain, reads state:
+PS5Controller joystick = new PS5Controller(0);
+
+// Command-based, triggers commands:
+CommandPS5Controller joystick2 = new CommandPS5Controller(0);</code></pre>
+        </div>
+
+        <p>Same port, two different jobs, and there is nothing wrong with having both in one robot.</p>
+        <p>The plain class earns its place when you want a continuous conditional read rather than an event. The
+          standard example is worth remembering: while the align button is held, reduce the drive speed. That is not
+          a thing that happens once when the button goes down. It is a condition you check on every cycle, and a
+          command trigger is the wrong shape for it.</p>
+
+        <!-- ===================== PORT ===================== -->
+        <h2 id="port"><span class="section-h"><span class="num">3</span> The number is a port</span></h2>
+        <p>In <code>new CommandPS5Controller(0)</code>, that zero is a <strong>port</strong>, and what a port is
+          confuses almost everyone at first.</p>
+        <ul>
+          <li>The port maps to a slot in the <strong>FRC Driver Station application</strong>. It is not a physical
+            USB socket on the laptop.</li>
+          <li>In the Driver Station's USB section you <strong>drag your plugged-in controller into a port</strong>,
+            usually port 0.</li>
+          <li>When your code constructs a controller on port 0, it reads whatever the Driver Station currently has
+            assigned to port 0.</li>
+          <li><strong>Ports identify the controller, not individual buttons.</strong> Which button you read is
+            decided in code.</li>
+        </ul>
+
+        <div class="callout callout--tip">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12c.7.7 1 1.4 1 2h6c0-.6.3-1.3 1-2a7 7 0 0 0-4-12z"/></svg></div>
+          <div class="c-title">When the controller does nothing</div>
+          <div class="c-body"><p>This is why the Joystick indicator in the Driver Station matters, and it is the
+            first thing to check. A controller that is plugged in but not dragged into a port reaches no port at
+            all, so your code on port 0 reads nothing. The fix is a drag and drop, not a code change. Resist the
+            urge to start guessing at port numbers in the constructor.</p></div>
+        </div>
+
+        <p>The port number belongs in your constants file, which is exactly the case the last lesson argued for.</p>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">RobotContainer.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
+import static frc.robot.Constants.OperatorConstants;
+
+private final CommandPS5Controller driver =
+    new CommandPS5Controller(OperatorConstants.kDriverControllerPort);</code></pre>
+        </div>
+
+        <!-- ===================== CONDITIONS ===================== -->
+        <h2 id="conditions"><span class="section-h"><span class="num">4</span> The four trigger conditions</span></h2>
+        <p>The pattern is always <code>controller.button().condition(command)</code>.</p>
+
+        <div class="tablewrap">
+          <table class="data">
+            <thead><tr><th>Condition</th><th>Fires</th></tr></thead>
+            <tbody>
+              <tr><td><code>onTrue</code></td><td><strong>Once</strong>, when the button becomes pressed</td></tr>
+              <tr><td><code>onFalse</code></td><td><strong>Once</strong>, when it is released</td></tr>
+              <tr><td><code>whileTrue</code></td><td>Runs <strong>while held</strong>, and is interrupted on release</td></tr>
+              <tr><td><code>whileFalse</code></td><td>Runs while <strong>not</strong> held</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout callout--verified">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4 12 14.01l-3-3"/></svg></div>
+          <div class="c-title">Verified syntax · WPILib</div>
+          <div class="c-body">
+            <div class="code with-lines">
+              <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">bindings</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+
+CommandPS5Controller controller = new CommandPS5Controller(0);
+
+// PS5 face buttons: cross(), circle(), square(), triangle()
+controller.cross().onTrue(intakeCommand);
+controller.cross().onFalse(stopCommand);
+controller.square().whileTrue(intakeCommand);   // runs only while held
+
+// No full command to hand it? Wrap a call in an InstantCommand, which runs once:
+controller.triangle().onTrue(
+    new InstantCommand(() -&gt; intakeSub.runRoller(0.7))
+);</code></pre>
+            </div>
+            <p style="margin-top:12px">The <code>() -&gt;</code> is the lambda from Phase 1, and here it means "run
+              this when pressed." <code>InstantCommand</code> is the smallest possible command, and the next lesson
+              covers it properly.</p>
+          </div>
+        </div>
+
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">onTrue starts a command and walks away</div>
+          <div class="c-body">
+            <p>This is the distinction people get wrong, and the two lines look nearly identical.</p>
+            <p><code>onTrue</code> fires once and hands the command over to the scheduler. That command then runs to
+              its own end condition whether or not you are still holding the button.
+              <code>whileTrue</code> ties the command's life to the button.</p>
+            <div class="tablewrap">
+              <table class="data">
+                <thead><tr><th>Binding</th><th>Hold for two seconds</th><th>Release after 0.2 seconds</th></tr></thead>
+                <tbody>
+                  <tr><td><code>cross().onTrue(armToScore)</code></td><td>Arm reaches the setpoint and finishes</td><td>Arm <strong>keeps going</strong> to the setpoint</td></tr>
+                  <tr><td><code>cross().whileTrue(armToScore)</code></td><td>Arm reaches the setpoint and finishes</td><td>Arm <strong>stops where it is</strong>, with <code>end(true)</code></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===================== STICKS ===================== -->
+        <h2 id="sticks"><span class="section-h"><span class="num">5</span> Sticks are not buttons</span></h2>
+        <p>Face buttons are booleans. Sticks are continuous, and reading one is a state read even on a command
+          controller. You get a <code>double</code> from minus one to one.</p>
+
+        <div class="callout callout--season">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
+          <div class="c-title">Verify for current season</div>
+          <div class="c-body"><p>The axis getter names, and the import path for the plain <code>PS5Controller</code>,
+            are not in our curriculum's verified boxes. Check the current WPILib documentation before typing them.
+            The <code>CommandPS5Controller</code> import path and the four trigger conditions are verified.</p>
+            <p>If your team switches to Xbox controllers the equivalents exist with <code>.a()</code>,
+              <code>.b()</code>, <code>.x()</code> and <code>.y()</code>. This course uses PS5 throughout.</p></div>
+        </div>
+
+        <p>One term to know now and use in Unit 9. A stick almost never reads exactly zero at rest, so drive code
+          ignores small values near the centre. That threshold is called a <strong>deadband</strong>. Without it a
+          robot creeps across the field on its own while nobody is touching anything.</p>
+
+        <!-- ===================== RUN ===================== -->
+        <h2 id="run"><span class="section-h"><span class="num">6</span> Watch the edges fire</span></h2>
+
+        <div class="callout callout--note">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg></div>
+          <div class="c-title">PenguinSim has no controller</div>
+          <div class="c-body"><p>The sandbox fakes the button with a plain boolean, and the block that detects the
+            press and release is written out in full. On a real robot you never write that block.
+            <code>CommandPS5Controller</code> and the scheduler do it for you, which is the entire point of the
+            class. It is spelled out here so you can see what the trigger conditions actually mean.</p></div>
+        </div>
+
+        <div class="sandbox" data-compiler data-sim data-title="Rising edge, falling edge, held">
+          <script type="text/x-java" class="sb-src">
+// Real robot code would start with:
+//   import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
+//   import edu.wpi.first.wpilibj2.command.InstantCommand;
+
+public class Main {
+
+    static class IntakeSubsystem extends SubsystemBase {
+        private final SparkMax roller = new SparkMax(2, MotorType.kBrushless);
+        void runRoller(double s) { roller.set(s); System.out.printf("        roller -> %.2f%n", s); }
+        void stop()              { runRoller(0.0); }
+        @Override public void periodic() { }
+    }
+
+    // What whileTrue holds: a command that never ends on its own.
+    static class RunIntakeCommand extends Command {
+        private final IntakeSubsystem intake;
+        RunIntakeCommand(IntakeSubsystem intake) { this.intake = intake; }
+        @Override public void initialize()    { System.out.println("      whileTrue cmd: initialize"); }
+        @Override public void execute()       { intake.runRoller(0.7); }
+        @Override public boolean isFinished() { return false; }
+        @Override public void end(boolean interrupted) {
+            intake.stop();
+            System.out.println("      whileTrue cmd: end(interrupted=" + interrupted + ")");
+        }
+    }
+
+    public static void main(String[] args) {
+        CommandScheduler.getInstance().setTraceEnabled(false);
+        IntakeSubsystem intake = new IntakeSubsystem();
+
+        final int PRESS_AT   = 5;    // <-- CHANGE ME
+        final int RELEASE_AT = 9;    // <-- CHANGE ME
+
+        boolean crossPressed = false;
+        boolean wasPressed   = false;
+        Command whileTrueCmd = null;
+
+        for (int tick = 1; tick <= 12; tick++) {
+            if (tick == PRESS_AT)   crossPressed = true;
+            if (tick == RELEASE_AT) crossPressed = false;
+
+            // Everything in this block is what the real controller does for you.
+            if (crossPressed && !wasPressed) {                    // RISING EDGE
+                System.out.println("tick " + tick + "  cross PRESSED");
+                System.out.println("    onTrue    -> InstantCommand: intake on");
+                CommandScheduler.getInstance().schedule(
+                    new InstantCommand(() -> intake.runRoller(0.7)));
+                whileTrueCmd = new RunIntakeCommand(intake);
+                CommandScheduler.getInstance().schedule(whileTrueCmd);
+            }
+            if (!crossPressed && wasPressed) {                    // FALLING EDGE
+                System.out.println("tick " + tick + "  cross RELEASED");
+                System.out.println("    onFalse   -> InstantCommand: intake off");
+                CommandScheduler.getInstance().schedule(
+                    new InstantCommand(() -> intake.stop()));
+                if (whileTrueCmd != null) CommandScheduler.getInstance().cancel(whileTrueCmd);
+            }
+            wasPressed = crossPressed;
+
+            CommandScheduler.getInstance().run();
+        }
+    }
+}
+          </script>
+        </div>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code>[sim] SparkMax on CAN ID 2 (kBrushless) is alive.
+tick 5  cross PRESSED
+    onTrue    -> InstantCommand: intake on
+        roller -> 0.70
+      whileTrue cmd: initialize
+        roller -> 0.70
+        roller -> 0.70
+        roller -> 0.70
+        roller -> 0.70
+tick 9  cross RELEASED
+    onFalse   -> InstantCommand: intake off
+        roller -> 0.00
+        roller -> 0.00
+      whileTrue cmd: end(interrupted=true)</code></pre>
+        </div>
+
+        <p>Read that against the table in section 4.</p>
+        <ul>
+          <li><code>onTrue</code> fired <b>once</b>, on tick 5, and never again while the button was held.</li>
+          <li>The <code>whileTrue</code> command executed on every tick from 5 to 8, and not before or after.</li>
+          <li><code>onFalse</code> fired <b>once</b>, on tick 9.</li>
+          <li>The <code>whileTrue</code> command ended with <b><code>interrupted=true</code></b>.</li>
+        </ul>
+
+        <div class="callout callout--tip">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12c.7.7 1 1.4 1 2h6c0-.6.3-1.3 1-2a7 7 0 0 0-4-12z"/></svg></div>
+          <div class="c-title">whileTrue commands are almost always interrupted</div>
+          <div class="c-body"><p>Look at that last line. <code>isFinished()</code> returned <code>false</code>
+            forever, so the command never finished on its own terms. It was stopped from outside.</p>
+            <p>That is the normal case for <code>whileTrue</code>, not a failure. It is also exactly why
+              <code>end()</code> must stop the motor, and why the <code>interrupted</code> flag exists at all.</p></div>
+        </div>
+
+        <p>Two experiments worth running.</p>
+        <ul>
+          <li>Set <code>RELEASE_AT</code> to 99 so the button is never released. The <code>whileTrue</code> command
+            runs to the end of the loop and its <code>end()</code> never prints, exactly like the unreachable end
+            condition from Unit 7.</li>
+          <li>Change <code>RunIntakeCommand.isFinished()</code> to <code>return true;</code>. Now it ends on its own
+            after one execute, and releasing the button has nothing left to interrupt.</li>
+        </ul>
+
+        <!-- ===================== CHALLENGES ===================== -->
+        <h2 id="challenges"><span class="section-h"><span class="num">7</span> Practice challenges</span></h2>
+
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">Which class</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">You want the drivetrain to move at half speed while the align button is
+              held. Which controller class?</p>
+            <div class="options">
+              <label class="option" data-explain="onTrue fires once and walks away. You need a condition checked on every cycle, not an event."><input type="radio" name="q-cls" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>CommandPS5Controller</code> with <code>onTrue</code></span></label>
+              <label class="option" data-correct data-explain="Right. Read the button's state each cycle and scale the speed. This is the standard example of when the plain class is the correct tool."><input type="radio" name="q-cls" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>PS5Controller</code>, reading the state each cycle</span></label>
+              <label class="option" data-explain="A constant cannot read a button. It is a fixed value decided before the robot ran."><input type="radio" name="q-cls" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Neither, put the speed in <code>Constants</code></span></label>
+              <label class="option" data-explain="That is an event on release, which is the moment you stop wanting half speed rather than the whole time you want it."><input type="radio" name="q-cls" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>CommandPS5Controller</code> with <code>onFalse</code></span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="text"
+             data-win="At the setpoint. onTrue starts the command and lets go, so the command runs to its own end condition whether you are holding the button or not."
+             data-lose="It goes all the way to the setpoint. onTrue fires once and the command then lives its own life. If you wanted it to stop on release, that is whileTrue.">
+          <div class="challenge-head"><span class="ch-kind">Predict</span><span class="ch-title">A one tick tap</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">You bind <code>driver.cross().onTrue(armToScoreCommand)</code> and tap the
+              button for a single tick. The arm takes 68 ticks to reach the setpoint. Where does the arm end up?</p>
+            <div class="answer-row">
+              <input class="answer-input" type="text" placeholder="where?" data-answer="at the setpoint|the setpoint|9.0|9|at 9.0|it finishes|all the way|setpoint|it reaches the setpoint" aria-label="Your answer" />
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="fib"
+             data-win="Port 0, cross rather than x, and whileTrue for hold to run."
+             data-lose="The port number goes in the constructor. The PS5 X button method is cross, because .x() is Xbox. Hold to run is whileTrue.">
+          <div class="challenge-head"><span class="ch-kind">Fill in the blanks</span><span class="ch-title">The bindings</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Complete the controller setup.</p>
+<pre class="fib">CommandPS5Controller driver = new CommandPS5Controller(<span class="blank" data-answer="0"></span>);
+driver.<span class="blank" data-answer="cross"></span>().onTrue(scoreSequence);       // the PS5 X button
+driver.square().<span class="blank" data-answer="whileTrue"></span>(runIntakeCommand);    // only while held</pre>
+            <div class="challenge-actions">
+              <button class="btn btn--sm check-btn" type="button">Check</button>
+              <button class="btn btn--sm btn--ghost reset-btn" type="button">Reset</button>
+            </div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">Nothing responds</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Your code says <code>new CommandPS5Controller(0)</code>, the controller is
+              plugged in, and nothing responds. The Joystick indicator in the Driver Station is dark. What do you
+              fix?</p>
+            <div class="options">
+              <label class="option" data-explain="That is guessing at ports. The indicator already told you the controller is not assigned anywhere."><input type="radio" name="q-port" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Change the constructor to port 1</span></label>
+              <label class="option" data-correct data-explain="Yes. The port number refers to a Driver Station slot, and an unassigned controller reaches no port at all."><input type="radio" name="q-port" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Drag the controller into port 0 in the Driver Station</span></label>
+              <label class="option" data-explain="Vendor libraries have nothing to do with controllers. REVLib talks to motor controllers over CAN."><input type="radio" name="q-port" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Reinstall REVLib</span></label>
+              <label class="option" data-explain="The code is fine. Rebuilding and redeploying will produce exactly the same result."><input type="radio" name="q-port" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Rebuild and redeploy the code</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">When does it stop</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">A <code>whileTrue</code> command's <code>isFinished()</code> returns
+              <code>false</code> forever. When does it stop?</p>
+            <div class="options">
+              <label class="option" data-explain="Something does stop it. Look at the last line of the sandbox output."><input type="radio" name="q-wt" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Never</span></label>
+              <label class="option" data-correct data-explain="Exactly. That is what whileTrue means, and it is why end() has to stop the motor."><input type="radio" name="q-wt" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">When the button is released, as an interruption</span></label>
+              <label class="option" data-explain="It runs for as long as you hold it, which is usually far longer than one cycle."><input type="radio" name="q-wt" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">After 20 ms</span></label>
+              <label class="option" data-explain="There is no setpoint check anywhere in it. isFinished() returns false unconditionally."><input type="radio" name="q-wt" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">When the mechanism reaches its setpoint</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <!-- ===================== MISTAKES ===================== -->
+        <h2 id="mistakes"><span class="section-h"><span class="num">8</span> Common mistakes</span></h2>
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">Watch out for these</div>
+          <div class="c-body">
+            <ul>
+              <li><strong>Writing <code>.x()</code> for the X button.</strong> On a PS5 controller it is
+                <code>.cross()</code>. This is the error in the source video.</li>
+              <li><strong>Thinking the port is a USB socket.</strong> It is a slot in the Driver Station app that
+                you drag a controller into.</li>
+              <li><strong>Thinking the port selects a button.</strong> Ports identify the controller. Buttons are
+                chosen in code.</li>
+              <li><strong>Expecting <code>onTrue</code> to run only while held.</strong> It fires once and the
+                command finishes on its own terms.</li>
+              <li><strong>Reaching for the command controller to read a trigger's travel.</strong> For continuous
+                values read the axes. The command controller's job is turning state changes into commands.</li>
+              <li><strong>Treating a <code>whileTrue</code> command that never finishes as a bug.</strong> That is
+                the normal design. Releasing the button interrupts it.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- ===================== EXERCISE ===================== -->
+        <div class="exercise" id="exercise">
+          <div class="exercise-head">
+            <div class="ex-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4L12 17l-6.3 4.4L8 14 2 9.4h7.6z"/></svg></div>
+            <div>
+              <div class="ex-kicker">Build it · PenguinBot</div>
+              <h3>PenguinBot gets a driver</h3>
+            </div>
+          </div>
+          <div class="exercise-body">
+            <p>PenguinBot has subsystems, commands and a constants file, and nothing is connected to a human. Write
+              the binding plan. The full <code>RobotContainer</code> is the next lesson, so this is the controller
+              half of it.</p>
+            <ol class="task-list">
+              <li><b>Create a <code>CommandPS5Controller</code></b> using the port constant.</li>
+              <li><b><code>cross()</code> raises the arm to score</b>, with <code>onTrue</code>. Justify the choice
+                in a comment.</li>
+              <li><b><code>square()</code> runs the intake</b>, with <code>whileTrue</code>. Justify it.</li>
+              <li><b><code>circle()</code> runs the outtake</b>, with <code>whileTrue</code>.</li>
+              <li><b><code>triangle()</code> stops both mechanisms</b>, as a panic button.</li>
+              <li><b>Write a table</b> giving, for each binding, what happens on a tap and what happens on a two
+                second hold.</li>
+              <li><b>Bonus.</b> Explain why the panic button uses <code>onTrue</code> rather than
+                <code>whileTrue</code>.</li>
+            </ol>
+
+            <div class="callout callout--tip">
+              <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12c.7.7 1 1.4 1 2h6c0-.6.3-1.3 1-2a7 7 0 0 0-4-12z"/></svg></div>
+              <div class="c-title">The comments are the deliverable</div>
+              <div class="c-body"><p>Four correct lines produced by pattern matching is not this exercise. Being
+                able to say why each binding uses the condition it uses is.</p></div>
+            </div>
+
+            <details class="reveal">
+              <summary><svg class="rv-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg> Reveal the solution</summary>
+              <div class="reveal-body">
+                <div class="code with-lines">
+                  <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">RobotContainer.java · bindings</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import static frc.robot.Constants.OperatorConstants;
+import static frc.robot.Constants.IntakeConstants;
+
+private final CommandPS5Controller driver =
+    new CommandPS5Controller(OperatorConstants.kDriverControllerPort);
+
+private void configureBindings() {
+
+    // CROSS, onTrue: fire and forget. The arm should finish its move to the
+    // scoring setpoint even if the driver's thumb has already moved on.
+    driver.cross().onTrue(new ArmToScoreCommand(arm));
+
+    // SQUARE, whileTrue: intake only while held. Release and it stops, because
+    // an intake left running eats the next game piece too.
+    driver.square().whileTrue(new RunIntakeCommand(intake));
+
+    // CIRCLE, whileTrue: outtake only while held, for the same reason.
+    driver.circle().whileTrue(
+        new InstantCommand(() -&gt; intake.runRoller(IntakeConstants.kOuttakeSpeed)));
+
+    // TRIANGLE, onTrue: panic stop. One press stops everything, and it must NOT
+    // depend on the driver keeping a finger down in an emergency.
+    driver.triangle().onTrue(new InstantCommand(() -&gt; {
+        intake.stop();
+        arm.stop();
+    }));
+}</code></pre>
+                </div>
+
+                <p><b>Tap versus hold</b></p>
+                <div class="tablewrap">
+                  <table class="data">
+                    <thead><tr><th>Binding</th><th>Tap</th><th>Hold for two seconds</th></tr></thead>
+                    <tbody>
+                      <tr><td><code>cross().onTrue(ArmToScore)</code></td><td>Arm still goes all the way to the setpoint</td><td>Identical. Holding changes nothing</td></tr>
+                      <tr><td><code>square().whileTrue(RunIntake)</code></td><td>Intake runs one cycle, then stops</td><td>Intake runs the whole two seconds, then stops</td></tr>
+                      <tr><td><code>circle().whileTrue(outtake)</code></td><td>One cycle of outtake</td><td>Two seconds of outtake</td></tr>
+                      <tr><td><code>triangle().onTrue(panic)</code></td><td>Everything stops</td><td>Everything stops, once</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <p><b>Why the panic button is <code>onTrue</code>.</b> In an emergency the one thing you cannot rely
+                  on is a human holding a button steadily. A panic stop has to latch on a single press.
+                  <code>whileTrue</code> would mean the mechanism resumes the instant a startled thumb slips off the
+                  button, which is the worst possible moment for it to start moving again.</p>
+
+                <div class="callout callout--season">
+                  <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
+                  <div class="c-title">Verify for current season</div>
+                  <div class="c-body"><p>Current WPILib lets you pass subsystem requirements to
+                    <code>InstantCommand</code> alongside the action, which is worth doing so the scheduler knows
+                    what these bindings claim. Check the constructor overloads your season offers. The plain
+                    single-argument form above works either way.</p></div>
+                </div>
+              </div>
+            </details>
+            <p>You have bindings. They need a home, and it is the file our curriculum calls the most important one
+              in the project. That is the next lesson.</p>
+          </div>
+        </div>
+
+        <!-- ===================== CHECKPOINT ===================== -->
+        <div class="checkpoint" id="checkpoint">
+          <div class="checkpoint-head">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            <h3>Checkpoint</h3>
+            <span class="cp-score">0 / 5</span>
+          </div>
+          <div class="checkpoint-body">
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q1.</span> What does <code>CommandPS5Controller</code> give you that <code>PS5Controller</code> does not?</div>
+              <div class="options">
+                <label class="option" data-explain="Both can read axes. Continuous values are available either way."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Access to the sticks</span></label>
+                <label class="option" data-correct data-explain="Yes, and that is the whole distinction. It is why the command version is the common choice in a command-based robot."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Triggers that run commands when a button's state changes</span></label>
+                <label class="option" data-explain="Same 20 millisecond loop. Both are polled by the same scheduler."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A higher polling rate</span></label>
+                <label class="option" data-explain="Not the distinction that matters here, and not what either class is for."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Rumble support</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q2.</span> What is the <code>0</code> in <code>new CommandPS5Controller(0)</code>?</div>
+              <div class="options">
+                <label class="option" data-explain="Buttons are chosen by method name, not by number."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The first button</span></label>
+                <label class="option" data-correct data-explain="Right, and that is why an unassigned controller does nothing no matter how correct your code is."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A slot in the Driver Station app that a controller is dragged into</span></label>
+                <label class="option" data-explain="It is the Driver Station's slot, not the laptop's hardware port. Moving the cable does not change it."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A USB port on the laptop</span></label>
+                <label class="option" data-explain="Controllers are not on the CAN bus. They reach the robot through the Driver Station."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The controller's CAN ID</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q3.</span> Which method is the PS5 X button?</div>
+              <div class="options">
+                <label class="option" data-explain="That is Xbox vocabulary. The narrator in the source says this, and it is wrong for a PS5 controller."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>.x()</code></span></label>
+                <label class="option" data-explain="Also Xbox. The Xbox face buttons are a, b, x and y."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>.a()</code></span></label>
+                <label class="option" data-correct data-explain="Correct, with circle, square and triangle alongside it."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>.cross()</code></span></label>
+                <label class="option" data-explain="A generic numbered form may exist, but the readable and verified name is cross, and numbers here are exactly the problem constants solve."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>.button(1)</code></span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q4.</span> You tap a button bound with <code>onTrue</code> to a command that takes 10 ticks. What happens?</div>
+              <div class="options">
+                <label class="option" data-explain="That is whileTrue behaviour. onTrue does not tie the command to the button."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The command runs one tick</span></label>
+                <label class="option" data-correct data-explain="Yes. onTrue starts it and lets go, and the command runs to its own end condition."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The command runs all 10 ticks</span></label>
+                <label class="option" data-explain="A single cycle of contact is enough to produce a rising edge, which is all onTrue needs."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Nothing, the tap is too short</span></label>
+                <label class="option" data-explain="One rising edge means one schedule. Releasing the button is a falling edge, which onTrue ignores."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The command runs twice</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q5.</span> A <code>whileTrue</code> command's <code>end()</code> receives <code>interrupted = true</code>. Why?</div>
+              <div class="options">
+                <label class="option" data-explain="Nothing went wrong. This is the normal and expected path for a whileTrue binding."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Something went wrong</span></label>
+                <label class="option" data-correct data-explain="Exactly, and it is the normal case for whileTrue rather than an exception."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It was stopped by the button release rather than finishing on its own</span></label>
+                <label class="option" data-explain="Requirements can cause an interruption, but here the cause is the release and nothing else was scheduled."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Another command took the subsystem</span></label>
+                <label class="option" data-explain="Then interrupted would be false. That is precisely what the flag distinguishes."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>isFinished()</code> returned true</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check my answers</button></div>
+          </div>
+        </div>
+
+        <!-- ===================== COMPLETE ===================== -->
+        <div class="mark-complete">
+          <div class="mc-text"><b>A human can reach your code now.</b><span>Next: the file where every binding, subsystem and command comes together.</span></div>
+          <button class="complete-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>Mark as complete</span></button>
+        </div>
+
+      </div><!-- /prose -->
+    </div><!-- /content-inner -->
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="/assets/js/course.js"></script>
+  <script src="/assets/js/site.js"></script>
+  <script src="/assets/js/widgets.js"></script>
+</body>
+</html>

@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RobotContainer &amp; Button Bindings · Penguin Empire 2551</title>
+  <meta name="description" content="The most important file in the project: where the robot's objects are born, where inputs meet commands, and the six-step trace from a thumb to a spinning motor." />
+  <link rel="icon" href="/assets/img/logo-2551.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Aldrich&family=Russo+One&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/brand.css" />
+  <link rel="stylesheet" href="/assets/css/layout.css" />
+  <link rel="stylesheet" href="/assets/css/lesson.css" />
+</head>
+<body data-page="lesson" data-lesson="frc-robotcontainer">
+  <main id="main" class="content">
+    <div class="content-inner">
+
+      <!-- ===================== HEADER ===================== -->
+      <header class="lesson-hero">
+        <nav class="crumbs" aria-label="Breadcrumb">
+          <a href="/">Home</a><span class="sep">/</span>
+          <a href="/syllabus.html">Phase 2 · FRC</a><span class="sep">/</span>
+          <span>Unit 8 · Wiring It Together</span>
+        </nav>
+        <span class="badge badge--ocean">Unit 8</span>
+        <h1 class="lesson-title">RobotContainer &amp; Button Bindings</h1>
+        <p class="lesson-lede">Our curriculum calls this the most important file in the project. It is where every
+          layer you have built finally exists at the same time.</p>
+        <div class="lesson-meta">
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg> 30 min</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h2v-4H3zM9 20h2V10H9zM15 20h2V4h-2z"/></svg> Intermediate</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2zM18 3v16"/></svg> Needs: Controllers &amp; Ports</span>
+        </div>
+      </header>
+
+      <!-- ===================== GOAL ===================== -->
+      <div class="goal">
+        <div class="goal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div>
+        <div>
+          <h2>Your goal</h2>
+          <p>Write a <code>RobotContainer</code> that owns one instance of each subsystem and binds controller
+            buttons to commands.</p>
+        </div>
+      </div>
+
+      <nav class="toc" aria-label="On this page">
+        <strong>On this page</strong>
+        <ol>
+          <li><a href="#why">Why this matters</a></li>
+          <li><a href="#three">The three sections</a></li>
+          <li><a href="#instances">Where instances are born</a></li>
+          <li><a href="#instant">InstantCommand</a></li>
+          <li><a href="#choose">Choosing the binding</a></li>
+          <li><a href="#file">The whole file</a></li>
+          <li><a href="#not">What does not go here</a></li>
+          <li><a href="#run">Two mechanisms, no coordination</a></li>
+          <li><a href="#challenges">Practice challenges</a></li>
+          <li><a href="#mistakes">Common mistakes</a></li>
+          <li><a href="#exercise">Project: PenguinBot becomes drivable</a></li>
+          <li><a href="#checkpoint">Checkpoint</a></li>
+        </ol>
+      </nav>
+
+      <div class="prose">
+
+        <!-- ===================== WHY ===================== -->
+        <h2 id="why"><span class="section-h"><span class="num">1</span> Why this matters</span></h2>
+
+        <div class="callout callout--why">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></div>
+          <div class="c-title">Six steps from a thumb to a motor</div>
+          <div class="c-body">
+            <p>Unit 3 promised you this trace. Every single thing in it now exists in your code.</p>
+            <div class="code">
+              <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">the full signal flow</span><span class="code-spacer"></span></div>
+<pre><code>1. CommandPS5Controller, mapped to Driver Station port 0.
+2. Button pressed, its state changes to true.
+3. onTrue fires an InstantCommand.
+4. The InstantCommand's lambda calls intake.runRoller(0.7).
+5. Inside runRoller, .set(0.7) is applied to the motor.
+6. The motor runs at that speed until something changes it.</code></pre>
+            </div>
+            <p>From step 6 the hardware path from Unit 1 takes over. The roboRIO puts a message on the CAN bus, the
+              SparkMax receives it, and the Neo spins.</p>
+            <p>That is the whole fundamental loop. Everything advanced in the rest of this course sits on top of
+              it.</p>
+          </div>
+        </div>
+
+        <p>There is a second reason this file exists, and it is more basic than the first. <strong>Subsystem methods
+          are not static.</strong> You cannot write <code>ArmSubsystem.goToScore()</code>. You need an instance, and
+          this is the file where the robot's objects live.</p>
+
+        <!-- ===================== THREE ===================== -->
+        <h2 id="three"><span class="section-h"><span class="num">2</span> The three sections</span></h2>
+        <ul>
+          <li><b>Top.</b> Declare the subsystems, the controller, and any commands you want to reuse.</li>
+          <li><b>Constructor.</b> Set up dashboard widgets and the autonomous picker, then call
+            <code>configureBindings()</code>.</li>
+          <li><b><code>configureBindings()</code>.</b> Map controller buttons to commands.</li>
+        </ul>
+
+        <p>Nothing is generated in this file and nothing is processed in it. Everything is connected in it. It runs
+          once at startup and then sits still.</p>
+
+        <!-- ===================== INSTANCES ===================== -->
+        <h2 id="instances"><span class="section-h"><span class="num">3</span> Where instances are born</span></h2>
+        <p>One <code>ArmSubsystem</code>. One <code>IntakeSubsystem</code>. One controller. Created as fields here,
+          and handed into every command's constructor.</p>
+        <p>Unit 7 showed you what goes wrong otherwise. Two <code>ArmSubsystem</code> objects means two
+          <code>SparkMax(3, ...)</code> objects fighting over one motor, and it compiles perfectly.
+          <code>RobotContainer</code> being the single place they are constructed is what prevents that from ever
+          happening.</p>
+
+        <div class="callout callout--note">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg></div>
+          <div class="c-title">Why the ordering in this file is not arbitrary</div>
+          <div class="c-body"><p>A binding like <code>() -&gt; intake.runRoller(0.7)</code> captures the
+            <code>intake</code> field. The subsystem instance has to exist before the binding that refers to it is
+            written, which is why the declarations sit at the top and <code>configureBindings()</code> is called
+            from the constructor rather than earlier.</p></div>
+        </div>
+
+        <!-- ===================== INSTANT ===================== -->
+        <h2 id="instant"><span class="section-h"><span class="num">4</span> InstantCommand</span></h2>
+        <p>Unit 3 said some behaviour is instantaneous and does not need a command class of its own.
+          <code>InstantCommand</code> is how that behaviour gets to be a command anyway, so it can be bound to a
+          button and dropped into a sequence.</p>
+        <p>It runs its action once and immediately reports finished. That second half matters more than it looks:
+          because it ends straight away, the next step of a sequence fires immediately after it.</p>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">the smallest command there is</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">import edu.wpi.first.wpilibj2.command.InstantCommand;
+
+new InstantCommand(() -&gt; intake.runRoller(0.7));</code></pre>
+        </div>
+
+        <p>The <code>() -&gt;</code> is the lambda from Phase 1, and here it means exactly one thing: run this line
+          when the command starts.</p>
+
+        <!-- ===================== CHOOSE ===================== -->
+        <h2 id="choose"><span class="section-h"><span class="num">5</span> Choosing the binding</span></h2>
+        <p>Every binding is a decision. Three rules cover almost all of them.</p>
+
+        <div class="tablewrap">
+          <table class="data">
+            <thead><tr><th>The behaviour</th><th>Use</th></tr></thead>
+            <tbody>
+              <tr><td>Should finish on its own</td><td>A full Command with <code>onTrue</code></td></tr>
+              <tr><td>Should live and die with the button</td><td><code>whileTrue</code></td></tr>
+              <tr><td>A single instantaneous action</td><td><code>InstantCommand</code> with <code>onTrue</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- ===================== FILE ===================== -->
+        <h2 id="file"><span class="section-h"><span class="num">6</span> The whole file</span></h2>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">RobotContainer.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">package frc.robot;
+
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
+
+import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.commands.ArmToScoreCommand;
+import static frc.robot.Constants.OperatorConstants;
+import static frc.robot.Constants.IntakeConstants;
+
+public class RobotContainer {
+
+    // ---- TOP: the robot's objects. One instance each. --------------------
+    private final ArmSubsystem    arm    = new ArmSubsystem();
+    private final IntakeSubsystem intake = new IntakeSubsystem();
+
+    private final CommandPS5Controller driver =
+        new CommandPS5Controller(OperatorConstants.kDriverControllerPort);
+
+    // ---- CONSTRUCTOR: wire it up, once, at startup -----------------------
+    public RobotContainer() {
+        configureBindings();
+    }
+
+    // ---- BINDINGS: inputs in, commands out -------------------------------
+    private void configureBindings() {
+
+        // A behaviour with an end. Fire and forget.
+        driver.cross().onTrue(new ArmToScoreCommand(arm));
+
+        // Lives and dies with the button.
+        driver.square().whileTrue(
+            new InstantCommand(() -&gt; intake.runRoller(IntakeConstants.kIntakeSpeed)));
+
+        driver.circle().whileTrue(
+            new InstantCommand(() -&gt; intake.runRoller(IntakeConstants.kOuttakeSpeed)));
+
+        // One instantaneous action, latched on a single press.
+        driver.triangle().onTrue(new InstantCommand(() -&gt; {
+            intake.stop();
+            arm.stop();
+        }));
+    }
+
+    public Command getAutonomousCommand() {
+        return null;   // Unit 11 fills this in
+    }
+}</code></pre>
+        </div>
+
+        <p>Read the shape rather than the details. Two subsystem fields, which are the instances for the entire
+          robot. A controller whose port comes from <code>Constants</code>. Four bindings, each with a condition
+          chosen for a reason. One stub with a forward pointer.</p>
+
+        <p><code>RobotContainer</code> also holds the autonomous picker. It is a dashboard widget that lets the drive
+          team choose which routine runs, and <code>getAutonomousCommand()</code> is what
+          <code>Robot.java</code> calls to get it. Unit 11 builds it.</p>
+
+        <div class="callout callout--season">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
+          <div class="c-title">Verify for current season</div>
+          <div class="c-body"><p>Current WPILib lets you pass subsystem requirements to <code>InstantCommand</code>
+            alongside the action, which is worth doing so the scheduler knows what each binding claims. It also
+            offers factory methods on subsystems as a shorter way to build simple commands. Check what your season
+            provides. <code>new InstantCommand(runnable)</code> is verified in our curriculum and works
+            everywhere.</p></div>
+        </div>
+
+        <!-- ===================== NOT ===================== -->
+        <h2 id="not"><span class="section-h"><span class="num">7</span> What does not go here</span></h2>
+        <ul>
+          <li><b>No motor objects.</b> Those belong to subsystems, and only to subsystems.</li>
+          <li><b>No gains or setpoints.</b> Those belong to <code>Constants</code>.</li>
+          <li><b>No per-cycle logic.</b> Nothing in this file runs every 20 milliseconds.
+            <code>configureBindings()</code> runs once and never again.</li>
+        </ul>
+        <p>People put loops and motor calls in <code>RobotContainer</code> because it feels like the main file. It is
+          not. It connects things and then stops.</p>
+
+        <!-- ===================== RUN ===================== -->
+        <h2 id="run"><span class="section-h"><span class="num">8</span> Two mechanisms, no coordination</span></h2>
+
+        <div class="callout callout--note">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg></div>
+          <div class="c-title">The sandbox fakes the controller</div>
+          <div class="c-body"><p>PenguinSim has no controller, so the bindings are stored as
+            <code>Runnable</code> fields and fired by a faked-press loop. The <code>RobotContainer</code> structure
+            itself is real, and so is everything the scheduler does with it.</p></div>
+        </div>
+
+        <div class="sandbox" data-compiler data-sim data-title="RobotContainer">
+          <script type="text/x-java" class="sb-src">
+public class Main {
+
+    static class IntakeSubsystem extends SubsystemBase {
+        private final SparkMax roller = new SparkMax(2, MotorType.kBrushless);
+        void runRoller(double s) { roller.set(s); }
+        void stop()              { roller.set(0); }
+        double commanded()       { return roller.get(); }
+        @Override public void periodic() { }
+    }
+
+    static class ArmSubsystem extends SubsystemBase {
+        private final SparkMax pivot = new SparkMax(3, MotorType.kBrushless);
+        private final PIDController pid = new PIDController(0.02, 0.0, 0.0);
+        ArmSubsystem() { pid.setTolerance(1.0); }
+        double  getPosition() { return pivot.getEncoder().getPosition(); }
+        boolean atSetpoint()  { return pid.atSetpoint(); }
+        void    startMove()   { pid.reset(); }
+        void    stop()        { pivot.set(0); }
+        void    goToScore()   {
+            double o = pid.calculate(getPosition(), 50.0);
+            pivot.set(Math.max(-0.8, Math.min(0.8, o)));
+        }
+        @Override public void periodic() { }
+    }
+
+    static class ArmToScoreCommand extends Command {
+        private final ArmSubsystem arm;
+        ArmToScoreCommand(ArmSubsystem arm) { this.arm = arm; }
+        @Override public void initialize()    { arm.startMove();
+                                                System.out.println("    ArmToScore: initialize"); }
+        @Override public void execute()       { arm.goToScore(); }
+        @Override public boolean isFinished() { return arm.atSetpoint(); }
+        @Override public void end(boolean interrupted) {
+            arm.stop();
+            System.out.printf("    ArmToScore: end(interrupted=%b) at %.2f%n",
+                              interrupted, arm.getPosition());
+        }
+    }
+
+    // ---------------- the real subject of the lesson ----------------
+    static class RobotContainer {
+        final ArmSubsystem    arm    = new ArmSubsystem();
+        final IntakeSubsystem intake = new IntakeSubsystem();
+
+        // PenguinSim has no controller, so bindings are stored as Runnables.
+        Runnable onCrossPressed, onSquarePressed, onSquareReleased;
+
+        RobotContainer() { configureBindings(); }
+
+        void configureBindings() {
+            // driver.cross().onTrue(new ArmToScoreCommand(arm));
+            onCrossPressed = () -> CommandScheduler.getInstance()
+                                       .schedule(new ArmToScoreCommand(arm));
+
+            // driver.square().whileTrue(intake at 0.7)
+            onSquarePressed  = () -> CommandScheduler.getInstance()
+                                       .schedule(new InstantCommand(() -> intake.runRoller(0.7)));
+            onSquareReleased = () -> CommandScheduler.getInstance()
+                                       .schedule(new InstantCommand(() -> intake.stop()));
+        }
+    }
+
+    public static void main(String[] args) {
+        CommandScheduler.getInstance().setTraceEnabled(false);
+        RobotContainer container = new RobotContainer();
+
+        final int CROSS_AT   = 2;    // <-- CHANGE ME
+        final int SQUARE_AT  = 10;   // <-- CHANGE ME
+        final int SQUARE_OFF = 30;   // <-- CHANGE ME
+
+        for (int tick = 1; tick <= 80; tick++) {
+            if (tick == CROSS_AT)   { System.out.println("tick " + tick + "  CROSS pressed");
+                                      container.onCrossPressed.run(); }
+            if (tick == SQUARE_AT)  { System.out.println("tick " + tick + "  SQUARE pressed");
+                                      container.onSquarePressed.run(); }
+            if (tick == SQUARE_OFF) { System.out.println("tick " + tick + "  SQUARE released");
+                                      container.onSquareReleased.run(); }
+
+            CommandScheduler.getInstance().run();
+
+            if (tick % 10 == 0 || tick <= 2)
+                System.out.printf("tick %2d   arm %5.2f   roller %4.2f%n",
+                                  tick, container.arm.getPosition(), container.intake.commanded());
+        }
+    }
+}
+          </script>
+        </div>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code>[sim] SparkMax on CAN ID 3 (kBrushless) is alive.
+[sim] SparkMax on CAN ID 2 (kBrushless) is alive.
+tick  1   arm  0.00   roller 0.00
+tick 2  CROSS pressed
+    ArmToScore: initialize
+tick  2   arm  0.19   roller 0.00
+tick 10  SQUARE pressed
+tick 10   arm  6.38   roller 0.70
+tick 20   arm 19.39   roller 0.70
+tick 30  SQUARE released
+tick 30   arm 31.49   roller 0.00
+tick 40   arm 39.98   roller 0.00
+tick 50   arm 45.12   roller 0.00
+tick 60   arm 47.90   roller 0.00
+    ArmToScore: end(interrupted=false) at 49.07
+tick 70   arm 49.25   roller 0.00
+tick 80   arm 49.69   roller 0.00</code></pre>
+        </div>
+
+        <div class="callout callout--tip">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12c.7.7 1 1.4 1 2h6c0-.6.3-1.3 1-2a7 7 0 0 0-4-12z"/></svg></div>
+          <div class="c-title">Nothing in that file coordinates anything</div>
+          <div class="c-body"><p>The arm was still travelling when the intake turned on at tick 10 and off at tick
+            30, and neither disturbed the other. There is no code anywhere saying they are allowed to run
+            together.</p>
+            <p>They do not conflict because they do not share a subsystem. The requirements system does the
+              coordinating for you, and it does it by default. That is the payoff of Unit 7.</p></div>
+        </div>
+
+        <p>Two experiments worth running.</p>
+        <ul>
+          <li>Press both at the same tick. Nothing changes. Different subsystems never compete.</li>
+          <li>Move <code>new ArmSubsystem()</code> inside <code>ArmToScoreCommand</code>'s constructor so the command
+            builds its own. The command's own arm moves, and the arm that <code>RobotContainer</code> is printing
+            never budges. Two objects, one CAN ID, no error message.</li>
+        </ul>
+
+        <!-- ===================== CHALLENGES ===================== -->
+        <h2 id="challenges"><span class="section-h"><span class="num">9</span> Practice challenges</span></h2>
+
+        <div class="challenge" data-kind="fib"
+             data-win="Declarations at the top, configureBindings from the constructor, and the existing subsystem instance handed to the command."
+             data-lose="One ArmSubsystem instance at the top, the port from Constants, the constructor calls configureBindings, and the binding passes the arm field rather than a new one.">
+          <div class="challenge-head"><span class="ch-kind">Fill in the blanks</span><span class="ch-title">The three sections</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Complete the file.</p>
+<pre class="fib">public class RobotContainer {
+    private final ArmSubsystem arm = new <span class="blank" data-answer="ArmSubsystem"></span>();
+    private final CommandPS5Controller driver =
+        new CommandPS5Controller(OperatorConstants.<span class="blank" data-answer="kDriverControllerPort"></span>);
+
+    public RobotContainer() { <span class="blank" data-answer="configureBindings"></span>(); }
+
+    private void configureBindings() {
+        driver.cross().onTrue(new ArmToScoreCommand(<span class="blank" data-answer="arm"></span>));
+    }
+}</pre>
+            <div class="challenge-actions">
+              <button class="btn btn--sm check-btn" type="button">Check</button>
+              <button class="btn btn--sm btn--ghost reset-btn" type="button">Reset</button>
+            </div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">Why wrap it</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Why wrap <code>intake.runRoller(0.7)</code> in an
+              <code>InstantCommand</code> instead of just calling it?</p>
+            <div class="options">
+              <label class="option" data-explain="Identical speed. Both end up calling the same method on the same object."><input type="radio" name="q-ic" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It is faster</span></label>
+              <label class="option" data-correct data-explain="Exactly. A binding takes a Command, and wrapping it also lets the same action sit inside a sequence later."><input type="radio" name="q-ic" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A button binding takes a Command, and this turns a one-off call into one</span></label>
+              <label class="option" data-explain="It is not static. That is precisely why you need the instance the container holds."><input type="radio" name="q-ic" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>runRoller</code> is static</span></label>
+              <label class="option" data-explain="The clamp does that, and it lives inside the subsystem where nothing can bypass it."><input type="radio" name="q-ic" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It stops the motor exceeding 0.8</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="text"
+             data-win="Nothing. It carries on. Different subsystems, different requirements, no conflict."
+             data-lose="The arm keeps going. The intake command requires the intake and the arm command requires the arm, so they never compete and both run.">
+          <div class="challenge-head"><span class="ch-kind">Predict</span><span class="ch-title">Both at once</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">You press square, which runs the intake, while
+              <code>ArmToScoreCommand</code> is still running. What happens to the arm?</p>
+            <div class="answer-row">
+              <input class="answer-input" type="text" placeholder="what happens?" data-answer="nothing|it keeps going|carries on|continues|keeps moving|unaffected|nothing happens|it continues" aria-label="Your answer" />
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">Where does it go</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Where should <code>new ArmSubsystem()</code> appear in the whole project?</p>
+            <div class="options">
+              <label class="option" data-explain="Then each command has its own motor object on CAN ID 3, and they issue conflicting outputs with no error."><input type="radio" name="q-new" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">In each command that uses the arm</span></label>
+              <label class="option" data-explain="That file holds values, not objects. A subsystem holds live state and hardware."><input type="radio" name="q-new" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">In <code>Constants.java</code></span></label>
+              <label class="option" data-correct data-explain="Correct. This is the single place the robot's objects are born."><input type="radio" name="q-new" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Exactly once, as a field in <code>RobotContainer</code></span></label>
+              <label class="option" data-explain="Robot.java creates the RobotContainer, and the container creates the subsystems. That layering is the next lesson."><input type="radio" name="q-new" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">In <code>Robot.java</code></span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">What does not belong</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Which of these does <strong>not</strong> belong in
+              <code>RobotContainer</code>?</p>
+            <div class="options">
+              <label class="option" data-explain="It belongs here. The controller is one of the robot's objects and it is used by the bindings."><input type="radio" name="q-nb" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The controller object</span></label>
+              <label class="option" data-explain="Belongs here, and this is the only place they should ever be constructed."><input type="radio" name="q-nb" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">One instance of each subsystem</span></label>
+              <label class="option" data-correct data-explain="Right. Motors belong to subsystems, and only to subsystems. A motor here means something outside the subsystem can drive it."><input type="radio" name="q-nb" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>new SparkMax(3, MotorType.kBrushless)</code></span></label>
+              <label class="option" data-explain="That is the file's main method and the reason it exists."><input type="radio" name="q-nb" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>configureBindings()</code></span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <!-- ===================== MISTAKES ===================== -->
+        <h2 id="mistakes"><span class="section-h"><span class="num">10</span> Common mistakes</span></h2>
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">Watch out for these</div>
+          <div class="c-body">
+            <ul>
+              <li><strong>Treating this as where the robot runs.</strong> It is where the robot is wired. It runs
+                once at startup and nothing in it happens every 20 milliseconds.</li>
+              <li><strong>Letting each command create the subsystem it needs.</strong> One instance, created here,
+                handed in.</li>
+              <li><strong>Treating <code>InstantCommand</code> as a workaround.</strong> It is the intended tool for
+                instantaneous behaviour, and it is what makes a one-line action usable inside a sequence.</li>
+              <li><strong>Writing a full Command class for everything.</strong> For behaviour with duration, yes.
+                For setting a roller to 0.7, a lambda is the right amount of code.</li>
+              <li><strong>Expecting two simultaneous presses to conflict.</strong> Only if they require the same
+                subsystem.</li>
+              <li><strong>Calling subsystem methods on the class name.</strong> They are not static, which is the
+                whole reason this file exists.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- ===================== EXERCISE ===================== -->
+        <div class="exercise" id="exercise">
+          <div class="exercise-head">
+            <div class="ex-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4L12 17l-6.3 4.4L8 14 2 9.4h7.6z"/></svg></div>
+            <div>
+              <div class="ex-kicker">Build it · PenguinBot</div>
+              <h3>PenguinBot becomes drivable</h3>
+            </div>
+          </div>
+          <div class="exercise-body">
+            <p>Every layer exists separately: subsystems, commands, constants and a binding plan. Nothing has ever
+              connected them. Write the file that does.</p>
+            <ol class="task-list">
+              <li><b>Fields.</b> One <code>ArmSubsystem</code>, one <code>IntakeSubsystem</code>, one
+                <code>CommandPS5Controller</code> on the port from <code>Constants</code>.</li>
+              <li><b>Constructor</b> calls <code>configureBindings()</code>.</li>
+              <li><b>Bindings.</b> Cross raises the arm with <code>onTrue</code>, square intakes with
+                <code>whileTrue</code>, circle outtakes with <code>whileTrue</code>, triangle is a panic stop with
+                <code>onTrue</code>.</li>
+              <li><b>A <code>getAutonomousCommand()</code> stub</b> returning <code>null</code>, with a comment
+                pointing at Unit 11.</li>
+              <li><b>Below the code, write the six-step trace</b> for pressing square, from thumb to roller, naming
+                the class involved at each step.</li>
+              <li><b>Bonus.</b> Bind <code>cross().onFalse(...)</code> to an <code>InstantCommand</code> that stows
+                the arm, so tapping cross raises it and releasing lowers it. Then explain why that is a bad binding
+                for a scoring mechanism.</li>
+            </ol>
+
+            <details class="reveal">
+              <summary><svg class="rv-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg> Reveal the solution</summary>
+              <div class="reveal-body">
+                <p>The file is the one in section 6. What matters is the trace.</p>
+
+                <p><b>The six-step trace for pressing square</b></p>
+                <ol class="task-list">
+                  <li>The driver presses square on the controller assigned to Driver Station <b>port 0</b>.</li>
+                  <li><code>CommandPS5Controller</code>, created in <code>RobotContainer</code> with
+                    <code>kDriverControllerPort</code>, sees the state change to true.</li>
+                  <li>The <code>whileTrue</code> binding in <code>configureBindings()</code> schedules the
+                    <code>InstantCommand</code>.</li>
+                  <li>The <code>InstantCommand</code>'s lambda runs
+                    <code>intake.runRoller(IntakeConstants.kIntakeSpeed)</code>.</li>
+                  <li><code>IntakeSubsystem.runRoller</code>, the only code in the project that touches this motor,
+                    calls <code>roller.set(0.7)</code>.</li>
+                  <li>The SparkMax on <b>CAN ID 2</b> drives the Neo and the roller spins until something changes
+                    it.</li>
+                </ol>
+                <p>Steps 5 and 6 hand off to the hardware path from Unit 1: roboRIO, then CAN, then the SparkMax,
+                  then the Neo.</p>
+
+                <p><b>The bonus, and why it is bad.</b> <code>cross().onFalse(stowArm)</code> means the arm drops the
+                  instant the driver's thumb leaves the button. During a scoring cycle the driver's hand is moving
+                  between buttons constantly, so the arm would slam down in the middle of a score. Raising and
+                  lowering are two deliberate actions and deserve two deliberate buttons. Better still, one command
+                  that does the whole cycle in order, which is the next lesson.</p>
+              </div>
+            </details>
+            <p>Four buttons, four behaviours. But scoring is really three things in order: arm up, then outtake, then
+              arm down. One press should do all three. That is the next lesson.</p>
+          </div>
+        </div>
+
+        <!-- ===================== CHECKPOINT ===================== -->
+        <div class="checkpoint" id="checkpoint">
+          <div class="checkpoint-head">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            <h3>Checkpoint</h3>
+            <span class="cp-score">0 / 5</span>
+          </div>
+          <div class="checkpoint-body">
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q1.</span> What are the three sections of <code>RobotContainer</code>?</div>
+              <div class="options">
+                <label class="option" data-explain="Motors belong to subsystems. Nothing in this file should construct hardware."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Motors, sensors, commands</span></label>
+                <label class="option" data-correct data-explain="Yes. Objects at the top, wiring in the constructor, bindings in their own method."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Declarations, constructor, <code>configureBindings()</code></span></label>
+                <label class="option" data-explain="That is a Command's lifecycle, which belongs to individual behaviours rather than to this file."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">initialize, execute, end</span></label>
+                <label class="option" data-explain="Those are Robot.java's modes, which is the next lesson."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Teleop, autonomous, test</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q2.</span> What does <code>InstantCommand</code> do?</div>
+              <div class="options">
+                <label class="option" data-explain="Same loop as every other command. It just ends immediately rather than running faster."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Runs faster than other commands</span></label>
+                <label class="option" data-correct data-explain="Right, and ending immediately is what makes it usable in a sequence, because the next step fires straight after."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Runs its action once and ends straight away</span></label>
+                <label class="option" data-explain="That is a whileTrue binding on a command whose isFinished never returns true. A different thing entirely."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Runs continuously while a button is held</span></label>
+                <label class="option" data-explain="Requirements cancel other commands, and that has nothing to do with which command type you used."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Cancels other commands</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q3.</span> How many <code>IntakeSubsystem</code> objects should exist on the robot?</div>
+              <div class="options">
+                <label class="option" data-explain="Each one would create its own motor object on CAN ID 2 and they would fight."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">One per command that uses it</span></label>
+                <label class="option" data-correct data-explain="Correct. One mechanism, one owner, one object."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Exactly one, in <code>RobotContainer</code></span></label>
+                <label class="option" data-explain="Modes do not own hardware. The same intake exists in autonomous and teleop."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">One per robot mode</span></label>
+                <label class="option" data-explain="Bindings reference the one shared instance. Square and circle both use the same intake object."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">One per button binding</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q4.</span> Pressing two buttons that command two <em>different</em> subsystems does what?</div>
+              <div class="options">
+                <label class="option" data-explain="Only when they share a requirement. Different subsystems never compete."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The second interrupts the first</span></label>
+                <label class="option" data-correct data-explain="Yes, and the sandbox showed it. No shared subsystem, no conflict, and no code needed to arrange it."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Both run at the same time</span></label>
+                <label class="option" data-explain="Perfectly legal and extremely common. A driver intaking while the arm moves is a normal match."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Throws an error</span></label>
+                <label class="option" data-explain="Nothing queues. They simply coexist on the same 20 millisecond loop."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Queues the second until the first finishes</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q5.</span> Why can you not write <code>ArmSubsystem.goToScore()</code>?</div>
+              <div class="options">
+                <label class="option" data-explain="It is public. Access is not the problem."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The method is private</span></label>
+                <label class="option" data-correct data-explain="Exactly, and it is one of the two reasons this file exists at all."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It is not static, so you need the instance</span></label>
+                <label class="option" data-explain="That is a runtime concern the subsystem handles with its homed guard, not a reason the call will not compile."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The arm is not homed yet</span></label>
+                <label class="option" data-explain="Importing a class does not make its instance methods static. The import is already there."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">You need to import it</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check my answers</button></div>
+          </div>
+        </div>
+
+        <!-- ===================== COMPLETE ===================== -->
+        <div class="mark-complete">
+          <div class="mc-text"><b>PenguinBot is drivable.</b><span>Next: making one button press do three things in order.</span></div>
+          <button class="complete-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>Mark as complete</span></button>
+        </div>
+
+      </div><!-- /prose -->
+    </div><!-- /content-inner -->
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="/assets/js/course.js"></script>
+  <script src="/assets/js/site.js"></script>
+  <script src="/assets/js/widgets.js"></script>
+</body>
+</html>

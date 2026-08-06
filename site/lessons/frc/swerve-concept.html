@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Field-Centric Swerve · Penguin Empire 2551</title>
+  <meta name="description" content="What a swerve module is, what field-centric control actually means, why the gyro has to be zeroed facing a known direction, and why there is no code in this lesson." />
+  <link rel="icon" href="/assets/img/logo-2551.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Aldrich&family=Russo+One&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/brand.css" />
+  <link rel="stylesheet" href="/assets/css/layout.css" />
+  <link rel="stylesheet" href="/assets/css/lesson.css" />
+</head>
+<body data-page="lesson" data-lesson="frc-swerve-concept">
+  <main id="main" class="content">
+    <div class="content-inner">
+
+      <!-- ===================== HEADER ===================== -->
+      <header class="lesson-hero">
+        <nav class="crumbs" aria-label="Breadcrumb">
+          <a href="/">Home</a><span class="sep">/</span>
+          <a href="/syllabus.html">Phase 2 · FRC</a><span class="sep">/</span>
+          <span>Unit 9 · Driving</span>
+        </nav>
+        <span class="badge badge--ocean">Unit 9</span>
+        <h1 class="lesson-title">Field-Centric Swerve</h1>
+        <p class="lesson-lede">Every new driver arrives with an instinct from video games, and swerve does not
+          work that way. Understanding the difference before you touch a robot is the difference between driving
+          and crashing.</p>
+        <div class="lesson-meta">
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg> 25 min</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h2v-4H3zM9 20h2V10H9zM15 20h2V4h-2z"/></svg> Advanced</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2zM18 3v16"/></svg> Needs: Unit 8</span>
+        </div>
+      </header>
+
+      <!-- ===================== GOAL ===================== -->
+      <div class="goal">
+        <div class="goal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div>
+        <div>
+          <h2>Your goal</h2>
+          <p>Explain what field-centric control means, and predict how a swerve robot moves for a given stick input
+            and robot heading.</p>
+        </div>
+      </div>
+
+      <nav class="toc" aria-label="On this page">
+        <strong>On this page</strong>
+        <ol>
+          <li><a href="#why">Why this matters</a></li>
+          <li><a href="#module">What a swerve module is</a></li>
+          <li><a href="#buys">What swerve buys you</a></li>
+          <li><a href="#frames">Two frames of reference</a></li>
+          <li><a href="#diagrams">The same input, three ways</a></li>
+          <li><a href="#gyro">The gyro, and how it goes wrong</a></li>
+          <li><a href="#nocode">Why there is no code in this lesson</a></li>
+          <li><a href="#challenges">Practice challenges</a></li>
+          <li><a href="#mistakes">Common mistakes</a></li>
+          <li><a href="#exercise">Project: Predict the robot on paper</a></li>
+          <li><a href="#checkpoint">Checkpoint</a></li>
+        </ol>
+      </nav>
+
+      <div class="prose">
+
+        <!-- ===================== WHY ===================== -->
+        <h2 id="why"><span class="section-h"><span class="num">1</span> Why this matters</span></h2>
+
+        <div class="callout callout--why">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></div>
+          <div class="c-title">Swerve is not a video game</div>
+          <div class="c-body">
+            <p>In a game you push the stick forward and the vehicle goes the way it is pointing. Turn, and forward
+              becomes a new direction. That instinct is wrong here, and our curriculum is emphatic about it.</p>
+            <p><strong>Swerve is field-centric.</strong> Push the left stick forward and the robot moves toward the
+              far side of the field, regardless of which way the robot is facing. Spin the robot 180 degrees with
+              the right stick and push forward again. It still goes toward the far side of the field. The robot's
+              body rotated. Its sense of forward did not.</p>
+            <p>Once that clicks it feels obvious, because it matches how a driver actually sees the field. They are
+              standing behind glass looking at what is effectively a map. The stick points at where they want the
+              robot to be on that map, and the robot's orientation never enters into it.</p>
+            <p>Until it clicks, drivers crash.</p>
+          </div>
+        </div>
+
+        <!-- ===================== MODULE ===================== -->
+        <h2 id="module"><span class="section-h"><span class="num">2</span> What a swerve module is</span></h2>
+        <p>Each corner of the robot has a module. <strong>One motor drives the wheel, and a second motor steers
+          it.</strong> Four modules means <strong>eight motors</strong>, plus an encoder per module so the code
+          knows which way each wheel is currently pointing.</p>
+
+        <div class="diagram">   one swerve module, from the side
+
+        [ steer motor ]        turns the whole assembly
+              |                to any angle
+        ______|______
+       |             |
+       | drive motor |        spins the wheel
+       |_____________|
+             ( )               the wheel
+</div>
+
+        <div class="callout callout--tip">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12c.7.7 1 1.4 1 2h6c0-.6.3-1.3 1-2a7 7 0 0 0-4-12z"/></svg></div>
+          <div class="c-title">Unit 5 was building to this</div>
+          <div class="c-body"><p>A swerve wheel can be pointing in any direction when the robot powers on, and
+            there is no hard stop to home against, because the module can spin freely forever.</p>
+            <p>That is exactly the decision rule from <a href="/lessons/frc/relative-absolute.html">Relative vs.
+              Absolute Encoders</a>, so swerve steering uses <strong>absolute encoders</strong>. If you wondered
+              when that lesson would pay off, this is when.</p></div>
+        </div>
+
+        <!-- ===================== BUYS ===================== -->
+        <h2 id="buys"><span class="section-h"><span class="num">3</span> What swerve buys you</span></h2>
+        <p>A tank drivetrain can drive forward and turn. That is the whole list.</p>
+        <p>A swerve can <strong>translate in any direction while simultaneously rotating</strong>. It can strafe
+          sideways while spinning to face the goal. It can approach a scoring position from any angle without a
+          three point turn. It can drive across the field in a straight line while keeping its intake pointed at a
+          game piece the entire way.</p>
+        <p>That last one is the point. Translation and rotation are <strong>independent</strong>, and that
+          independence is what makes eight motors and a pile of trigonometry worth the trouble.</p>
+
+        <!-- ===================== FRAMES ===================== -->
+        <h2 id="frames"><span class="section-h"><span class="num">4</span> Two frames of reference</span></h2>
+
+        <div class="tablewrap">
+          <table class="data">
+            <thead><tr><th></th><th>Robot-centric</th><th>Field-centric</th></tr></thead>
+            <tbody>
+              <tr><td>Stick forward means</td><td>Forward <em>for the robot</em></td><td>Toward the far end of the <em>field</em></td></tr>
+              <tr><td>Turning the robot</td><td>Changes what forward does</td><td>Changes nothing about what forward does</td></tr>
+              <tr><td>The driver has to</td><td>Track the robot's heading in their head</td><td>Point at where they want it to go</td></tr>
+              <tr><td>Used for</td><td>Fine alignment, some autonomous</td><td>Almost all teleop driving</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>The phrasing from our curriculum is worth memorising: <em>whatever direction you push on the stick is the
+          direction the robot translates on the field.</em> Think of a top-down map.</p>
+
+        <p>The right stick rotates the robot left and right <strong>without changing its translation
+          direction</strong>. Those are two separate channels of control that never interfere with each other.</p>
+
+        <!-- ===================== DIAGRAMS ===================== -->
+        <h2 id="diagrams"><span class="section-h"><span class="num">5</span> The same input, three ways</span></h2>
+        <p>In all three of these the driver does exactly one thing: pushes the left stick straight up. What changes
+          is the robot's heading and which mode is on.</p>
+
+        <h3>A · Robot facing north, field-centric</h3>
+        <div class="diagram">   NORTH (far end of the field)
+   ^
+   |                          stick:  up
+   |        ^                 robot heading: north
+   |       [^]  robot         result: drives north
+   |        |                 the intuitive case, and the only one
+   |     travels north        that matches the video game instinct
+   |
+   +------------------------> EAST
+</div>
+
+        <h3>B · Robot facing west, field-centric</h3>
+        <div class="diagram">   NORTH
+   ^
+   |                          stick:  up
+   |       travels north      robot heading: WEST
+   |          ^               result: SLIDES north, still facing west
+   |          |
+   |      &lt;--[o]  robot       the nose never moves. all four wheels
+   |       facing west        point north and drive. the body is
+   |                          just along for the ride.
+   +------------------------> EAST
+</div>
+
+        <div class="callout callout--tip">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12c.7.7 1 1.4 1 2h6c0-.6.3-1.3 1-2a7 7 0 0 0-4-12z"/></svg></div>
+          <div class="c-title">Diagram B is the entire lesson</div>
+          <div class="c-body"><p><strong>The robot slides north. It is still facing west the whole time.</strong>
+            If you understand that one sentence you understand field-centric control.</p></div>
+        </div>
+
+        <h3>C · Robot facing west, robot-centric</h3>
+        <div class="diagram">   NORTH
+   ^
+   |                          stick:  up
+   |                          robot heading: west
+   |                          result: drives WEST
+   |   &lt;---&lt;--[o]  robot
+   |    travels west          "up" now means "the way the nose points",
+   |                          so the robot drives along its own axis.
+   |
+   +------------------------> EAST
+</div>
+
+        <p>Same driver input. Same robot heading. Two completely different results, and the only difference is
+          which frame of reference the code is using.</p>
+
+        <h3>What the wheels do</h3>
+        <div class="diagram">   pure translation              pure rotation
+   (all wheels parallel)         (wheels tangential)
+
+     /            /                \          /
+    /            /                  \        /
+        robot                          robot
+     /            /                  /        \
+    /            /                  /          \
+
+   every wheel points the        each wheel points along the
+   same way and drives           circle the robot turns about
+</div>
+
+        <p>For a mix of translation and rotation, each of the four wheels ends up at a slightly different angle and
+          a slightly different speed. Working out those eight numbers, fifty times a second, is what swerve
+          kinematics does.</p>
+
+        <!-- ===================== GYRO ===================== -->
+        <h2 id="gyro"><span class="section-h"><span class="num">6</span> The gyro, and how it goes wrong</span></h2>
+        <p>The maths in diagram B only works if the robot knows which way it is facing. A <strong>gyro</strong>
+          measures that heading. Here is the mental model for a single stick push.</p>
+
+        <div class="diagram">Driver pushes the left stick up-and-right (north-east on the field map).
+The robot is currently facing WEST.
+
+  -&gt; the code subtracts the robot's heading from the stick's field direction
+  -&gt; it works out that "north-east on the field" is "back-and-right" for THIS robot
+  -&gt; each of the 4 modules is told an angle and a speed
+  -&gt; all four wheels rotate to point north-east, and drive
+
+The robot slides north-east. It is still facing west the whole time.
+</div>
+
+        <p>Everything in that trace depends on the heading being correct, which has two entirely practical
+          consequences.</p>
+
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">Zero the gyro facing a known direction</div>
+          <div class="c-body"><p>The gyro has to be zeroed with the robot pointing somewhere you have agreed on,
+            normally at the start of a match. Zero it while the robot is facing sideways and every subsequent stick
+            input is rotated by 90 degrees.</p>
+            <p>This is the same class of bug as an unhomed relative encoder from Unit 5. The sensor is reporting
+              perfectly. What is wrong is what zero means.</p>
+            <p>What makes it nasty is that the error is <em>consistent</em>. The robot is not twitching or
+              behaving randomly. It reliably goes 90 degrees off from what the driver asked, which feels like a
+              driving problem rather than a setup problem. Teams give the driver a re-zero button for exactly this
+              reason.</p></div>
+        </div>
+
+        <div class="callout callout--season">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
+          <div class="c-title">Verify for current season</div>
+          <div class="c-body"><p>Which gyro or inertial measurement unit a team runs, and the API for reading its
+            heading and zeroing it, are both hardware and vendor specific. This lesson deliberately names no device
+            and shows no code, because getting that wrong is worse than leaving it out. Check what is actually
+            mounted on your robot and read that vendor's current documentation.</p></div>
+        </div>
+
+        <!-- ===================== NOCODE ===================== -->
+        <h2 id="nocode"><span class="section-h"><span class="num">7</span> Why there is no code in this lesson</span></h2>
+        <p>Two reasons, and both are worth being explicit about.</p>
+        <ul>
+          <li><b>You will not write this maths.</b> Swerve kinematics involves real trigonometry per module, and
+            teams use a <strong>generator</strong> to produce the code. Our curriculum says the same thing: students
+            rarely write swerve from scratch.</li>
+          <li><b>Neither of our sources verifies a swerve API.</b> Showing you an invented
+            <code>drive(x, y, rot)</code> signature would be exactly the kind of made-up API this course refuses to
+            print. Every code block in this track is either verified or flagged, and there is nothing here to
+            verify.</li>
+        </ul>
+        <p>The point of this lesson is understanding the behaviour. The point of the next one is knowing which
+          generator matches your hardware and what it produces.</p>
+
+        <!-- ===================== CHALLENGES ===================== -->
+        <h2 id="challenges"><span class="section-h"><span class="num">8</span> Practice challenges</span></h2>
+
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">The core behaviour</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">The robot is facing <b>west</b>. The driver pushes the left stick straight
+              up, meaning north. Field-centric is on. What does the robot do?</p>
+            <div class="options">
+              <label class="option" data-explain="That is robot-centric behaviour, which is diagram C rather than diagram B."><input type="radio" name="q-core" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Drives west, the way it is facing</span></label>
+              <label class="option" data-correct data-explain="Exactly. Field-centric means the stick points at the field, not at the robot."><input type="radio" name="q-core" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Slides north, still facing west</span></label>
+              <label class="option" data-explain="It never needs to turn in order to translate. Not needing to is the entire point of swerve."><input type="radio" name="q-core" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Turns to face north first, then drives</span></label>
+              <label class="option" data-explain="No rotation is needed and none happens. The left stick translates on its own."><input type="radio" name="q-core" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Nothing until you rotate first</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">The other frame</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Same setup, but field-centric is <b>off</b>. What does the robot do?</p>
+            <div class="options">
+              <label class="option" data-explain="That is field-centric, which is the mode you just turned off."><input type="radio" name="q-rc" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Slides north</span></label>
+              <label class="option" data-correct data-explain="Right. Robot-centric means the stick is interpreted relative to the robot's own nose."><input type="radio" name="q-rc" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Drives west, the way it is facing</span></label>
+              <label class="option" data-explain="The left stick translates. The right stick rotates. Neither mode changes which stick does which."><input type="radio" name="q-rc" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Spins in place</span></label>
+              <label class="option" data-explain="It drives, just in a different direction than a driver expecting field-centric would predict."><input type="radio" name="q-rc" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Nothing</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="text"
+             data-win="Eight. IDs 10 to 13 for drive and 14 to 17 for steering on PenguinBot's map, which is why the grouped ID scheme from Unit 2 earns its keep."
+             data-lose="Eight. Four modules times two motors each. And with a grouped ID scheme, an error naming CAN ID 16 immediately reads as back-left steering.">
+          <div class="challenge-head"><span class="ch-kind">Predict</span><span class="ch-title">Count the IDs</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">PenguinBot's swerve has four modules, each with a drive motor and a
+              steering motor. How many CAN IDs do the drivetrain motors need?</p>
+            <div class="answer-row">
+              <input class="answer-input" type="text" placeholder="a number" data-answer="8|eight" aria-label="Your answer" />
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">The gyro bug</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">A driver zeroes the gyro while the robot is facing <b>sideways</b> on the
+              field. What happens when they push the stick forward?</p>
+            <div class="options">
+              <label class="option" data-explain="Field-centric translation is built entirely on the heading. It is the first thing the calculation uses."><input type="radio" name="q-gyro" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Nothing, the gyro does not affect translation</span></label>
+              <label class="option" data-correct data-explain="Right, and the consistency is what makes it feel like the driver's fault rather than a setup bug."><input type="radio" name="q-gyro" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The robot moves 90 degrees off from where they intended, consistently</span></label>
+              <label class="option" data-explain="A heading offset rotates the translation direction. It does not add any rotation."><input type="radio" name="q-gyro" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The robot spins</span></label>
+              <label class="option" data-explain="Nothing breaks. The modules are being given perfectly valid angles, just the wrong ones."><input type="radio" name="q-gyro" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The modules break</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">Which encoder</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Why do swerve steering motors use absolute encoders?</p>
+            <div class="options">
+              <label class="option" data-explain="Accuracy is not the deciding factor. A relative encoder can be just as precise once it knows where it started."><input type="radio" name="q-abs" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">They are more accurate</span></label>
+              <label class="option" data-correct data-explain="Exactly the decision rule from Unit 5, applied to real hardware. No known starting point and nothing to home against."><input type="radio" name="q-abs" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A wheel can point any direction at power-on and there is no hard stop to home against</span></label>
+              <label class="option" data-explain="Nothing about CAN requires a particular kind of encoder."><input type="radio" name="q-abs" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">CAN requires them</span></label>
+              <label class="option" data-explain="Relative encoders work fine on any motor. The mechanism is what decides, not the motor."><input type="radio" name="q-abs" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Relative encoders do not work on these motors</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <!-- ===================== MISTAKES ===================== -->
+        <h2 id="mistakes"><span class="section-h"><span class="num">9</span> Common mistakes</span></h2>
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">Watch out for these</div>
+          <div class="c-body">
+            <ul>
+              <li><strong>Thinking field-centric means the robot always faces forward.</strong> The robot can face
+                any direction it likes. Field-centric is about which way it translates, not which way it points.</li>
+              <li><strong>Thinking you have to turn before you can drive that way.</strong> That is a car. A swerve
+                translates in any direction instantly, without changing its heading.</li>
+              <li><strong>Thinking the right stick changes the direction of travel.</strong> It rotates the body.
+                Translation is unaffected, and that decoupling is the whole reason swerve is worth the
+                complexity.</li>
+              <li><strong>Thinking swerve is four independently driven wheels.</strong> Each wheel is also steered
+                by its own motor. Eight motors, not four.</li>
+              <li><strong>Thinking the gyro is set up once and then fine.</strong> It has to be zeroed facing a
+                known direction, and drivers need a re-zero button.</li>
+              <li><strong>Planning to write the kinematics yourself.</strong> Almost nobody does, and the next
+                lesson is about choosing a generator.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- ===================== EXERCISE ===================== -->
+        <div class="exercise" id="exercise">
+          <div class="exercise-head">
+            <div class="ex-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4L12 17l-6.3 4.4L8 14 2 9.4h7.6z"/></svg></div>
+            <div>
+              <div class="ex-kicker">Build it · PenguinBot</div>
+              <h3>Predict the robot on paper</h3>
+            </div>
+          </div>
+          <div class="exercise-body">
+            <p>PenguinBot can score from one button press and cannot move across the field. Before you generate a
+              drivetrain, be able to predict what it will do. This exercise is pencil and paper on purpose.</p>
+            <ol class="task-list">
+              <li><b>Draw the field top-down</b> with PenguinBot facing <b>east</b>, halfway down one side.</li>
+              <li><b>For each input below</b>, draw where the robot goes and which way it faces afterwards. Assume
+                field-centric with the gyro correctly zeroed.
+                <br />a. Left stick fully north.
+                <br />b. Left stick fully north <em>and</em> right stick left.
+                <br />c. Left stick north-west.
+                <br />d. Right stick only.</li>
+              <li><b>Redo (a) with robot-centric on.</b></li>
+              <li><b>Redo (a) with the gyro zeroed 90 degrees wrong.</b></li>
+              <li><b>Write the drivetrain's entry in PenguinBot's CAN map</b>, all eight motors, grouped so an error
+                message identifies a location.</li>
+            </ol>
+
+            <details class="reveal">
+              <summary><svg class="rv-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg> Reveal the solution</summary>
+              <div class="reveal-body">
+                <p><b>2a.</b> The robot <b>slides north</b>, still facing <b>east</b>. Its body never rotates.</p>
+                <p><b>2b.</b> The robot <b>travels north</b> while <b>spinning anticlockwise</b>. Its path is a
+                  straight line north and its heading changes continuously. Both at the same time, which is
+                  precisely what a tank drive cannot do.</p>
+                <p><b>2c.</b> The robot <b>slides north-west</b>, still facing east. All four wheels point
+                  north-west.</p>
+                <p><b>2d.</b> The robot <b>spins in place</b> and does not translate. The four wheels splay out
+                  tangentially.</p>
+                <p><b>3. Robot-centric.</b> The robot drives <b>east</b>, the way it is facing, because the stick is
+                  now interpreted relative to the robot's nose.</p>
+                <p><b>4. Gyro 90 degrees wrong.</b> The robot goes east or west, depending on the sign of the error,
+                  when the driver asked for north. Every input is rotated by the same offset, consistently, which is
+                  exactly what makes it feel like a driving problem rather than a setup problem.</p>
+
+                <p><b>5. Drivetrain CAN map</b></p>
+                <div class="tablewrap">
+                  <table class="data">
+                    <thead><tr><th>CAN ID</th><th>Module</th><th>Motor</th></tr></thead>
+                    <tbody>
+                      <tr><td>10 / 11 / 12 / 13</td><td>FL / FR / BL / BR</td><td><b>drive</b></td></tr>
+                      <tr><td>14 / 15 / 16 / 17</td><td>FL / FR / BL / BR</td><td><b>steer</b></td></tr>
+                    </tbody>
+                  </table>
+                </div>
+                <p>Grouped this way, an error reading <code>CAN ID 16 timed out</code> means <em>back-left
+                  steering</em> with no map and no asking anybody. That is the whole payoff of the ID scheme from
+                  Unit 2, and you will be very glad of it in Unit 12.</p>
+              </div>
+            </details>
+            <p>You know what a swerve does. Next, how the code that does it gets written, because it almost
+              certainly is not written by you.</p>
+          </div>
+        </div>
+
+        <!-- ===================== CHECKPOINT ===================== -->
+        <div class="checkpoint" id="checkpoint">
+          <div class="checkpoint-head">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            <h3>Checkpoint</h3>
+            <span class="cp-score">0 / 5</span>
+          </div>
+          <div class="checkpoint-body">
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q1.</span> How many motors does a four-module swerve drivetrain have?</div>
+              <div class="options">
+                <label class="option" data-explain="One per module would drive but never steer, which is a tank drive with extra steps."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Four</span></label>
+                <label class="option" data-correct data-explain="One drive and one steer per module, which is why the CAN map needs eight IDs."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Eight</span></label>
+                <label class="option" data-explain="That is a simple tank drive, one motor per side."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Two</span></label>
+                <label class="option" data-explain="Two per module, not four. Some teams double up drive motors, but that is not the standard module."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Sixteen</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q2.</span> Field-centric means what?</div>
+              <div class="options">
+                <label class="option" data-explain="It can face anywhere. Field-centric is about translation, not heading."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The robot always faces the far end of the field</span></label>
+                <label class="option" data-correct data-explain="Yes. The driver points at the map, not at the robot."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The stick's direction is a field direction, whatever the robot's heading</span></label>
+                <label class="option" data-explain="That is autonomous, which is a different thing entirely and is Unit 11."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The robot drives itself</span></label>
+                <label class="option" data-explain="The right stick rotates freely and independently in both modes."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Rotation is disabled</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q3.</span> What does the right stick do?</div>
+              <div class="options">
+                <label class="option" data-explain="That is the left stick. The two are deliberately independent."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Changes the direction of travel</span></label>
+                <label class="option" data-correct data-explain="Right, and that independence is swerve's main advantage over every other drivetrain."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Rotates the robot without changing its translation direction</span></label>
+                <label class="option" data-explain="That is a button or a toggle, not a stick axis."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Selects field-centric or robot-centric</span></label>
+                <label class="option" data-explain="Speed is the magnitude of the left stick. How far you push it is how fast it goes."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Controls speed</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q4.</span> Why does field-centric control need a gyro?</div>
+              <div class="options">
+                <label class="option" data-explain="Encoders measure speed. A gyro measures orientation."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">To measure speed</span></label>
+                <label class="option" data-correct data-explain="Exactly. No heading, no field frame to work in, and no way to convert a field direction into wheel angles."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">To know the heading, so a field direction can become robot-relative wheel angles</span></label>
+                <label class="option" data-explain="Not what it is for here, though a sharp change in reading can be a hint that something hit you."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">To detect collisions</span></label>
+                <label class="option" data-explain="Without a heading there is no field frame at all, so field-centric simply cannot be computed."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It does not, the gyro is optional</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q5.</span> Why is there no code in this lesson?</div>
+              <div class="options">
+                <label class="option" data-explain="It needs a great deal of code. That is not the reason."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Swerve does not need code</span></label>
+                <label class="option" data-explain="The concept is right here and you have just learned it. The code is the easy part to acquire."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It is too advanced</span></label>
+                <label class="option" data-correct data-explain="Correct, and that is this course's rule. Nothing gets printed as code unless it is verified or explicitly flagged."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Swerve code is generated, and no source here verifies a swerve API</span></label>
+                <label class="option" data-explain="Unit 11 is autonomous. The next lesson covers generators."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It is covered in Unit 11</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check my answers</button></div>
+          </div>
+        </div>
+
+        <!-- ===================== COMPLETE ===================== -->
+        <div class="mark-complete">
+          <div class="mc-text"><b>You can predict what a swerve will do.</b><span>Next: where the code that does it comes from.</span></div>
+          <button class="complete-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>Mark as complete</span></button>
+        </div>
+
+      </div><!-- /prose -->
+    </div><!-- /content-inner -->
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="/assets/js/course.js"></script>
+  <script src="/assets/js/site.js"></script>
+  <script src="/assets/js/widgets.js"></script>
+</body>
+</html>

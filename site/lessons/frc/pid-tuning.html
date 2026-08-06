@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Tuning Recipe · Penguin Empire 2551</title>
+  <meta name="description" content="The team's ordered method for tuning a controller, the four failure signatures you will recognise for the rest of your FRC career, and a five-run gain ladder you drive yourself." />
+  <link rel="icon" href="/assets/img/logo-2551.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Aldrich&family=Russo+One&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/brand.css" />
+  <link rel="stylesheet" href="/assets/css/layout.css" />
+  <link rel="stylesheet" href="/assets/css/lesson.css" />
+</head>
+<body data-page="lesson" data-lesson="frc-pid-tuning">
+  <main id="main" class="content">
+    <div class="content-inner">
+
+      <!-- ===================== HEADER ===================== -->
+      <header class="lesson-hero">
+        <nav class="crumbs" aria-label="Breadcrumb">
+          <a href="/">Home</a><span class="sep">/</span>
+          <a href="/syllabus.html">Phase 2 · FRC</a><span class="sep">/</span>
+          <span>Unit 6 · Closed-Loop Control</span>
+        </nav>
+        <span class="badge badge--ocean">Unit 6</span>
+        <h1 class="lesson-title">The Tuning Recipe</h1>
+        <p class="lesson-lede">Last lesson gave you a controller with a number in it. This lesson is about choosing
+          that number, and about what the wrong choice does to hardware.</p>
+        <div class="lesson-meta">
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg> 30 min</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h2v-4H3zM9 20h2V10H9zM15 20h2V4h-2z"/></svg> Intermediate</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2zM18 3v16"/></svg> Needs: What P, I and D Do</span>
+        </div>
+      </header>
+
+      <!-- ===================== GOAL ===================== -->
+      <div class="goal">
+        <div class="goal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div>
+        <div>
+          <h2>Your goal</h2>
+          <p>Tune a P controller with the team's recipe, and recognise the four failure signatures from their output
+            alone.</p>
+        </div>
+      </div>
+
+      <nav class="toc" aria-label="On this page">
+        <strong>On this page</strong>
+        <ol>
+          <li><a href="#why">Why this matters</a></li>
+          <li><a href="#recipe">The recipe</a></li>
+          <li><a href="#done">Define done before you start</a></li>
+          <li><a href="#ladder">The five-run ladder</a></li>
+          <li><a href="#signatures">The four signatures</a></li>
+          <li><a href="#clamp">What the clamp hides</a></li>
+          <li><a href="#real">The sim gives you the method, the robot gives you the numbers</a></li>
+          <li><a href="#challenges">Practice challenges</a></li>
+          <li><a href="#mistakes">Common mistakes</a></li>
+          <li><a href="#exercise">Project: Tune the arm and keep a log</a></li>
+          <li><a href="#checkpoint">Checkpoint</a></li>
+        </ol>
+      </nav>
+
+      <div class="prose">
+
+        <!-- ===================== WHY ===================== -->
+        <h2 id="why"><span class="section-h"><span class="num">1</span> Why this matters</span></h2>
+
+        <div class="callout callout--why">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></div>
+          <div class="c-title">Every season, this team breaks something with bad PID</div>
+          <div class="c-body">
+            <p>That is not a warning we invented for a lesson. It is what has happened, every year. Bent parts. On
+              one occasion an entire mechanism came off the robot.</p>
+            <p>Here is the mechanism of the damage, because it explains how a number in a text file destroys
+              hardware. Set the gain too high and the arm reaches the setpoint still travelling fast. It overshoots.
+              Now the error is large in the other direction, so the controller commands full power backwards. It
+              overshoots again. The mechanism is no longer moving to a position. It is being driven at high power in
+              alternating directions, fifty times a second, and every one of those reversals is a shock load through
+              the gearbox and the mounting bolts.</p>
+            <p>You will produce exactly this behaviour in the sandbox below, and the harness will count the
+              reversals for you. Nothing breaks on a screen. On a real arm something does.</p>
+            <p>The other half of the advice, and it is the part people skip: <strong>be patient, and change one
+              variable at a time.</strong></p>
+          </div>
+        </div>
+
+        <!-- ===================== RECIPE ===================== -->
+        <h2 id="recipe"><span class="section-h"><span class="num">2</span> The recipe</span></h2>
+        <p>This is the team's method. It is short, it is ordered, and the order is the whole point.</p>
+
+        <ol class="task-list">
+          <li><b>Set <code>kI</code> and <code>kD</code> to zero.</b> You are tuning one number, not three.</li>
+          <li><b>Start <code>kP</code> very small</b> and raise it slowly. Doubling each time is a reasonable habit.</li>
+          <li><b>Stop when it reaches the setpoint quickly and cleanly.</b> For most mechanisms you are finished
+            here, and you never touch the other two gains.</li>
+          <li><b>If it oscillates or will not settle, add <code>kD</code>.</b></li>
+          <li><b>If it stops slightly short and stays there, add a small <code>kI</code>.</b> Small means far smaller
+            than <code>kP</code>, often by a factor of a hundred or more.</li>
+          <li><b>Change only one variable at a time.</b></li>
+          <li><b>Be patient.</b></li>
+        </ol>
+
+        <div class="callout callout--note">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg></div>
+          <div class="c-title">Why step 6 is not optional</div>
+          <div class="c-body">
+            <p>Change two gains, then see an improvement. Improved because of which one? You cannot say. To find
+              out you now have to test both separately, which is the work you were trying to skip. You spent time
+              and learned nothing.</p>
+            <p>With three gains and no discipline you are searching a three dimensional space by guessing. With the
+              recipe you are searching one dimension at a time, and you can always answer the question "what did
+              that change do."</p>
+          </div>
+        </div>
+
+        <!-- ===================== DONE ===================== -->
+        <h2 id="done"><span class="section-h"><span class="num">3</span> Define done before you start</span></h2>
+        <p>Write down what success is, with numbers in it, before you touch a gain. Without that sentence you will
+          tune forever, because "better" has no definition.</p>
+
+        <div class="callout callout--tip">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12c.7.7 1 1.4 1 2h6c0-.6.3-1.3 1-2a7 7 0 0 0-4-12z"/></svg></div>
+          <div class="c-title">The sentence for PenguinBot's arm</div>
+          <div class="c-body"><p>"The arm reaches the scoring setpoint within tolerance and <strong>stays there</strong>,
+            in under a second and a half, without exceeding 0.8 output and without reversing direction."</p></div>
+        </div>
+
+        <p>Three of those numbers deserve names, because you will use them for the rest of your FRC career.</p>
+
+        <div class="vocab">
+          <div class="vocab-term"><dt>tolerance</dt><dd>How close counts as arrived. Without it, "at the setpoint" is never true.</dd></div>
+          <div class="vocab-term"><dt>settling time</dt><dd>How long until the mechanism is inside tolerance and stays there.</dd></div>
+          <div class="vocab-term"><dt>overshoot</dt><dd>How far past the setpoint it went before coming back.</dd></div>
+        </div>
+
+        <p>Note the word <em>stays</em> in the definition of settling time. A mechanism that touches the target and
+          then leaves has not settled. The harness below enforces that: if the position leaves the tolerance band,
+          the settle counter resets.</p>
+
+        <!-- ===================== LADDER ===================== -->
+        <h2 id="ladder"><span class="section-h"><span class="num">4</span> The five-run ladder</span></h2>
+        <p>You do not need to understand every line of this harness. It is the same four-line P controller from last
+          lesson, wrapped in code that measures the result. <strong>Change <code>kP</code>. Press Run. Read the last
+          three lines of output.</strong></p>
+
+        <div class="callout callout--note">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg></div>
+          <div class="c-title">These gains belong to the simulator</div>
+          <div class="c-body"><p>PenguinSim works in degrees and models one generic mechanism with no gravity, no
+            gearbox slop and no game piece. The gains that work here are not PenguinBot's gains. What you are
+            learning is the method and the four signatures, and both transfer exactly. Section 7 covers what does
+            not.</p></div>
+        </div>
+
+        <div class="sandbox" data-compiler data-sim data-title="The tuning harness">
+          <script type="text/x-java" class="sb-src">
+// On a real robot this file would start with:
+//   import com.revrobotics.spark.SparkMax;
+//   import com.revrobotics.spark.SparkLowLevel.MotorType;
+
+public class Main {
+    public static void main(String[] args) {
+        final double TARGET    = 50.0;   // the arm's scoring setpoint, in sim degrees
+        final double TOLERANCE = 1.0;    // how close counts as arrived
+        final double MAX_OUT   = 0.8;    // the team's 80 percent rule
+
+        // ============ THE ONLY LINE YOU CHANGE ============
+        double kP = 0.005;
+        // ==================================================
+
+        SparkMax arm = new SparkMax(3, MotorType.kBrushless);
+
+        int settledAt = -1, reversals = 0;
+        double peak = 0.0, previousOutput = 0.0;
+
+        System.out.printf("kP = %.3f   target = %.2f%n", kP, TARGET);
+        System.out.println("tick   position");
+
+        for (int tick = 1; tick <= 150; tick++) {
+            double error  = TARGET - arm.getEncoder().getPosition();
+            double output = kP * error;
+            output = Math.max(-MAX_OUT, Math.min(MAX_OUT, output));
+            arm.set(output);
+
+            PenguinSim.step();
+
+            double position = arm.getEncoder().getPosition();
+            if (position > peak) peak = position;
+            if (previousOutput * output < 0) reversals++;   // the motor changed direction
+            previousOutput = output;
+
+            if (Math.abs(TARGET - position) < TOLERANCE) {
+                if (settledAt < 0) settledAt = tick;
+            } else {
+                settledAt = -1;                             // it left the band, so not settled
+            }
+
+            if (tick % 15 == 0) System.out.printf("%4d   %8.2f%n", tick, position);
+        }
+
+        System.out.printf("peak %.2f   overshoot %.1f%%   direction changes %d%n",
+                          peak, (peak - TARGET) / TARGET * 100.0, reversals);
+        System.out.println(settledAt > 0
+            ? "settled at tick " + settledAt + "  (" + (settledAt * 20) + " ms)"
+            : "NEVER SETTLED");
+    }
+}
+          </script>
+        </div>
+
+        <h3>Run 1 · <code>kP = 0.005</code> · too slow</h3>
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code>tick   position
+  15       4.28
+  30      10.63
+  ...
+ 135      37.47
+ 150      39.36
+peak 39.36   overshoot -21.3%   direction changes 0
+NEVER SETTLED</code></pre>
+        </div>
+        <p>Three seconds of robot time and the arm is at 39 out of 50. In a match that is a scoring cycle you did not
+          complete. Nothing is wrong with the code. There is simply not enough push.</p>
+
+        <h3>Run 2 · <code>kP = 0.01</code> · closer, still short</h3>
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code> 105      45.20
+ 120      46.69
+ 135      47.72
+ 150      48.43
+peak 48.43   overshoot -3.1%   direction changes 0
+NEVER SETTLED</code></pre>
+        </div>
+        <p>Double the gain and the shape is right. It decelerates properly and closes in. It just runs out of push
+          before it arrives, and 48.43 is outside a tolerance of 1.0. This is the steady-state gap from the last
+          lesson. Keep going.</p>
+
+        <h3>Run 3 · <code>kP = 0.02</code> · the answer</h3>
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code>  15      13.97
+  30      32.51
+  45      43.41
+  60      48.09
+  75      49.67
+  90      49.99
+ 105      49.99
+ 120      49.99
+ 135      49.99
+ 150      49.99
+peak 49.99   overshoot -0.0%   direction changes 0
+settled at tick 67  (1340 ms)</code></pre>
+        </div>
+        <p>Inside tolerance at 1340 ms, no overshoot, no direction changes, and flat from tick 90 onward. That meets
+          the sentence from section 3. On a real mechanism you would stop here and move on to something else.</p>
+
+        <h3>Run 4 · <code>kP = 0.2</code> · overshoot and ringing</h3>
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code>  30      36.52
+  45      54.07
+  60      48.41
+  75      50.61
+  90      49.77
+ 105      50.09
+peak 54.07   overshoot 8.1%   direction changes 5
+settled at tick 64  (1280 ms)</code></pre>
+        </div>
+        <p>Read the position column across those rows: 36, then 54, then 48, then 50.6, then 49.8. It is bouncing
+          around the target with decreasing swings. That is <strong>ringing</strong>. It settled 60 ms sooner than
+          run 3, and it paid for that with an 8 percent overshoot and five direction reversals.</p>
+
+        <h3>Run 5 · <code>kP = 5.0</code> · the one that breaks things</h3>
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code>  45      53.67
+  60      50.83
+  75      49.70
+  90      50.13
+ 105      50.02
+ 120      49.99
+peak 53.79   overshoot 7.6%   direction changes 23
+settled at tick 57  (1140 ms)</code></pre>
+        </div>
+
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">Look at run 5 again, because it is a trap</div>
+          <div class="c-body">
+            <p>By the two numbers most people check, run 5 is the <strong>best</strong> run on this page. It settled
+              fastest, at 1140 ms. Its overshoot was lower than run 4's. The position column ends flat on 50.00. If
+              you judged it on a position plot you would ship it.</p>
+            <p>Now read the third number. <strong>23 direction changes.</strong> The motor was commanded forwards,
+              then backwards, then forwards again, twenty three times, most of them after the arm had already
+              arrived. The mechanism is not holding a position. It is vibrating against the setpoint, and every
+              reversal is a shock load through the gearbox and the mounting hardware.</p>
+            <p>This is what takes mechanisms off robots, and it is why <em>settling time alone is not a tuning
+              target</em>. A gain that arrives fastest and hammers itself is not tuned.</p>
+          </div>
+        </div>
+
+        <p>Raise it further and it gets worse in exactly the way you would expect. At <code>kP = 25</code> the
+          harness counts 42 direction changes over the same 150 ticks.</p>
+
+        <div class="callout callout--note">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg></div>
+          <div class="c-title">Where the simulator is kinder than reality</div>
+          <div class="c-body"><p>In PenguinSim run 5 does eventually settle, because the model has smooth damping and
+            nothing else. A real mechanism has gearbox backlash, a flexing frame and a battery that sags under
+            repeated full-power reversals. Those add energy back into the oscillation instead of removing it, which
+            is why on real hardware this case often does not settle at all. Treat the sim's "settled at 1140 ms" as
+            optimistic, not as permission.</p></div>
+        </div>
+
+        <!-- ===================== SIGNATURES ===================== -->
+        <h2 id="signatures"><span class="section-h"><span class="num">5</span> The four signatures</span></h2>
+        <p>This table is the deliverable of the lesson. You will read these off real mechanisms for years.</p>
+
+        <div class="tablewrap">
+          <table class="data">
+            <thead><tr><th>Signature</th><th>What you see</th><th>What it means</th><th>What to do</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Too slow</strong></td><td>Creeps, still far short after a second</td><td><code>kP</code> too small</td><td>Raise <code>kP</code></td></tr>
+              <tr><td><strong>Steady-state gap</strong></td><td>Arrives almost, then sits there</td><td>P too weak at small errors</td><td>Raise <code>kP</code>, or add a small <code>kI</code></td></tr>
+              <tr><td><strong>Overshoot and ringing</strong></td><td>Sails past, comes back, wobbles in</td><td><code>kP</code> too large</td><td>Lower <code>kP</code>, or add <code>kD</code></td></tr>
+              <tr><td><strong>Chatter</strong></td><td>Looks settled, reverses direction constantly</td><td><code>kP</code> far too large</td><td>Lower <code>kP</code> a lot. On a real robot, disable first</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- ===================== CLAMP ===================== -->
+        <h2 id="clamp"><span class="section-h"><span class="num">6</span> What the clamp hides</span></h2>
+        <p>The harness clamps output to 0.8 before it reaches the motor. That clamp is doing real work, and it is
+          worth knowing exactly what work.</p>
+        <p><strong>Early in a large move the controller is saturated.</strong> With <code>kP = 0.2</code> and an
+          error of 50, the controller asks for 10.0 and gets 0.8. It stays pinned at 0.8 until the error drops below
+          4. During that stretch the closed loop is temporarily indistinguishable from open loop, which is why the
+          first rows of every run above look like a straight line, and why runs 3, 4 and 5 have identical positions
+          at tick 15. This is normal.</p>
+        <p><strong>The clamp limits force. It does not fix a gain.</strong> Prove it. Take run 5 and delete the clamp
+          line entirely.</p>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">the experiment</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">double kP = 5.0;
+
+double error  = TARGET - arm.getEncoder().getPosition();
+double output = kP * error;
+// output = Math.max(-MAX_OUT, Math.min(MAX_OUT, output));   // deleted on purpose
+arm.set(output);</code></pre>
+        </div>
+
+        <div class="code">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-spacer"></span></div>
+<pre><code>[sim] !! set(250.00) is outside -1.0..1.0 on CAN 3 - clamped to 1.0.
+[sim] !! 100% output on CAN 3. 2551 fried a motor at ~90% - afterwards it
+       ran about 5 seconds and quit. Stay under 80%, or add a second motor.
+...
+peak 55.30   overshoot 10.6%   direction changes 23
+settled at tick 60  (1200 ms)</code></pre>
+        </div>
+
+        <p>Compare that with the clamped run 5, which peaked at 53.79 with 23 direction changes.</p>
+        <ul>
+          <li>The overshoot got worse, 10.6 percent against 7.6 percent.</li>
+          <li>The motor was commanded to 250 percent output on the first cycle, and the fried-motor warning from
+            Unit 4 fired.</li>
+          <li><strong>The direction changes did not move at all. Twenty three, either way.</strong></li>
+        </ul>
+        <p>That last point is the lesson. The clamp reduced how hard the mechanism hit itself. It did not reduce how
+          often. Clamping is a damage limiter, not a tuning tool, and a bad gain is still a bad gain underneath it.</p>
+
+        <!-- ===================== REAL ===================== -->
+        <h2 id="real"><span class="section-h"><span class="num">7</span> The sim gives you the method, the robot gives you the numbers</span></h2>
+        <p>Gains describe a specific mechanism. They depend on its weight, its gearing, its friction and how much of
+          it is fighting gravity. Change any of those and the numbers change with them.</p>
+        <ul>
+          <li>An arm tuned empty is not tuned while holding a game piece.</li>
+          <li>An arm tuned on blocks in the shop is not tuned once the robot is on the floor with a full battery.</li>
+          <li>A new gearbox means a new tune. So does adding weight to the end of the arm.</li>
+          <li>The arm's gains are not the drivetrain's gains, and never will be.</li>
+        </ul>
+        <p>PenguinBot's real arm runs <code>kP = 0.2</code> against a setpoint of 9.0 rotations, and that number was
+          found by running this exact recipe on the actual arm, not by copying it from anywhere. Every lesson from
+          here to Unit 11 uses it.</p>
+
+        <div class="callout callout--season">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
+          <div class="c-title">On step sizes</div>
+          <div class="c-body"><p>You may hear an older team member say to raise the gain "in steps of about 5." That
+            advice came from a mechanism whose gains ran on a much larger scale than anything on this page, where a
+            step of 5 would be a factor of two hundred. Take the method, which is to raise slowly and change one
+            thing, and ignore the literal number. Start from whatever is currently in the file and double it.</p></div>
+        </div>
+
+        <!-- ===================== CHALLENGES ===================== -->
+        <h2 id="challenges"><span class="section-h"><span class="num">8</span> Practice challenges</span></h2>
+
+        <div class="challenge" data-kind="text"
+             data-win="Short. 0.015 gets to 49.60 and stalls there, which is outside a tolerance of 1.0 for most of the run and only just inside it at the end. Between two gains that both fall short, the one in the middle also falls short."
+             data-lose="Short. kP = 0.01 finishes at 48.43 and kP = 0.02 is the first gain that actually settles. A value between them lands between them, at 49.60, and takes 2000 ms to get inside tolerance. Run it and read the settle line.">
+          <div class="challenge-head"><span class="ch-kind">Predict</span><span class="ch-title">Between two runs</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">You have run <code>kP = 0.01</code>, which finishes at 48.43, and
+              <code>kP = 0.02</code>, which settles at tick 67. Without running it, does <code>kP = 0.015</code>
+              finish short of the target, on it, or past it?</p>
+            <div class="answer-row">
+              <input class="answer-input" type="text" placeholder="short, on it, or past it" data-answer="short|short of it|short of the target|just short|falls short|under" aria-label="Your answer" />
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+            <details class="reveal">
+              <summary><svg class="rv-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg> Hint</summary>
+              <div class="reveal-body"><p>Neither neighbouring run overshot. Overshoot needs enough gain to carry the
+                mechanism past the target while it is still moving, and both of these are below that.</p></div>
+            </details>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">Read the signature</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">A run reports <code>peak 53.79, overshoot 7.6%, direction changes 23,
+              settled at tick 57</code>. What do you do?</p>
+            <div class="options">
+              <label class="option" data-explain="Adding accumulated push to something already reversing twenty three times makes it worse. I is for a mechanism that stops short, not one that will not sit still."><input type="radio" name="q-sig5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Add <code>kI</code> to help it settle</span></label>
+              <label class="option" data-explain="Too much kP is what caused this. More of it produced 42 direction changes when we tried it."><input type="radio" name="q-sig5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Raise <code>kP</code> so it corrects faster</span></label>
+              <label class="option" data-correct data-explain="Yes. And on a real robot, disable it before you touch anything. This is the behaviour that breaks mechanisms, and the fast settling time is a distraction."><input type="radio" name="q-sig5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Lower <code>kP</code> substantially</span></label>
+              <label class="option" data-explain="It already reports settled. Widening the tolerance changes nothing about the twenty three reversals, it just makes the report look even better while the gearbox takes the load."><input type="radio" name="q-sig5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Nothing. It settled fastest of any run</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">Read the signature</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">A run reports <code>peak 48.43, overshoot -3.1%, direction changes 0, NEVER
+              SETTLED</code>, and the position column climbs smoothly the whole way. What do you do?</p>
+            <div class="options">
+              <label class="option" data-correct data-explain="Right. The shape is correct and there is no oscillation to fix. There is simply not enough push. Raise it and re-test."><input type="radio" name="q-sig2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Raise <code>kP</code></span></label>
+              <label class="option" data-explain="kD damps oscillation. Direction changes is zero, so there is no oscillation here. Adding kD would slow an approach that is already too slow."><input type="radio" name="q-sig2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Add <code>kD</code></span></label>
+              <label class="option" data-explain="It is already too slow to arrive at all. Lowering the gain moves it further from working."><input type="radio" name="q-sig2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Lower <code>kP</code></span></label>
+              <label class="option" data-explain="Read the last line, not the last row. It says NEVER SETTLED, and 50.00 minus 48.43 is 1.57, which is outside a tolerance of 1.0. Judge a run by its summary, not by whether the final number looks close."><input type="radio" name="q-sig2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Nothing. 48.43 is close enough to 50.00</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="order"
+             data-win="That is the recipe. P first, always, and one change at a time."
+             data-lose="Zero the other two, start kP small, raise it slowly, and only then reach for kD if it oscillates or kI if it stops short.">
+          <div class="challenge-head"><span class="ch-kind">Put in order</span><span class="ch-title">The recipe</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Drag these into the order the recipe puts them in.</p>
+            <ul class="order-list">
+              <li class="order-item" data-pos="4"><span class="grip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h16M4 16h16"/></svg></span><span>If it oscillates, add <code>kD</code></span></li>
+              <li class="order-item" data-pos="1"><span class="grip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h16M4 16h16"/></svg></span><span>Set <code>kI</code> and <code>kD</code> to zero</span></li>
+              <li class="order-item" data-pos="5"><span class="grip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h16M4 16h16"/></svg></span><span>If it stops just short, add a small <code>kI</code></span></li>
+              <li class="order-item" data-pos="2"><span class="grip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h16M4 16h16"/></svg></span><span>Start <code>kP</code> very small</span></li>
+              <li class="order-item" data-pos="3"><span class="grip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h16M4 16h16"/></svg></span><span>Raise <code>kP</code> slowly until it arrives cleanly</span></li>
+            </ul>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="mcq">
+          <div class="challenge-head"><span class="ch-kind">Multiple choice</span><span class="ch-title">About the clamp</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Runs 4 and 5 both clamped output to 0.8. Why did they still misbehave?</p>
+            <div class="options">
+              <label class="option" data-explain="A higher clamp made it worse when we tested it. Removing the clamp entirely raised the overshoot from 7.6 to 10.6 percent."><input type="radio" name="q-clamp" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The clamp is set too low</span></label>
+              <label class="option" data-correct data-explain="Exactly. Deleting the clamp changed the overshoot and left the direction changes at twenty three. It limits force, not frequency."><input type="radio" name="q-clamp" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The clamp limits how hard it pushes, not when it stops pushing</span></label>
+              <label class="option" data-explain="It is symmetric. Math.max(-0.8, Math.min(0.8, output)) caps both directions equally."><input type="radio" name="q-clamp" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The clamp only applies to positive values</span></label>
+              <label class="option" data-explain="It does not ignore it. Delete the clamp and the simulator immediately reports being commanded to 250 percent, which proves the clamp was applied before."><input type="radio" name="q-clamp" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">PenguinSim ignores the clamp</span></label>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <!-- ===================== MISTAKES ===================== -->
+        <h2 id="mistakes"><span class="section-h"><span class="num">9</span> Common mistakes</span></h2>
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">Watch out for these</div>
+          <div class="c-body">
+            <ul>
+              <li><strong>Judging a tune by settling time alone.</strong> Run 5 settled fastest and was the worst run
+                on the page. Check overshoot and direction changes as well.</li>
+              <li><strong>Assuming higher gain is better.</strong> It is, up to a point. Past that point you get
+                overshoot, then ringing, then a mechanism vibrating against its own setpoint.</li>
+              <li><strong>Reaching for I and D when P disappoints.</strong> Add a term for a specific symptom. Adding
+                both at once means you cannot tell what did what, which is the whole reason for the recipe.</li>
+              <li><strong>Trusting the clamp to keep you safe.</strong> It limits force. Run 5 stayed under 0.8 the
+                entire time.</li>
+              <li><strong>Changing two gains to save time.</strong> You get a result you cannot attribute and have to
+                test both again. Slower overall, not faster.</li>
+              <li><strong>Assuming a tune is permanent.</strong> Re-check after a mechanical change, a new gearbox,
+                or added weight. The gains describe the mechanism, and the mechanism changed.</li>
+              <li><strong>Tuning in the sim and deploying the numbers.</strong> The sim has no gravity, no game
+                piece and no gearbox slop. It teaches the method only.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- ===================== EXERCISE ===================== -->
+        <div class="exercise" id="exercise">
+          <div class="exercise-head">
+            <div class="ex-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4L12 17l-6.3 4.4L8 14 2 9.4h7.6z"/></svg></div>
+            <div>
+              <div class="ex-kicker">Build it · PenguinBot</div>
+              <h3>Tune the arm and keep a log</h3>
+            </div>
+          </div>
+          <div class="exercise-body">
+            <p>Your <code>Arm</code> class from last lesson has a hand-written P controller with a gain you never
+              justified. Justify it.</p>
+            <ol class="task-list">
+              <li><b>Use the harness above</b> to find a gain that gets inside tolerance and stays there, with
+                <b>zero direction changes</b> and no overshoot.</li>
+              <li><b>Keep a tuning log.</b> For every gain you try, record the settle tick or "never", the overshoot,
+                the direction changes, and a one sentence verdict. Minimum four rows.</li>
+              <li><b>Set the gain in your <code>Arm</code> class.</b></li>
+              <li><b>Write the sentence you would say to a teammate</b>, covering what the value is and what happens
+                if they raise it.</li>
+            </ol>
+
+            <div class="callout callout--tip">
+              <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12c.7.7 1 1.4 1 2h6c0-.6.3-1.3 1-2a7 7 0 0 0-4-12z"/></svg></div>
+              <div class="c-title">The log is the deliverable, not the number</div>
+              <div class="c-body"><p>The gain is one line. The record of how you found it is what lets the next
+                person change it safely, and it is what you will be asked for when the arm misbehaves at a
+                competition. Most rows in a real tuning log are failures. That ratio is normal.</p></div>
+            </div>
+
+            <details class="reveal">
+              <summary><svg class="rv-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg> Reveal the solution</summary>
+              <div class="reveal-body">
+                <p><b>Tuning log</b></p>
+                <div class="tablewrap">
+                  <table class="data">
+                    <thead><tr><th><code>kP</code></th><th>Settled</th><th>Overshoot</th><th>Reversals</th><th>Verdict</th></tr></thead>
+                    <tbody>
+                      <tr><td>0.005</td><td>never, 39.36 at tick 150</td><td>none</td><td>0</td><td>Far too slow. Not even 80 percent of the way in three seconds</td></tr>
+                      <tr><td>0.01</td><td>never, 48.43 at tick 150</td><td>none</td><td>0</td><td>Right shape, runs out of push before it arrives</td></tr>
+                      <tr><td><b>0.02</b></td><td><b>tick 67, 1340 ms</b></td><td><b>none</b></td><td><b>0</b></td><td><b>Meets the spec. Clean and monotonic</b></td></tr>
+                      <tr><td>0.2</td><td>tick 64, 1280 ms</td><td>8.1 percent</td><td>5</td><td>Marginally faster, rings its way in. Not worth it</td></tr>
+                      <tr><td>5.0</td><td>tick 57, 1140 ms</td><td>7.6 percent</td><td>23</td><td>Fastest on paper. Vibrating against the setpoint. Would damage hardware</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <p>Five rows, one answer. That is a normal ratio.</p>
+
+                <p><b>In the real <code>Arm.java</code>:</b></p>
+                <div class="code with-lines">
+                  <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Arm.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">// Tuned on the real arm with the recipe in Unit 6.
+// Reaches 9.0 rotations cleanly, no overshoot, no direction reversals.
+// Raising this past about 0.5 starts to ring. Re-tune after any
+// mechanical change to the arm.
+private double kP = 0.2;</code></pre>
+                </div>
+
+                <p><b>What you would tell a teammate:</b></p>
+                <p>"The arm runs a gain of 0.2, which reaches the scoring setpoint cleanly with no overshoot. If you
+                  raise it, watch the direction reversals rather than the settling time, because a gain that is far
+                  too high looks fast and is actually vibrating the mechanism. If you change the arm's weight or its
+                  gearing, re-tune it, and change one number at a time."</p>
+
+                <p>Note that the comment records the boundary, not just the value. Six months from now the useful
+                  information is not that the gain is 0.2. It is that 0.5 is where it starts going wrong.</p>
+              </div>
+            </details>
+            <p>You have now tuned a controller you wrote by hand. WPILib ships a class that does this arithmetic for
+              you, along with tolerance checking and a proper reset. The next lesson swaps your four lines for it.</p>
+          </div>
+        </div>
+
+        <!-- ===================== CHECKPOINT ===================== -->
+        <div class="checkpoint" id="checkpoint">
+          <div class="checkpoint-head">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            <h3>Checkpoint</h3>
+            <span class="cp-score">0 / 5</span>
+          </div>
+          <div class="checkpoint-body">
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q1.</span> What is the first step of the tuning recipe?</div>
+              <div class="options">
+                <label class="option" data-explain="There is no reasonable middle value, and you would be starting with three unknowns at once."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Set all three gains to a reasonable middle value</span></label>
+                <label class="option" data-correct data-explain="Correct. P alone, from the bottom, raised slowly."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Zero <code>kI</code> and <code>kD</code>, start <code>kP</code> very small</span></label>
+                <label class="option" data-explain="Gains describe that mechanism's weight, gearing and friction. Copying them gives you a number with no relationship to your hardware."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Copy the gains from another mechanism</span></label>
+                <label class="option" data-explain="You would be starting with the case that damages hardware and working down toward safety. Start safe and work up."><input type="radio" name="cp1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Start <code>kP</code> high and come down</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q2.</span> The arm sails past the setpoint and wobbles in. Which change comes first?</div>
+              <div class="options">
+                <label class="option" data-explain="Too much kP is what causes overshoot. More of it makes the wobble worse."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Raise <code>kP</code></span></label>
+                <label class="option" data-explain="I adds accumulated push. That is the wrong direction for a mechanism that is already arriving too hard."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Add <code>kI</code></span></label>
+                <label class="option" data-correct data-explain="Both address overshoot. Lower kP first, because it is one variable and it is the one that is wrong."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Lower <code>kP</code>, or add some <code>kD</code></span></label>
+                <label class="option" data-explain="That changes what the program reports without changing what the mechanism does."><input type="radio" name="cp2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Widen the tolerance</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q3.</span> Why change only one gain at a time?</div>
+              <div class="options">
+                <label class="option" data-explain="The controller takes all three whenever you like. The constraint is on your ability to interpret the result, not on the software."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The controller only accepts one change per deploy</span></label>
+                <label class="option" data-correct data-explain="Exactly. If two things changed, you cannot say which one helped, so you have to test both separately anyway."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Otherwise you cannot attribute the change</span></label>
+                <label class="option" data-explain="Each individual step is slower. The whole process is much faster, because you never repeat work."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It is faster per step</span></label>
+                <label class="option" data-explain="All three interact with each other. That interaction is precisely why you isolate them."><input type="radio" name="cp3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>kI</code> and <code>kD</code> interact but <code>kP</code> does not</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q4.</span> Run 5 reversed direction 23 times while never exceeding 0.8 output. What does that prove?</div>
+              <div class="options">
+                <label class="option" data-explain="The trace shows it working. Delete it and the simulator immediately reports a command of 250 percent."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The clamp was not working</span></label>
+                <label class="option" data-correct data-explain="Right. It is a damage limiter, not a tuning tool. Removing it left the reversal count identical at 23."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Clamping limits force but does not fix a bad gain</span></label>
+                <label class="option" data-explain="It reached the setpoint faster than any other run. Reaching it was never the problem."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The setpoint is unreachable</span></label>
+                <label class="option" data-explain="The encoder kept up fine. Every reversal was computed from a correct reading."><input type="radio" name="cp4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The encoder is too slow</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q5.</span> You tune the arm empty and it is perfect. It picks up a game piece and now stops short. Why?</div>
+              <div class="options">
+                <label class="option" data-explain="Encoders do not drift because you added weight. The reading is still correct."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The encoder drifted</span></label>
+                <label class="option" data-explain="It is a number in a file. Nothing changed it."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>kP</code> changed</span></label>
+                <label class="option" data-correct data-explain="Exactly. More weight means more gravity to fight, and the gains describe the mechanism. This is the classic case for a small kI or a feedforward term."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The mechanism changed, so the right gains changed with it</span></label>
+                <label class="option" data-explain="A sagging battery does cause this in general. Here the symptom appears exactly when the game piece does, which points at the load."><input type="radio" name="cp5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The battery is low</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check my answers</button></div>
+          </div>
+        </div>
+
+        <!-- ===================== COMPLETE ===================== -->
+        <div class="mark-complete">
+          <div class="mc-text"><b>You can tune a controller and defend the number.</b><span>Next: swap your four lines for the WPILib class that does it properly.</span></div>
+          <button class="complete-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>Mark as complete</span></button>
+        </div>
+
+      </div><!-- /prose -->
+    </div><!-- /content-inner -->
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="/assets/js/course.js"></script>
+  <script src="/assets/js/site.js"></script>
+  <script src="/assets/js/widgets.js"></script>
+</body>
+</html>
