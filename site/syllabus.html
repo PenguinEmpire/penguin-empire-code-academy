@@ -66,8 +66,53 @@
           });
           html += `</ul></div>`;
         });
+
+        // Each track ends with its phase exam. Exams sit outside the lesson
+        // sequence, so they never count toward the progress percentage.
+        const ex = C.examFor(tr.id);
+        if (ex && ex.ready) {
+          html += `<div class="syl-unit" aria-expanded="true">
+            <div class="syl-unit-head" role="button" tabindex="0">
+              <span class="syl-unit-num">${check}</span>
+              <div class="syl-unit-info"><h3>${ex.t}</h3><p>${ex.sub}</p></div>
+              <span class="syl-unit-count">Exam</span>
+              ${chev}
+            </div>
+            <ul class="syl-lessons">
+              <li><a href="${(window.SITE_BASE || "") + ex.href}">
+                <span class="sl-dot">${check}</span>
+                <span class="sl-title">Take the exam</span>
+                <span class="sl-tag">25 questions</span></a></li>
+            </ul></div>`;
+        }
         html += `</section>`;
       });
+
+      // Reference pages, also outside the lesson sequence.
+      const refs = C.readyResources();
+      if (refs.length) {
+        html += `<section class="syl-track">
+          <div class="syl-track-head ref">
+            <span class="st-badge">Reference</span>
+            <div><h2>Look it up</h2><p>${refs.length} pages · not counted in your progress</p></div>
+          </div>
+          <div class="syl-unit" aria-expanded="true">
+            <div class="syl-unit-head" role="button" tabindex="0">
+              <span class="syl-unit-num">R</span>
+              <div class="syl-unit-info"><h3>Cheat-sheets &amp; reference</h3><p>For build season and the pit, not for your first read.</p></div>
+              <span class="syl-unit-count">${refs.length} pages</span>
+              ${chev}
+            </div>
+            <ul class="syl-lessons">`;
+        refs.forEach((r) => {
+          html += `<li><a href="${(window.SITE_BASE || "") + r.href}">
+            <span class="sl-dot">${check}</span>
+            <span class="sl-title">${r.t}</span>
+            <span class="sl-tag">Reference</span></a></li>`;
+        });
+        html += `</ul></div></section>`;
+      }
+
       root.innerHTML = html;
       root.querySelectorAll(".syl-unit-head").forEach((head) => {
         const toggle = () => { const u = head.closest(".syl-unit"); u.setAttribute("aria-expanded", u.getAttribute("aria-expanded") === "true" ? "false" : "true"); };

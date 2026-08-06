@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Glossary · Penguin Empire 2551</title>
+  <meta name="description" content="Every term in the course defined in one sentence, alphabetically, with a link to the lesson that teaches it." />
+  <link rel="icon" href="/assets/img/logo-2551.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Aldrich&family=Russo+One&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/brand.css" />
+  <link rel="stylesheet" href="/assets/css/layout.css" />
+  <link rel="stylesheet" href="/assets/css/pages.css" />
+  <link rel="stylesheet" href="/assets/css/lesson.css" />
+</head>
+<body data-page="reference">
+  <main id="main">
+
+    <div class="page-head">
+      <div class="container">
+        <span class="badge badge--dot">Reference</span>
+        <h1 style="margin-top:12px">Glossary</h1>
+        <p>Every term in the course, defined in one sentence, with a link to the lesson that teaches it properly.
+          Alphabetical, because you are looking something up rather than reading.</p>
+      </div>
+    </div>
+
+    <div class="container" style="padding-block: var(--s-8)">
+      <div class="prose">
+
+        <nav class="toc" aria-label="On this page">
+          <strong>Jump to</strong>
+          <ol>
+            <li><a href="#a-c">A to C</a></li>
+            <li><a href="#d-g">D to G</a></li>
+            <li><a href="#h-n">H to N</a></li>
+            <li><a href="#o-r">O to R</a></li>
+            <li><a href="#s-z">S to Z</a></li>
+          </ol>
+        </nav>
+
+        <!-- ===================== A-C ===================== -->
+        <h2 id="a-c"><span class="section-h">A to C</span></h2>
+        <div class="tablewrap">
+          <table class="data">
+            <thead><tr><th>Term</th><th>Definition</th><th>Taught in</th></tr></thead>
+            <tbody>
+              <tr><td><b>Absolute encoder</b></td><td>An encoder that knows its position the moment it powers on, with no homing needed.</td><td><a href="/lessons/frc/relative-absolute.html">U5</a></td></tr>
+              <tr><td><b>AdvantageScope</b></td><td>A tool that graphs robot values over time, which is how you find a fault that only lasts a moment.</td><td><a href="/lessons/frc/dashboards.html">U2</a></td></tr>
+              <tr><td><b>AprilTag</b></td><td>A flat printed marker, a little like a QR code, that encodes one number and sits in a known position on the field. One word, capital A and T.</td><td><a href="/lessons/frc/limelight.html">U10</a></td></tr>
+              <tr><td><b>Autonomous</b></td><td>The opening seconds of a match where the robot runs itself and nobody can intervene.</td><td><a href="/lessons/frc/pathplanner.html">U11</a></td></tr>
+              <tr><td><b>CAN bus</b></td><td>The looped comms wiring connecting the roboRIO to every motor controller. One break kills everything downstream.</td><td><a href="/lessons/frc/roborio-radio-can.html">U1</a></td></tr>
+              <tr><td><b>CAN ID</b></td><td>The address of one device on the CAN bus. Set on the device in a vendor client, and requested by your code.</td><td><a href="/lessons/frc/can-ids.html">U2</a></td></tr>
+              <tr><td><b>Clamp</b></td><td>Forcing a value into a safe range before it reaches a motor, usually <code>Math.max(-0.8, Math.min(0.8, x))</code>.</td><td><a href="/lessons/frc/pid-concept.html">U6</a></td></tr>
+              <tr><td><b>Closed loop</b></td><td>Control where the output is computed from a measurement of what actually happened. The sensor closes the loop.</td><td><a href="/lessons/frc/pid-concept.html">U6</a></td></tr>
+              <tr><td><b>Command</b></td><td>A behaviour with a defined end. It tells subsystems what to do and knows when it is finished.</td><td><a href="/lessons/frc/command-lifecycle.html">U7</a></td></tr>
+              <tr><td><b>Command group</b></td><td>A command built from other commands, run either in order or together. A group is itself a command.</td><td><a href="/lessons/frc/command-groups.html">U8</a></td></tr>
+              <tr><td><b>CommandScheduler</b></td><td>The thing that runs every subsystem's <code>periodic()</code>, polls the buttons and executes every scheduled command, once per 20 ms.</td><td><a href="/lessons/frc/command-lifecycle.html">U7</a></td></tr>
+              <tr><td><b>Constants</b></td><td>One file holding every tunable number, so a change is one line instead of a search across four files.</td><td><a href="/lessons/frc/constants.html">U7</a></td></tr>
+              <tr><td><b>CTRE Generator</b></td><td>A swerve code generator that requires eight CTRE motors and is the fast path when you have them.</td><td><a href="/lessons/frc/swerve-generators.html">U9</a></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- ===================== D-G ===================== -->
+        <h2 id="d-g"><span class="section-h">D to G</span></h2>
+        <div class="tablewrap">
+          <table class="data">
+            <thead><tr><th>Term</th><th>Definition</th><th>Taught in</th></tr></thead>
+            <tbody>
+              <tr><td><b>Deadband</b></td><td>A threshold near a joystick's centre that gets ignored, because a stick at rest rarely reads exactly zero.</td><td><a href="/lessons/frc/controllers.html">U8</a></td></tr>
+              <tr><td><b>Default command</b></td><td>A command a subsystem runs whenever nothing else is using it.</td><td><a href="/lessons/frc/subsystems.html">U7</a></td></tr>
+              <tr><td><b>Deploy</b></td><td>Sending your compiled code to the roboRIO over the network.</td><td><a href="/lessons/frc/wpilib-vscode.html">U2</a></td></tr>
+              <tr><td><b>Driver Station</b></td><td>The Windows-only app with Enable and Disable, mode selection, the status lights and the console.</td><td><a href="/lessons/frc/game-tools.html">U2</a></td></tr>
+              <tr><td><b>Encoder</b></td><td>A sensor reporting how far a shaft has turned and how fast it is turning.</td><td><a href="/lessons/frc/encoders.html">U5</a></td></tr>
+              <tr><td><b><code>end(interrupted)</code></b></td><td>The command method that runs once when it stops, whether it finished or was interrupted. Where you stop the motor.</td><td><a href="/lessons/frc/command-lifecycle.html">U7</a></td></tr>
+              <tr><td><b>Error</b></td><td>Setpoint minus current position. Signed, because the sign is what tells the motor which way to move.</td><td><a href="/lessons/frc/pid-concept.html">U6</a></td></tr>
+              <tr><td><b><code>execute()</code></b></td><td>The command method that runs every 20 ms while that command is scheduled. Not the same as <code>periodic()</code>.</td><td><a href="/lessons/frc/command-lifecycle.html">U7</a></td></tr>
+              <tr><td><b>Field-centric</b></td><td>Drive control where the stick's direction is a direction on the field, whatever way the robot is facing.</td><td><a href="/lessons/frc/swerve-concept.html">U9</a></td></tr>
+              <tr><td><b>Fiducial ID</b></td><td>The number encoded in an AprilTag, telling you which tag you are looking at.</td><td><a href="/lessons/frc/limelight.html">U10</a></td></tr>
+              <tr><td><b>Gain</b></td><td>A number you multiply an error by, such as <code>kP</code>. Gains describe one mechanism and do not transfer to another.</td><td><a href="/lessons/frc/pid-tuning.html">U6</a></td></tr>
+              <tr><td><b>Glass</b></td><td>A real-time dashboard for watching robot values during a match.</td><td><a href="/lessons/frc/dashboards.html">U2</a></td></tr>
+              <tr><td><b>Gyro</b></td><td>The sensor that measures the robot's heading, without which field-centric control cannot be computed.</td><td><a href="/lessons/frc/swerve-concept.html">U9</a></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- ===================== H-N ===================== -->
+        <h2 id="h-n"><span class="section-h">H to N</span></h2>
+        <div class="tablewrap">
+          <table class="data">
+            <thead><tr><th>Term</th><th>Definition</th><th>Taught in</th></tr></thead>
+            <tbody>
+              <tr><td><b>Homing</b></td><td>Moving a mechanism to a known physical reference and calling that position zero, so later setpoints mean something.</td><td><a href="/lessons/frc/relative-absolute.html">U5</a></td></tr>
+              <tr><td><b><code>initialize()</code></b></td><td>The command method that runs once when the command begins. Not when it ends.</td><td><a href="/lessons/frc/command-lifecycle.html">U7</a></td></tr>
+              <tr><td><b><code>InstantCommand</code></b></td><td>A command that runs one action and immediately finishes, which is what lets a one-line call be bound to a button or dropped into a sequence.</td><td><a href="/lessons/frc/robotcontainer.html">U8</a></td></tr>
+              <tr><td><b><code>isFinished()</code></b></td><td>The command method checked every cycle. Return true to end the command.</td><td><a href="/lessons/frc/command-lifecycle.html">U7</a></td></tr>
+              <tr><td><b>Kraken</b></td><td>A CTRE motor with the controller built into it, so CAN runs straight through the motor.</td><td><a href="/lessons/frc/motors.html">U1</a></td></tr>
+              <tr><td><b>Limelight</b></td><td>A smart camera used widely across FRC that processes images on the camera and publishes numbers to the robot.</td><td><a href="/lessons/frc/limelight.html">U10</a></td></tr>
+              <tr><td><b>Named command</b></td><td>One of your existing commands, registered under a name so an autonomous routine can call it.</td><td><a href="/lessons/frc/pathplanner.html">U11</a></td></tr>
+              <tr><td><b>Neo</b></td><td>A REV motor that plugs into a SparkMax and carries a built-in encoder.</td><td><a href="/lessons/frc/motors.html">U1</a></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- ===================== O-R ===================== -->
+        <h2 id="o-r"><span class="section-h">O to R</span></h2>
+        <div class="tablewrap">
+          <table class="data">
+            <thead><tr><th>Term</th><th>Definition</th><th>Taught in</th></tr></thead>
+            <tbody>
+              <tr><td><b>Open loop</b></td><td>Control that pushes without measuring the result. <code>set(0.7)</code> and hope.</td><td><a href="/lessons/frc/pid-concept.html">U6</a></td></tr>
+              <tr><td><b>Overshoot</b></td><td>Sailing past the setpoint before coming back. Usually a gain that is too high.</td><td><a href="/lessons/frc/pid-tuning.html">U6</a></td></tr>
+              <tr><td><b>Parallel group</b></td><td>Commands run at the same time, ending when <em>all</em> of them end. Only valid for commands using different subsystems.</td><td><a href="/lessons/frc/command-groups.html">U8</a></td></tr>
+              <tr><td><b>Path</b></td><td>A route drawn on a field in PathPlanner, followed approximately by the robot.</td><td><a href="/lessons/frc/pathplanner.html">U11</a></td></tr>
+              <tr><td><b>PathPlanner</b></td><td>A desktop app for drawing autonomous routes and generating the code that follows them.</td><td><a href="/lessons/frc/pathplanner.html">U11</a></td></tr>
+              <tr><td><b>PDH</b></td><td>Power Distribution Hub. Sends power out to everything and sits on the CAN chain.</td><td><a href="/lessons/frc/roborio-radio-can.html">U1</a></td></tr>
+              <tr><td><b><code>periodic()</code></b></td><td>The subsystem method that runs every 20 ms <em>always</em>, whether or not any command is scheduled. For observing, not for driving motors.</td><td><a href="/lessons/frc/subsystems.html">U7</a></td></tr>
+              <tr><td><b>PID</b></td><td>Proportional, Integral, Derivative. Closed-loop control that drives an error toward zero.</td><td><a href="/lessons/frc/pid-concept.html">U6</a></td></tr>
+              <tr><td><b>Pipeline</b></td><td>A saved camera configuration you can switch between from code.</td><td><a href="/lessons/frc/limelight.html">U10</a></td></tr>
+              <tr><td><b>Radio</b></td><td>The Wi-Fi link between the driver station and the robot. Imaged at the field for a competition and re-imaged at home afterwards.</td><td><a href="/lessons/frc/roborio-radio-can.html">U1</a></td></tr>
+              <tr><td><b>Relative encoder</b></td><td>An encoder that starts at zero wherever it happens to be at power-on, so it needs homing.</td><td><a href="/lessons/frc/relative-absolute.html">U5</a></td></tr>
+              <tr><td><b>Requirements</b></td><td>A command's declaration of which subsystems it needs, so the scheduler can guarantee only one command drives a mechanism at a time.</td><td><a href="/lessons/frc/subsystems.html">U7</a></td></tr>
+              <tr><td><b>roboRIO</b></td><td>The controller that stores and runs your code. Imaged each season.</td><td><a href="/lessons/frc/roborio-radio-can.html">U1</a></td></tr>
+              <tr><td><b>RobotContainer</b></td><td>The file that creates one instance of each subsystem and wires controller inputs to commands.</td><td><a href="/lessons/frc/robotcontainer.html">U8</a></td></tr>
+              <tr><td><b>Robot-centric</b></td><td>Drive control where the stick's direction is relative to the robot's own nose.</td><td><a href="/lessons/frc/swerve-concept.html">U9</a></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- ===================== S-Z ===================== -->
+        <h2 id="s-z"><span class="section-h">S to Z</span></h2>
+        <div class="tablewrap">
+          <table class="data">
+            <thead><tr><th>Term</th><th>Definition</th><th>Taught in</th></tr></thead>
+            <tbody>
+              <tr><td><b>Sequential group</b></td><td>Commands run in order, each waiting for the previous one to finish. Ends when the last one ends.</td><td><a href="/lessons/frc/command-groups.html">U8</a></td></tr>
+              <tr><td><b>Setpoint</b></td><td>Where you want the mechanism to be.</td><td><a href="/lessons/frc/pid-concept.html">U6</a></td></tr>
+              <tr><td><b>Settling time</b></td><td>How long until the mechanism is inside tolerance and <em>stays</em> there.</td><td><a href="/lessons/frc/pid-tuning.html">U6</a></td></tr>
+              <tr><td><b>SmartDashboard</b></td><td>An older real-time dashboard, being phased out in favour of Glass.</td><td><a href="/lessons/frc/dashboards.html">U2</a></td></tr>
+              <tr><td><b>SparkMax</b></td><td>A REV motor controller, which drives a Neo and reads its built-in encoder.</td><td><a href="/lessons/frc/motors.html">U1</a></td></tr>
+              <tr><td><b>Start pose</b></td><td>The position <em>and heading</em> an autonomous routine assumes the robot begins at. A promise you keep with floor tape.</td><td><a href="/lessons/frc/pathplanner.html">U11</a></td></tr>
+              <tr><td><b>Steady-state error</b></td><td>The small gap left when the proportional term has grown too weak to overcome friction.</td><td><a href="/lessons/frc/pid-concept.html">U6</a></td></tr>
+              <tr><td><b>Sticky fault</b></td><td>A fault that occurred at some point, not necessarily right now. Clear it only once you have fixed the cause.</td><td><a href="/lessons/frc/vendor-clients.html">U2</a></td></tr>
+              <tr><td><b>Subsystem</b></td><td>The class that owns a mechanism's hardware and is the only place its motors are touched.</td><td><a href="/lessons/frc/subsystems.html">U7</a></td></tr>
+              <tr><td><b>Swerve</b></td><td>A drivetrain where each of the four modules has its own drive motor and its own steering motor. Eight motors.</td><td><a href="/lessons/frc/swerve-concept.html">U9</a></td></tr>
+              <tr><td><b>Tolerance</b></td><td>How close counts as arrived. Without it, "at the setpoint" is never quite true.</td><td><a href="/lessons/frc/pid-tuning.html">U6</a></td></tr>
+              <tr><td><b>TX / TY</b></td><td>Limelight readings: the horizontal and vertical angles to the tag. Both angles, neither a distance.</td><td><a href="/lessons/frc/limelight.html">U10</a></td></tr>
+              <tr><td><b>Vendordep</b></td><td>A JSON file that tells the build system to fetch a vendor's library, such as REVLib.</td><td><a href="/lessons/frc/vendordeps.html">U2</a></td></tr>
+              <tr><td><b>Wait command</b></td><td>A timed pause that is itself a command, so it can sit inside a sequence.</td><td><a href="/lessons/frc/command-groups.html">U8</a></td></tr>
+              <tr><td><b>Windup</b></td><td>What happens when the integral term accumulates too much push and carries the mechanism past the target.</td><td><a href="/lessons/frc/pid-concept.html">U6</a></td></tr>
+              <tr><td><b>WPILib</b></td><td>The core FRC library plus its customised build of VS Code.</td><td><a href="/lessons/frc/wpilib-vscode.html">U2</a></td></tr>
+              <tr><td><b>YAGSL</b></td><td>Yet Another Generic Swerve Library. A cross-brand swerve generator, harder to set up than CTRE's.</td><td><a href="/lessons/frc/swerve-generators.html">U9</a></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout callout--note">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg></div>
+          <div class="c-title">Two spellings worth getting right</div>
+          <div class="c-body"><p><strong>AprilTag</strong> is one word with a capital A and a capital T. You will
+            see it written as two words, including in our own source material, and searching for the wrong spelling
+            wastes your time.</p>
+            <p>The PS5 face button is <strong>cross</strong>, and the method is <code>.cross()</code>.
+              <code>.x()</code> belongs to the Xbox controller class.</p></div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <script src="/assets/js/course.js"></script>
+  <script src="/assets/js/site.js"></script>
+  <script src="/assets/js/widgets.js"></script>
+</body>
+</html>

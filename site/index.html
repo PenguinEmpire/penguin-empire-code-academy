@@ -281,6 +281,19 @@
       </div>
     </section>
 
+    <!-- ====================== REFERENCE & EXAMS ======================= -->
+    <section class="section alt" id="reference-exams" hidden>
+      <div class="container">
+        <div class="section-kicker"><span class="badge badge--dot">When you already know it</span></div>
+        <div class="section-head reveal-on-scroll">
+          <h2>Cheat-sheets, a glossary, and an exam per phase</h2>
+          <p>The lessons teach you. These are for the pit at eight in the morning, when you need one number and
+             you need it now.</p>
+        </div>
+        <div class="features features--3" data-stagger id="ref-grid"></div>
+      </div>
+    </section>
+
     <!-- ============================ PATH ============================ -->
     <section class="section alt">
       <div class="container">
@@ -364,5 +377,28 @@
 
   <script src="/assets/js/course.js"></script>
   <script src="/assets/js/site.js" defer></script>
+  <script>
+    /* Reference pages + phase exams, rendered from the manifest so this
+       section can never drift from what actually exists. */
+    (function () {
+      const C = window.COURSE, grid = document.getElementById("ref-grid");
+      if (!C || !grid) return;
+      const base = () => window.SITE_BASE || "";
+      const icon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2zM18 3v16"/></svg>';
+      const tick = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>';
+      const items = [
+        ...C.readyResources().map((r) => ({ ...r, ic: icon })),
+        ...(C.exams || []).filter((e) => e.ready).map((e) => ({ ...e, ic: tick })),
+      ];
+      if (!items.length) return;
+      grid.innerHTML = items.map((i) => `
+        <a class="feature reveal-on-scroll" href="${base() + i.href}">
+          <div class="f-icon">${i.ic}</div>
+          <h3>${i.t}</h3>
+          <p>${i.sub}</p>
+        </a>`).join("");
+      document.getElementById("reference-exams").hidden = false;
+    })();
+  </script>
 </body>
 </html>

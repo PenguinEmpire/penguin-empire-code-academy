@@ -209,21 +209,21 @@ window.COURSE = {
 
   /* ---- Reference section (not lessons — never counted in progress) ------ */
   resources: [
-    { id: "ref-java", t: "Java Syntax Cheat-Sheet", href: "/reference/java",
+    { id: "ref-java", t: "Java Syntax Cheat-Sheet", href: "/reference/java", ready: true,
       sub: "Every bit of syntax from Phase 1, on one page." },
-    { id: "ref-wpilib", t: "WPILib Cheat-Sheet", href: "/reference/wpilib",
+    { id: "ref-wpilib", t: "WPILib Cheat-Sheet", href: "/reference/wpilib", ready: true,
       sub: "Motors, encoders, PID, commands, bindings — the competition quick-reference." },
-    { id: "ref-glossary", t: "Glossary", href: "/reference/glossary",
+    { id: "ref-glossary", t: "Glossary", href: "/reference/glossary", ready: true,
       sub: "Every term in the course, defined in one sentence." },
-    { id: "ref-docs", t: "Official Docs Index", href: "/reference/docs",
+    { id: "ref-docs", t: "Official Docs Index", href: "/reference/docs", ready: true,
       sub: "WPILib, REV, CTRE, Limelight, PathPlanner — and what to re-check each season." },
   ],
 
   /* ---- Phase exams ------------------------------------------------------ */
   exams: [
-    { id: "exam-java", t: "Phase 1 Exam · Java & OOP", href: "/exam/java", trackId: "java",
+    { id: "exam-java", t: "Phase 1 Exam · Java & OOP", href: "/exam/java", trackId: "java", ready: true,
       sub: "Prove you're ready for robot code." },
-    { id: "exam-frc", t: "Phase 2 Exam · FRC Robot Programming", href: "/exam/frc", trackId: "frc",
+    { id: "exam-frc", t: "Phase 2 Exam · FRC Robot Programming", href: "/exam/frc", trackId: "frc", ready: true,
       sub: "Prove you're ready for build season." },
   ],
 };

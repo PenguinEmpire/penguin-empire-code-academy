@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WPILib Cheat-Sheet · Penguin Empire 2551</title>
+  <meta name="description" content="Every piece of robot syntax from Phase 2 on one page: motors, encoders, PID, the command lifecycle, subsystems, button bindings, command groups and robot modes." />
+  <link rel="icon" href="/assets/img/logo-2551.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Aldrich&family=Russo+One&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/brand.css" />
+  <link rel="stylesheet" href="/assets/css/layout.css" />
+  <link rel="stylesheet" href="/assets/css/pages.css" />
+  <link rel="stylesheet" href="/assets/css/lesson.css" />
+</head>
+<body data-page="reference">
+  <main id="main">
+
+    <div class="page-head">
+      <div class="container">
+        <span class="badge badge--dot">Reference</span>
+        <h1 style="margin-top:12px">WPILib Cheat-Sheet</h1>
+        <p>Everything Phase 2 taught you to type, on one page. Built for the pit, where you have four minutes and
+          somebody is asking you a question.</p>
+      </div>
+    </div>
+
+    <div class="container" style="padding-block: var(--s-8)">
+      <div class="prose">
+
+        <div class="callout callout--season">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
+          <div class="c-title">Read this before you copy anything</div>
+          <div class="c-body"><p>WPILib and the vendor libraries change every season. Class names, import paths and
+            method signatures on this page were correct when the course was written and are not guaranteed for
+            yours.</p>
+            <p><strong>Always confirm class names against the current season's vendordeps</strong> and the current
+              documentation. The <a href="/reference/docs">Official Docs Index</a> lists where to check, and which
+              items change most often.</p></div>
+        </div>
+
+        <nav class="toc" aria-label="On this page">
+          <strong>On this page</strong>
+          <ol>
+            <li><a href="#motor">Motors</a></li>
+            <li><a href="#encoder">Encoders</a></li>
+            <li><a href="#pid">PID</a></li>
+            <li><a href="#subsystem">Subsystems</a></li>
+            <li><a href="#command">The command lifecycle</a></li>
+            <li><a href="#bindings">Button bindings</a></li>
+            <li><a href="#groups">Command groups</a></li>
+            <li><a href="#modes">Robot modes</a></li>
+            <li><a href="#output">Output and telemetry</a></li>
+            <li><a href="#canmap">PenguinBot's CAN map</a></li>
+            <li><a href="#corrections">Corrections worth knowing</a></li>
+            <li><a href="#triage">When something is wrong</a></li>
+          </ol>
+        </nav>
+
+        <!-- ===================== MOTOR ===================== -->
+        <h2 id="motor"><span class="section-h"><span class="num">1</span> Motors</span></h2>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">motor</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+
+SparkMax motor = new SparkMax(2, MotorType.kBrushless);   // CAN ID, motor type
+
+motor.set(0.7);      // percent output, -1.0 to 1.0
+motor.set(0);        // stop
+double asked = motor.get();   // what you COMMANDED. not a measurement</code></pre>
+        </div>
+
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">The 80 percent rule</div>
+          <div class="c-body"><p>This team fried a motor at around 90 percent output and lost two days to it. Stay
+            under <strong>0.8</strong>, or add a second motor. Put the clamp inside the subsystem so no caller can
+            bypass it.</p>
+            <div class="code">
+              <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">the clamp</span><span class="code-spacer"></span></div>
+<pre><code>double safe = Math.max(-0.8, Math.min(0.8, speed));</code></pre>
+            </div></div>
+        </div>
+
+        <!-- ===================== ENCODER ===================== -->
+        <h2 id="encoder"><span class="section-h"><span class="num">2</span> Encoders</span></h2>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">encoder</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">double pos = motor.getEncoder().getPosition();   // rotations of the MOTOR shaft
+double vel = motor.getEncoder().getVelocity();   // RPM
+
+motor.getEncoder().setPosition(0.0);             // "call this spot zero"</code></pre>
+        </div>
+
+        <div class="tablewrap">
+          <table class="data">
+            <thead><tr><th>Call</th><th>Unit</th><th>Means</th></tr></thead>
+            <tbody>
+              <tr><td><code>getPosition()</code></td><td>Rotations</td><td>Motor shaft travel from the last zero. Signed</td></tr>
+              <tr><td><code>getVelocity()</code></td><td>RPM</td><td>Motor shaft speed right now</td></tr>
+              <tr><td><code>motor.get()</code></td><td>Percent</td><td>What you asked for. Not a measurement</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>It is the <strong>motor</strong> shaft, not the mechanism. A 10 to 1 gearbox means ten motor rotations per
+          output rotation. Position zero means wherever it was last zeroed, which is why an arm has to be homed
+          before a setpoint means anything.</p>
+
+        <!-- ===================== PID ===================== -->
+        <h2 id="pid"><span class="section-h"><span class="num">3</span> PID</span></h2>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">closed loop</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">import edu.wpi.first.math.controller.PIDController;
+
+// One controller per mechanism, created ONCE as a field. Never per cycle.
+private final PIDController pid = new PIDController(kP, kI, kD);
+
+pid.setTolerance(0.25);                            // what counts as arrived
+
+double out = pid.calculate(currentPosition, target);   // (measurement, setpoint)
+motor.set(Math.max(-0.8, Math.min(0.8, out)));         // ALWAYS clamp
+
+boolean there = pid.atSetpoint();                  // reflects the last calculate()
+pid.reset();                                       // clear state when a move BEGINS</code></pre>
+        </div>
+
+        <div class="tablewrap">
+          <table class="data">
+            <thead><tr><th>Term</th><th>Reacts to</th><th>Fix it addresses</th><th>Failure mode</th></tr></thead>
+            <tbody>
+              <tr><td><code>kP</code></td><td>How far off you are now</td><td>Does the bulk of the work</td><td>Too small stalls short, too large overshoots</td></tr>
+              <tr><td><code>kD</code></td><td>How fast the error is changing</td><td>Damps the approach</td><td>Twitchy, can leave an offset</td></tr>
+              <tr><td><code>kI</code></td><td>Error added up over time</td><td>Finishes what P cannot</td><td>Winds up and carries past the target</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p><strong>The tuning recipe.</strong> Zero <code>kI</code> and <code>kD</code>. Start <code>kP</code> very
+          small and raise it slowly, doubling each time. Stop when it arrives cleanly, which for most mechanisms is
+          the end of the process. Add <code>kD</code> only if it oscillates, and a small <code>kI</code> only if it
+          stops short. <strong>Change one variable at a time.</strong></p>
+
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">Two traps that compile perfectly</div>
+          <div class="c-body">
+            <ul>
+              <li><code>calculate(measurement, setpoint)</code>. <strong>Measurement first.</strong> Swap them and
+                the mechanism drives away from the target and accelerates.</li>
+              <li>The controller does not know your limits. <code>kP</code> of 0.2 at an error of 9 returns
+                <strong>1.8</strong>. Clamping is your job, every time.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- ===================== SUBSYSTEM ===================== -->
+        <h2 id="subsystem"><span class="section-h"><span class="num">4</span> Subsystems</span></h2>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">subsystems/IntakeSubsystem.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
+public class IntakeSubsystem extends SubsystemBase {
+
+    // 1) hardware, private and final. the ONLY place this motor is touched
+    private final SparkMax roller = new SparkMax(2, MotorType.kBrushless);
+
+    // 2) constructor sets things up
+    public IntakeSubsystem() { }
+
+    // 3) your methods
+    public void runRoller(double speed) { roller.set(speed); }
+    public void stop()                  { roller.set(0); }
+
+    // 4) periodic() runs every 20 ms, ALWAYS, command or no command
+    @Override
+    public void periodic() { }
+}</code></pre>
+        </div>
+
+        <p><strong>Exactly one instance per mechanism</strong>, created in <code>RobotContainer</code> and handed to
+          every command. Two instances means two motor objects on one CAN ID, and it compiles.</p>
+        <p><code>periodic()</code> observes. Commands act. Do not set motors in <code>periodic()</code> unless it is
+          a guard that can only ever stop the mechanism.</p>
+
+        <!-- ===================== COMMAND ===================== -->
+        <h2 id="command"><span class="section-h"><span class="num">5</span> The command lifecycle</span></h2>
+
+        <div class="tablewrap">
+          <table class="data">
+            <thead><tr><th>Method</th><th>Runs</th></tr></thead>
+            <tbody>
+              <tr><td><code>initialize()</code></td><td><strong>Once</strong>, when the command begins</td></tr>
+              <tr><td><code>execute()</code></td><td>Every 20 ms while scheduled</td></tr>
+              <tr><td><code>isFinished()</code></td><td>Every cycle, after <code>execute()</code>. Return true to end</td></tr>
+              <tr><td><code>end(boolean interrupted)</code></td><td><strong>Once</strong>, whenever it stops</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">commands/ArmToScoreCommand.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">import edu.wpi.first.wpilibj2.command.Command;
+
+public class ArmToScoreCommand extends Command {
+
+    private final ArmSubsystem arm;
+    private static final int TIMEOUT_TICKS = 100;
+    private int ticks = 0;
+
+    // The command is HANDED the mechanism. It never builds hardware itself.
+    public ArmToScoreCommand(ArmSubsystem arm) {
+        this.arm = arm;
+        addRequirements(arm);          // only one command drives the arm at a time
+    }
+
+    @Override public void initialize()    { ticks = 0; arm.startMove(); }
+    @Override public void execute()       { ticks++; arm.goToScore(); }
+    @Override public boolean isFinished() { return arm.atSetpoint() || ticks &gt;= TIMEOUT_TICKS; }
+    @Override public void end(boolean interrupted) { arm.stop(); }   // ALWAYS stop here
+}</code></pre>
+        </div>
+
+        <p><strong>Stop the motor in <code>end()</code>, on both paths.</strong> It is the only method guaranteed to
+          run when a command stops. And <strong>give every command a way to end that does not depend on
+          succeeding</strong>, because nothing times out on its own.</p>
+
+        <!-- ===================== BINDINGS ===================== -->
+        <h2 id="bindings"><span class="section-h"><span class="num">6</span> Button bindings</span></h2>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">RobotContainer.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+
+CommandPS5Controller c = new CommandPS5Controller(0);   // 0 = a Driver Station slot
+
+c.cross().onTrue(cmd);          // once, on press. runs to its own end
+c.cross().onFalse(cmd);         // once, on release
+c.square().whileTrue(cmd);      // while held. interrupted on release
+c.triangle().onTrue(new InstantCommand(() -&gt; sub.method()));   // one-off action</code></pre>
+        </div>
+
+        <div class="tablewrap">
+          <table class="data">
+            <thead><tr><th>Condition</th><th>Fires</th><th>Use for</th></tr></thead>
+            <tbody>
+              <tr><td><code>onTrue</code></td><td>Once, on press</td><td>Behaviour that should finish on its own</td></tr>
+              <tr><td><code>onFalse</code></td><td>Once, on release</td><td>Cleanup on letting go</td></tr>
+              <tr><td><code>whileTrue</code></td><td>While held</td><td>Behaviour that should die with the button</td></tr>
+              <tr><td><code>whileFalse</code></td><td>While not held</td><td>Rare</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout callout--verified">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4 12 14.01l-3-3"/></svg></div>
+          <div class="c-title">PS5 face buttons</div>
+          <div class="c-body"><p><code>cross()</code>, <code>circle()</code>, <code>square()</code>,
+            <code>triangle()</code>.</p>
+            <p><strong><code>.x()</code> is Xbox vocabulary and will not compile against a PS5 controller.</strong>
+              The onboarding video says <code>.x()</code>. It is wrong.</p></div>
+        </div>
+
+        <!-- ===================== GROUPS ===================== -->
+        <h2 id="groups"><span class="section-h"><span class="num">7</span> Command groups</span></h2>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">composition</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">new SequentialCommandGroup(cmd1, cmd2, cmd3);   // in order, each waits for the last
+new ParallelCommandGroup(cmdA, cmdB);           // together, ends when ALL end
+new WaitCommand(0.5);                           // a timed pause, as a command</code></pre>
+        </div>
+
+        <p>A group <strong>is</strong> a Command. Bind it to a button, nest it inside another group, or use it as an
+          autonomous routine. Two commands requiring the same subsystem <strong>cannot</strong> be in the same
+          parallel group.</p>
+
+        <!-- ===================== MODES ===================== -->
+        <h2 id="modes"><span class="section-h"><span class="num">8</span> Robot modes</span></h2>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Robot.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">robotInit()            // ONCE, at program start. build the RobotContainer here
+robotPeriodic()        // every 20 ms, EVERY mode, including disabled
+
+autonomousInit()       // ONCE, when auto begins. schedule the auto command
+autonomousPeriodic()   // usually empty
+
+teleopInit()           // ONCE, when teleop begins. CANCEL the auto command
+teleopPeriodic()       // usually empty
+
+// The one line that makes the whole framework run, inside robotPeriodic():
+CommandScheduler.getInstance().run();</code></pre>
+        </div>
+
+        <div class="callout callout--verified">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4 12 14.01l-3-3"/></svg></div>
+          <div class="c-title">Init runs at the START of a mode</div>
+          <div class="c-body"><p>Init runs <strong>once when the mode begins</strong>. Periodic runs every 20
+            milliseconds while you are in that mode. There is no method for when a mode ends.</p>
+            <p>The onboarding video says init is "what happens when it stops." It is not.</p></div>
+        </div>
+
+        <!-- ===================== OUTPUT ===================== -->
+        <h2 id="output"><span class="section-h"><span class="num">9</span> Output and telemetry</span></h2>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">output</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">System.out.println(value);    // appears in the Driver Station console</code></pre>
+        </div>
+
+        <p>Always-on telemetry belongs in a subsystem's <code>periodic()</code>, because that keeps running while
+          the robot is disabled. Put it in <code>execute()</code> and it disappears exactly when you most want it.</p>
+
+        <!-- ===================== CANMAP ===================== -->
+        <h2 id="canmap"><span class="section-h"><span class="num">10</span> PenguinBot's CAN map</span></h2>
+
+        <div class="tablewrap">
+          <table class="data">
+            <thead><tr><th>CAN ID</th><th>Device</th></tr></thead>
+            <tbody>
+              <tr><td>0</td><td>roboRIO (reserved)</td></tr>
+              <tr><td>1</td><td>Power Distribution Hub (reserved)</td></tr>
+              <tr><td>2</td><td>Intake roller</td></tr>
+              <tr><td>3</td><td>Arm pivot</td></tr>
+              <tr><td>4</td><td>Arm follower</td></tr>
+              <tr><td>10 / 11 / 12 / 13</td><td>Swerve <strong>drive</strong>: FL / FR / BL / BR</td></tr>
+              <tr><td>14 / 15 / 16 / 17</td><td>Swerve <strong>steer</strong>: FL / FR / BL / BR</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>Grouping them this way is why <code>CAN ID 16 timed out</code> reads instantly as <em>back-left
+          steering</em>, with no map and nobody to ask.</p>
+
+        <!-- ===================== CORRECTIONS ===================== -->
+        <h2 id="corrections"><span class="section-h"><span class="num">11</span> Corrections worth knowing</span></h2>
+        <p>Four things the source material gets wrong, collected so you recognise them if you hear them.</p>
+
+        <div class="tablewrap">
+          <table class="data">
+            <thead><tr><th>You may hear</th><th>The truth</th></tr></thead>
+            <tbody>
+              <tr><td>"Init is what happens when it stops"</td><td>Init runs <strong>once at the start</strong> of a mode</td></tr>
+              <tr><td><code>.x()</code> for the PS5 X button</td><td><code>.cross()</code>. <code>.x()</code> is Xbox</td></tr>
+              <tr><td>"April Tag", two words</td><td><strong>AprilTag</strong>, one word, capital A and T</td></tr>
+              <tr><td><code>execute()</code> is the subsystem's periodic</td><td>Different methods. <code>execute()</code> belongs to a command and runs only while scheduled. <code>periodic()</code> belongs to a subsystem and always runs</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- ===================== TRIAGE ===================== -->
+        <h2 id="triage"><span class="section-h"><span class="num">12</span> When something is wrong</span></h2>
+        <p>Before you read code, eliminate the cheap possibilities. This order matters more under time pressure, not
+          less.</p>
+
+        <div class="diagram">1. Turn the mechanism by hand with the robot off.   -> is it mechanically free?
+2. Apply a test voltage from the vendor client.     -> does the motor turn at all?
+3. Does the client see the device on the bus?       -> is it addressed correctly?
+4. THEN read your code.                             -> and only then.
+</div>
+
+        <p>The full console triage table, with what each Driver Station symptom means, is in
+          <a href="/lessons/frc/game-day.html">Unit 12 · At the Competition</a>.</p>
+
+      </div>
+    </div>
+  </main>
+
+  <script src="/assets/js/course.js"></script>
+  <script src="/assets/js/site.js"></script>
+  <script src="/assets/js/widgets.js"></script>
+</body>
+</html>

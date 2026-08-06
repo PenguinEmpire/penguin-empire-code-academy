@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Official Docs Index · Penguin Empire 2551</title>
+  <meta name="description" content="Where to look things up: WPILib, REV, CTRE, Limelight and PathPlanner, plus the full list of claims in this course that need re-checking every season." />
+  <link rel="icon" href="/assets/img/logo-2551.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Aldrich&family=Russo+One&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/brand.css" />
+  <link rel="stylesheet" href="/assets/css/layout.css" />
+  <link rel="stylesheet" href="/assets/css/pages.css" />
+  <link rel="stylesheet" href="/assets/css/lesson.css" />
+</head>
+<body data-page="reference">
+  <main id="main">
+
+    <div class="page-head">
+      <div class="container">
+        <span class="badge badge--dot">Reference</span>
+        <h1 style="margin-top:12px">Official Docs Index</h1>
+        <p>Where to look things up, and the honest list of everything in this course that has a shelf life.</p>
+      </div>
+    </div>
+
+    <div class="container" style="padding-block: var(--s-8)">
+      <div class="prose">
+
+        <nav class="toc" aria-label="On this page">
+          <strong>On this page</strong>
+          <ol>
+            <li><a href="#where">Where to look</a></li>
+            <li><a href="#recheck">The season re-check list</a></li>
+            <li><a href="#gaps">Where this course deliberately stops</a></li>
+            <li><a href="#how">How to read vendor docs</a></li>
+          </ol>
+        </nav>
+
+        <!-- ===================== WHERE ===================== -->
+        <h2 id="where"><span class="section-h"><span class="num">1</span> Where to look</span></h2>
+
+        <div class="tablewrap">
+          <table class="data">
+            <thead><tr><th>Source</th><th>Use it for</th><th>Home</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><b>WPILib</b></td>
+                <td>The authoritative reference for everything in Phase 2. Commands, subsystems, PID, robot modes, the scheduler.</td>
+                <td><a href="https://docs.wpilib.org" rel="noopener">docs.wpilib.org</a></td>
+              </tr>
+              <tr>
+                <td><b>REV Robotics</b></td>
+                <td>Neo motors, SparkMax controllers, REVLib, and the Hardware Client for setting CAN IDs.</td>
+                <td><a href="https://docs.revrobotics.com" rel="noopener">docs.revrobotics.com</a></td>
+              </tr>
+              <tr>
+                <td><b>CTRE Phoenix</b></td>
+                <td>Kraken motors, Phoenix Tuner, and the CTRE swerve generator.</td>
+                <td><a href="https://docs.ctr-electronics.com" rel="noopener">docs.ctr-electronics.com</a></td>
+              </tr>
+              <tr>
+                <td><b>Limelight</b></td>
+                <td>Vision setup, camera configuration, AprilTag pipelines and the reading methods. Our curriculum calls this one the most valuable of the set.</td>
+                <td><a href="https://docs.limelightvision.io" rel="noopener">docs.limelightvision.io</a></td>
+              </tr>
+              <tr>
+                <td><b>PathPlanner</b></td>
+                <td>Drawing paths, registering named commands, and building autonomous routines.</td>
+                <td><a href="https://pathplanner.dev" rel="noopener">pathplanner.dev</a></td>
+              </tr>
+              <tr>
+                <td><b>The team's OOP refresher</b></td>
+                <td>Team 2551's own internal project, on the shared drive. A prerequisite for new programmers, and the thing Phase 1's capstone is modelled on.</td>
+                <td>Ask a mentor</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout callout--season">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
+          <div class="c-title">Navigate to your season, always</div>
+          <div class="c-body"><p>Every one of those sites keeps documentation for several years at once, and a search
+            engine will happily hand you a page from three seasons ago that looks entirely current.</p>
+            <p>Check the version selector before you trust a page. This is the single most common way people end up
+              typing a class name that no longer exists.</p></div>
+        </div>
+
+        <!-- ===================== RECHECK ===================== -->
+        <h2 id="recheck"><span class="section-h"><span class="num">2</span> The season re-check list</span></h2>
+        <p>Every claim in this course that has a shelf life, with where it appears. Work down this list at kickoff
+          and you will catch almost everything before it wastes a build session.</p>
+
+        <h3>Changes most often</h3>
+        <div class="tablewrap">
+          <table class="data">
+            <thead><tr><th>Check</th><th>Why it moves</th><th>Where it appears</th></tr></thead>
+            <tbody>
+              <tr><td>Radio model and its at-the-field imaging procedure</td><td>Hardware and event procedure both change</td><td><a href="/lessons/frc/game-day.html">U12</a>, <a href="/lessons/frc/roborio-radio-can.html">U1</a></td></tr>
+              <tr><td>AprilTag layout and which IDs mean what</td><td><strong>Game-specific, changes every single year</strong></td><td><a href="/lessons/frc/limelight.html">U10</a></td></tr>
+              <tr><td>Autonomous period length and scoring</td><td>Game-specific</td><td><a href="/lessons/frc/pathplanner.html">U11</a></td></tr>
+              <tr><td>PathPlanner version, file format and its API</td><td>Actively developed</td><td><a href="/lessons/frc/pathplanner.html">U11</a>, <a href="/lessons/frc/auto-routines.html">U11</a></td></tr>
+              <tr><td>Limelight helper method signatures and the config host</td><td>Vendor software ships on its own schedule</td><td><a href="/lessons/frc/limelight.html">U10</a></td></tr>
+              <tr><td>Swerve generator names, workflows and licensing</td><td>Both tools change, and CTRE's licensing has too</td><td><a href="/lessons/frc/swerve-generators.html">U9</a></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Changes sometimes</h3>
+        <div class="tablewrap">
+          <table class="data">
+            <thead><tr><th>Check</th><th>Why it moves</th><th>Where it appears</th></tr></thead>
+            <tbody>
+              <tr><td>REVLib class names and how configuration is applied</td><td>Has been renamed and restructured before</td><td><a href="/lessons/frc/motors.html">U1</a>, <a href="/lessons/frc/encoders.html">U5</a></td></tr>
+              <tr><td>The command base class name</td><td>Renamed between versions</td><td><a href="/lessons/frc/command-lifecycle.html">U7</a></td></tr>
+              <tr><td>Command factory methods as an alternative to writing classes</td><td>Newer, and increasingly the recommended style</td><td><a href="/lessons/frc/command-lifecycle.html">U7</a>, <a href="/lessons/frc/command-groups.html">U8</a></td></tr>
+              <tr><td>Controller class import paths and axis getter names</td><td>Reorganised across versions</td><td><a href="/lessons/frc/controllers.html">U8</a></td></tr>
+              <tr><td>The generated project template's file layout</td><td>Regenerated each season</td><td><a href="/lessons/frc/src-tree.html">U3</a>, <a href="/lessons/frc/constants.html">U7</a>, <a href="/lessons/frc/robot-java.html">U8</a></td></tr>
+              <tr><td>The autonomous chooser class and how it publishes</td><td>WPILib internals</td><td><a href="/lessons/frc/auto-routines.html">U11</a></td></tr>
+              <tr><td>Dashboard recommendations</td><td>Tools get deprecated and replaced</td><td><a href="/lessons/frc/dashboards.html">U2</a></td></tr>
+              <tr><td>roboRIO version and imaging</td><td>Hardware generations</td><td><a href="/lessons/frc/roborio-radio-can.html">U1</a></td></tr>
+              <tr><td>Vendordep URLs</td><td>Version-pinned by definition</td><td><a href="/lessons/frc/vendordeps.html">U2</a></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Does not change</h3>
+        <p>Worth knowing, because it tells you where to spend your re-checking effort.</p>
+        <ul>
+          <li><b>All of Phase 1.</b> Java has not broken source compatibility in this course's lifetime.</li>
+          <li><b>What P, I and D each do</b>, and the tuning recipe. That is control theory, not an API.</li>
+          <li><b>The command lifecycle's four method names</b> and their meanings.</li>
+          <li><b>Init runs at the start of a mode. Periodic runs every 20 ms while in it.</b></li>
+          <li><b>Field-centric versus robot-centric</b> control, and why a gyro is required for one of them.</li>
+          <li><b>That a position means nothing until you know where zero is</b>, whether that is an unhomed encoder,
+            a gyro zeroed facing the wrong way, or a robot placed off its start pose.</li>
+          <li><b>The reasoning in the console triage table</b>, even when a specific tool's name changes.</li>
+        </ul>
+
+        <!-- ===================== GAPS ===================== -->
+        <h2 id="gaps"><span class="section-h"><span class="num">3</span> Where this course deliberately stops</span></h2>
+        <p>Four pages teach structure and decisions rather than code, because no verified API was available when
+          they were written. This is deliberate. A course that prints an invented method signature teaches you a
+          call that does not exist, which is worse than teaching nothing.</p>
+
+        <div class="tablewrap">
+          <table class="data">
+            <thead><tr><th>Page</th><th>What it teaches instead</th><th>Fill it in from</th></tr></thead>
+            <tbody>
+              <tr><td><a href="/lessons/frc/swerve-generators.html">CTRE Generator vs. YAGSL</a></td><td>The decision criterion, the measurements you must collect, and the encoder offset procedure</td><td>CTRE and YAGSL docs</td></tr>
+              <tr><td><a href="/lessons/frc/limelight.html">Limelight &amp; AprilTags</a></td><td>What the readings mean and the subsystem wrapper's shape, with vendor calls commented</td><td>Limelight docs</td></tr>
+              <tr><td><a href="/lessons/frc/vision-pid.html">Vision-Aligned PID</a></td><td>The whole control loop, which is real. Only the drivetrain rotation call is a stand-in</td><td>Your generated drive subsystem</td></tr>
+              <tr><td><a href="/lessons/frc/pathplanner.html">The PathPlanner Workflow</a></td><td>The workflow and the approximate-then-correct pattern</td><td>PathPlanner docs</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>If you fill any of these in for your season, the best possible thing you can do for the next new
+          programmer is to write it back into the lesson.</p>
+
+        <!-- ===================== HOW ===================== -->
+        <h2 id="how"><span class="section-h"><span class="num">4</span> How to read vendor docs</span></h2>
+        <p>A short skill nobody teaches explicitly, and it is most of what senior programmers actually do.</p>
+
+        <ul>
+          <li><b>Check the version first.</b> Before reading a word. Most wasted time starts here.</li>
+          <li><b>Find the class, then the method list.</b> Vendor sites bury working code in tutorials, and the API
+            reference is usually faster once you know the class name.</li>
+          <li><b>Read the parameter order out loud.</b> <code>calculate(measurement, setpoint)</code> and
+            <code>calculate(setpoint, measurement)</code> both compile. Only one works.</li>
+          <li><b>Check the return type.</b> Half of all "cannot find symbol" errors are a method returning something
+            other than what you assumed.</li>
+          <li><b>Prefer the official docs over a forum post.</b> A forum answer is a snapshot of one season, usually
+            undated, and frequently the top search result.</li>
+          <li><b>When the docs and the robot disagree, the robot is right.</b> Print the value and look at it.</li>
+        </ul>
+
+        <div class="callout callout--tip">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12c.7.7 1 1.4 1 2h6c0-.6.3-1.3 1-2a7 7 0 0 0-4-12z"/></svg></div>
+          <div class="c-title">The habit worth keeping from this course</div>
+          <div class="c-body"><p>Every code block in Phase 2 is either verified against a source, or explicitly
+            flagged as needing a check. That is not caution for its own sake. It is what stops a team building three
+            weeks of work on a method that was removed two seasons ago.</p>
+            <p>When you write code for the team, mark what you verified and what you assumed. The next person cannot
+              tell the difference otherwise.</p></div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <script src="/assets/js/course.js"></script>
+  <script src="/assets/js/site.js"></script>
+  <script src="/assets/js/widgets.js"></script>
+</body>
+</html>

@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Phase 1 Exam · Java &amp; OOP · Penguin Empire 2551</title>
+  <meta name="description" content="Twenty-five questions across five sections. Each section scores separately, so a weak score tells you exactly which unit to re-read before starting robot code." />
+  <link rel="icon" href="/assets/img/logo-2551.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Aldrich&family=Russo+One&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/brand.css" />
+  <link rel="stylesheet" href="/assets/css/layout.css" />
+  <link rel="stylesheet" href="/assets/css/pages.css" />
+  <link rel="stylesheet" href="/assets/css/lesson.css" />
+</head>
+<body data-page="exam">
+  <main id="main">
+
+    <div class="page-head">
+      <div class="container">
+        <span class="badge badge--ocean">Phase 1 Exam</span>
+        <h1 style="margin-top:12px">Java &amp; Object-Oriented Programming</h1>
+        <p>Prove you are ready for robot code. Twenty-five questions across five sections, mostly reading code
+          rather than reciting definitions.</p>
+      </div>
+    </div>
+
+    <div class="container" style="padding-block: var(--s-8)">
+      <div class="prose">
+
+        <div class="callout callout--tip">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12c.7.7 1 1.4 1 2h6c0-.6.3-1.3 1-2a7 7 0 0 0-4-12z"/></svg></div>
+          <div class="c-title">How this is scored</div>
+          <div class="c-body">
+            <p>Each section scores separately and on purpose. One overall number tells you almost nothing. Five
+              section scores tell you <strong>which unit to re-read</strong>.</p>
+            <ul>
+              <li><b>4 or 5 out of 5</b> in a section means you are solid there.</li>
+              <li><b>3 out of 5</b> means re-skim that unit before build season.</li>
+              <li><b>2 or fewer</b> means work back through that unit properly. It will cost you an hour now and
+                save you a weekend in February.</li>
+            </ul>
+            <p>Nothing is timed and nothing is recorded. Wrong answers explain themselves, so read the explanation
+              even when you guessed right.</p>
+          </div>
+        </div>
+
+        <!-- ===================== SECTION 1 ===================== -->
+        <h2 id="s1"><span class="section-h"><span class="num">1</span> Types, operators and strings</span></h2>
+
+        <div class="checkpoint">
+          <div class="checkpoint-head">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            <h3>Section 1</h3>
+            <span class="cp-score">0 / 5</span>
+          </div>
+          <div class="checkpoint-body">
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q1.</span> What does <code>System.out.println(7 / 2);</code> print?</div>
+              <div class="options">
+                <label class="option" data-explain="That would be true if either side were a decimal. Both are int, so Java does integer division."><input type="radio" name="j1q1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">3.5</span></label>
+                <label class="option" data-correct data-explain="Correct. Both operands are int, so the remainder is discarded rather than rounded. Write 7 / 2.0 to get 3.5."><input type="radio" name="j1q1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">3</span></label>
+                <label class="option" data-explain="Java truncates toward zero here rather than rounding. It does not round up."><input type="radio" name="j1q1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">4</span></label>
+                <label class="option" data-explain="It compiles and runs fine. Integer division is legal, just surprising."><input type="radio" name="j1q1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It does not compile</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q2.</span> Two <code>String</code> variables both hold the text <code>"arm"</code>. Which comparison reliably returns true?</div>
+              <div class="options">
+                <label class="option" data-explain="== compares whether they are the same object in memory. It sometimes appears to work for short literals, which is exactly what makes it dangerous."><input type="radio" name="j1q2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>a == b</code></span></label>
+                <label class="option" data-correct data-explain="Right. .equals() compares the content, which is what you almost always mean."><input type="radio" name="j1q2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>a.equals(b)</code></span></label>
+                <label class="option" data-explain="That is not a Java operator. Java has no === at all."><input type="radio" name="j1q2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>a === b</code></span></label>
+                <label class="option" data-explain="That compares lengths, so 'arm' and 'leg' would come out equal."><input type="radio" name="j1q2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>a.length() == b.length()</code></span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q3.</span> What type should a motor output be?</div>
+              <div class="options">
+                <label class="option" data-explain="An int could only ever be -1, 0 or 1, which throws away every speed in between."><input type="radio" name="j1q3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>int</code></span></label>
+                <label class="option" data-correct data-explain="Yes. Outputs run from -1.0 to 1.0 with everything in between, so they need a decimal type."><input type="radio" name="j1q3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>double</code></span></label>
+                <label class="option" data-explain="A boolean is on or off. Motors have speeds."><input type="radio" name="j1q3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>boolean</code></span></label>
+                <label class="option" data-explain="You would be parsing text into a number on every cycle, and a typo would fail at runtime instead of at compile time."><input type="radio" name="j1q3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>String</code></span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q4.</span> <code>double x = 0.6;</code> Which expression clamps <code>x</code> to at most 0.8 in either direction?</div>
+              <div class="options">
+                <label class="option" data-explain="That caps the top but lets any negative value through, so full reverse is unprotected."><input type="radio" name="j1q4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>Math.min(0.8, x)</code></span></label>
+                <label class="option" data-correct data-explain="Correct. The inner min caps the top, the outer max catches the bottom, and it is symmetric."><input type="radio" name="j1q4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>Math.max(-0.8, Math.min(0.8, x))</code></span></label>
+                <label class="option" data-explain="That throws the sign away, so a reverse command becomes a forward one."><input type="radio" name="j1q4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>Math.abs(x)</code></span></label>
+                <label class="option" data-explain="That caps the bottom but lets any large positive value through."><input type="radio" name="j1q4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>Math.max(-0.8, x)</code></span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q5.</span> How many times does the inner body run?
+                <div class="code" style="margin-top:10px"><pre><code>for (int r = 0; r &lt; 3; r++)
+    for (int c = 0; c &lt; 4; c++)
+        System.out.println(r + "," + c);</code></pre></div>
+              </div>
+              <div class="options">
+                <label class="option" data-explain="That would be true if the loops ran one after the other rather than one inside the other."><input type="radio" name="j1q5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">7</span></label>
+                <label class="option" data-correct data-explain="Right. The inner loop runs completely for every single pass of the outer one, so it is 3 times 4."><input type="radio" name="j1q5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">12</span></label>
+                <label class="option" data-explain="That is the inner loop's count alone, ignoring that the outer loop restarts it three times."><input type="radio" name="j1q5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">4</span></label>
+                <label class="option" data-explain="Both loops have fixed bounds and both counters increment, so it terminates."><input type="radio" name="j1q5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It never ends</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Score section 1</button></div>
+          </div>
+        </div>
+
+        <!-- ===================== SECTION 2 ===================== -->
+        <h2 id="s2"><span class="section-h"><span class="num">2</span> Methods and scope</span></h2>
+
+        <div class="checkpoint">
+          <div class="checkpoint-head">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            <h3>Section 2</h3>
+            <span class="cp-score">0 / 5</span>
+          </div>
+          <div class="checkpoint-body">
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q6.</span> What is wrong with this method?
+                <div class="code" style="margin-top:10px"><pre><code>public double clamp(double value) {
+    if (value &gt; 0.8) {
+        return 0.8;
+    }
+}</code></pre></div>
+              </div>
+              <div class="options">
+                <label class="option" data-explain="The name is fine and Java has no reserved word conflict here."><input type="radio" name="j2q1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The method name is invalid</span></label>
+                <label class="option" data-correct data-explain="Right. If value is not greater than 0.8 the method falls off the end without returning, and the compiler rejects it with 'missing return statement'."><input type="radio" name="j2q1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Not every path returns a value</span></label>
+                <label class="option" data-explain="One parameter is perfectly legal. Methods can take none at all."><input type="radio" name="j2q1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It needs more parameters</span></label>
+                <label class="option" data-explain="Nothing is wrong with it. It compiles once every path returns."><input type="radio" name="j2q1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Nothing, it compiles</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q7.</span> A variable declared inside a <code>for</code> loop body is used after the loop closes. What happens?</div>
+              <div class="options">
+                <label class="option" data-explain="It keeps its last value only inside the block where it was declared. Outside, it does not exist at all."><input type="radio" name="j2q2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It holds its last value</span></label>
+                <label class="option" data-correct data-explain="Yes. Scope ends at the closing brace, and the compiler reports 'cannot find symbol' even though you can plainly see the name."><input type="radio" name="j2q2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A compile error, because it is out of scope</span></label>
+                <label class="option" data-explain="Java does not silently reset out-of-scope variables. It refuses to compile."><input type="radio" name="j2q2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It resets to zero</span></label>
+                <label class="option" data-explain="This is caught at compile time, not at runtime. You never get to run it."><input type="radio" name="j2q2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A NullPointerException</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q8.</span> Two methods are named <code>setSpeed</code>, one taking a <code>double</code> and one taking a <code>double</code> and a <code>boolean</code>. What is that?</div>
+              <div class="options">
+                <label class="option" data-explain="Overriding is replacing a parent class's method in a subclass. These are in the same class."><input type="radio" name="j2q3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Overriding</span></label>
+                <label class="option" data-correct data-explain="Right. Same name, different parameter lists, and the compiler picks by the arguments you pass."><input type="radio" name="j2q3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Overloading</span></label>
+                <label class="option" data-explain="It compiles fine. Duplicate names are only an error when the parameter lists match too."><input type="radio" name="j2q3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A compile error</span></label>
+                <label class="option" data-explain="Inheritance is between classes. This is one class with two similar methods."><input type="radio" name="j2q3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Inheritance</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q9.</span> What does a <code>void</code> method return?</div>
+              <div class="options">
+                <label class="option" data-explain="null is a value you can return from a method whose return type is an object. void returns nothing at all."><input type="radio" name="j2q4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>null</code></span></label>
+                <label class="option" data-correct data-explain="Correct. It does work rather than producing a value, though a bare return can still be used to exit early."><input type="radio" name="j2q4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Nothing</span></label>
+                <label class="option" data-explain="That would be a boolean return type. void produces no value of any kind."><input type="radio" name="j2q4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>true</code> if it succeeded</span></label>
+                <label class="option" data-explain="That would be int. void is its own thing and means no return value."><input type="radio" name="j2q4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Zero</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q10.</span> Why put the clamp inside a subsystem's <code>setSpeed</code> method rather than at each call site?</div>
+              <div class="options">
+                <label class="option" data-explain="Speed is identical. It is the same arithmetic wherever it runs."><input type="radio" name="j2q5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It runs faster</span></label>
+                <label class="option" data-correct data-explain="Right. One place to get it right, and no caller can forget it or bypass it."><input type="radio" name="j2q5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It becomes a guarantee instead of something everyone has to remember</span></label>
+                <label class="option" data-explain="Java allows Math.max and Math.min anywhere. Nothing is being worked around."><input type="radio" name="j2q5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Java only allows clamping inside a method</span></label>
+                <label class="option" data-explain="It adds a method rather than removing code. The benefit is correctness, not brevity."><input type="radio" name="j2q5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It makes the file shorter</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Score section 2</button></div>
+          </div>
+        </div>
+
+        <!-- ===================== SECTION 3 ===================== -->
+        <h2 id="s3"><span class="section-h"><span class="num">3</span> Arrays, collections and errors</span></h2>
+
+        <div class="checkpoint">
+          <div class="checkpoint-head">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            <h3>Section 3</h3>
+            <span class="cp-score">0 / 5</span>
+          </div>
+          <div class="checkpoint-body">
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q11.</span> <code>int[] ids = { 14, 15, 16, 17 };</code> What is <code>ids[4]</code>?</div>
+              <div class="options">
+                <label class="option" data-explain="Indexes start at zero, so the valid range is 0 to 3 and 17 is at index 3."><input type="radio" name="j3q1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">17</span></label>
+                <label class="option" data-correct data-explain="Right. Four slots means indexes 0 through 3, and asking for 4 throws at runtime rather than at compile time."><input type="radio" name="j3q1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">An ArrayIndexOutOfBoundsException</span></label>
+                <label class="option" data-explain="Java does not pad arrays with zeros past the end. It throws."><input type="radio" name="j3q1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">0</span></label>
+                <label class="option" data-explain="Arrays do not wrap around. Some languages do this. Java is not one of them."><input type="radio" name="j3q1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">14, wrapping around</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q12.</span> How do you get the number of items in an <code>ArrayList</code> versus an array?</div>
+              <div class="options">
+                <label class="option" data-explain="Reversed. The array is the one with the field."><input type="radio" name="j3q2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>.length</code> for the ArrayList, <code>.size()</code> for the array</span></label>
+                <label class="option" data-correct data-explain="Correct, and it is a field on one and a method on the other, which is why mixing them up is a compile error rather than a silent bug."><input type="radio" name="j3q2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>.size()</code> for the ArrayList, <code>.length</code> for the array</span></label>
+                <label class="option" data-explain="They differ, and that is one of the most common small stumbles when moving between the two."><input type="radio" name="j3q2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>.length</code> for both</span></label>
+                <label class="option" data-explain="A String uses .length(), which is a third variation and worth keeping straight."><input type="radio" name="j3q2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>.length()</code> for both</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q13.</span> What causes a <code>NullPointerException</code>?</div>
+              <div class="options">
+                <label class="option" data-explain="That is an ArithmeticException, and only for integer division. Dividing a double by zero gives infinity."><input type="radio" name="j3q3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Dividing by zero</span></label>
+                <label class="option" data-correct data-explain="Right. The reference points at nothing, so there is no object to run the method on."><input type="radio" name="j3q3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Calling a method on a variable that is null</span></label>
+                <label class="option" data-explain="That is an ArrayIndexOutOfBoundsException, which is a different exception with a different cause."><input type="radio" name="j3q3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Reading past the end of an array</span></label>
+                <label class="option" data-explain="Assigning null is completely legal. It is what you do with it afterwards that throws."><input type="radio" name="j3q3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Assigning null to a variable</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q14.</span> Why does <code>if (s != null &amp;&amp; s.length() &gt; 0)</code> not throw when <code>s</code> is null?</div>
+              <div class="options">
+                <label class="option" data-explain="Java does not reorder your conditions. It evaluates them left to right as written."><input type="radio" name="j3q4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Java reorders the checks automatically</span></label>
+                <label class="option" data-correct data-explain="Right. && stops as soon as the left side is false, because the whole expression cannot possibly be true. The right side never runs."><input type="radio" name="j3q4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>&amp;&amp;</code> stops evaluating once the left side is false</span></label>
+                <label class="option" data-explain="length() on a null reference absolutely does throw. That is what the guard is preventing."><input type="radio" name="j3q4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text"><code>length()</code> is safe on null</span></label>
+                <label class="option" data-explain="Swap the two conditions and it throws immediately, which proves the order is doing the work."><input type="radio" name="j3q4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The order of the conditions does not matter</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q15.</span> Which structure suits a fixed list of four swerve module CAN IDs that never changes size?</div>
+              <div class="options">
+                <label class="option" data-correct data-explain="Right. The size is known and fixed, so an array says that plainly and costs nothing."><input type="radio" name="j3q5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">An array</span></label>
+                <label class="option" data-explain="It would work, and you would be paying for growth you will never use and signalling that the size might change."><input type="radio" name="j3q5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">An ArrayList</span></label>
+                <label class="option" data-explain="Four separate variables means four places to update and no way to loop over them."><input type="radio" name="j3q5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Four separate int variables</span></label>
+                <label class="option" data-explain="You would be parsing numbers out of text on every read, and a typo would fail at runtime."><input type="radio" name="j3q5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A comma-separated String</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Score section 3</button></div>
+          </div>
+        </div>
+
+        <!-- ===================== SECTION 4 ===================== -->
+        <h2 id="s4"><span class="section-h"><span class="num">4</span> Object-oriented programming</span></h2>
+
+        <div class="checkpoint">
+          <div class="checkpoint-head">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            <h3>Section 4</h3>
+            <span class="cp-score">0 / 5</span>
+          </div>
+          <div class="checkpoint-body">
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q16.</span> What does this print?
+                <div class="code" style="margin-top:10px"><pre><code>class Appliance { public void use() { System.out.println("appliance"); } }
+class Oven extends Appliance { public void use() { System.out.println("baking"); } }
+
+Appliance a = new Oven();
+a.use();</code></pre></div>
+              </div>
+              <div class="options">
+                <label class="option" data-explain="The variable's type decides what you are allowed to call. The object's actual class decides which version runs."><input type="radio" name="j4q1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">appliance</span></label>
+                <label class="option" data-correct data-explain="Right. This is polymorphism, and it is exactly why the scheduler can hold a list of plain Command and still run your subclass's code."><input type="radio" name="j4q1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">baking</span></label>
+                <label class="option" data-explain="Only the overriding version runs. The parent's version would need an explicit super.use() call."><input type="radio" name="j4q1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Both lines</span></label>
+                <label class="option" data-explain="Assigning a subclass to a parent-typed variable is legal and is the entire basis of polymorphism."><input type="radio" name="j4q1" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It does not compile</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q17.</span> What is the difference between a class and an object?</div>
+              <div class="options">
+                <label class="option" data-explain="They are not interchangeable words. One is a description, the other is a thing that exists at runtime."><input type="radio" name="j4q2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Nothing, they are two words for the same thing</span></label>
+                <label class="option" data-correct data-explain="Right. One ArmSubsystem class, and exactly one ArmSubsystem object, which is the rule that stops two objects fighting over one motor."><input type="radio" name="j4q2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The class is the blueprint, the object is a thing built from it</span></label>
+                <label class="option" data-explain="Reversed. You write classes and create objects from them with new."><input type="radio" name="j4q2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">The object is the blueprint, the class is built from it</span></label>
+                <label class="option" data-explain="Both live in files. The distinction is about blueprint versus instance, not about where the code sits."><input type="radio" name="j4q2" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">A class is in a file, an object is not</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q18.</span> Why does <code>Constants.kMaxOutput</code> need no <code>new</code>?</div>
+              <div class="options">
+                <label class="option" data-explain="final means it cannot be reassigned. That is a separate property and does not affect how you reach it."><input type="radio" name="j4q3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Because it is <code>final</code></span></label>
+                <label class="option" data-correct data-explain="Right, and it is the same reason Math.PI works without new Math()."><input type="radio" name="j4q3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Because it is <code>static</code>, so it belongs to the class</span></label>
+                <label class="option" data-explain="The file name grants nothing. You could put a static field in any class and reach it the same way."><input type="radio" name="j4q3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Because it is in Constants.java</span></label>
+                <label class="option" data-explain="The type has nothing to do with it. An instance double would still need an object."><input type="radio" name="j4q3" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Because it is a <code>double</code></span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q19.</span> A field is <code>private</code>. What does that buy you?</div>
+              <div class="options">
+                <label class="option" data-explain="Access modifiers have no runtime cost. This is about what other code is permitted to do."><input type="radio" name="j4q4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Faster access</span></label>
+                <label class="option" data-correct data-explain="Right, and it is what lets a subsystem promise that nothing else touches its motor and have the compiler enforce it."><input type="radio" name="j4q4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Nothing outside the class can reach it, so your methods are the only way in</span></label>
+                <label class="option" data-explain="private controls access, not mutability. That is what final does."><input type="radio" name="j4q4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">It cannot be changed</span></label>
+                <label class="option" data-explain="Methods inside the class read and write it constantly. That is the whole point of having it."><input type="radio" name="j4q4" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">Nothing at all can read it</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="cp-q">
+              <div class="cp-prompt"><span class="qn">Q20.</span> When would you choose an interface over an abstract class?</div>
+              <div class="options">
+                <label class="option" data-explain="Interfaces hold no state at all. If you need fields, that is an abstract class."><input type="radio" name="j4q5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">When you need to store fields</span></label>
+                <label class="option" data-correct data-explain="Right. An interface says 'can do this', an abstract class says 'is a kind of this', and you can implement many interfaces but extend only one class."><input type="radio" name="j4q5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">When you want a capability contract that unrelated classes can all promise</span></label>
+                <label class="option" data-explain="Neither is faster. This is a design decision, not a performance one."><input type="radio" name="j4q5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">When you need it to run faster</span></label>
+                <label class="option" data-explain="Interfaces cannot be instantiated either. Something has to implement them first."><input type="radio" name="j4q5" /><span class="opt-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="opt-text">When you want to create instances of it directly</span></label>
+              </div>
+              <div class="feedback"></div>
+            </div>
+
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Score section 4</button></div>
+          </div>
+        </div>
+
+        <!-- ===================== SECTION 5 ===================== -->
+        <h2 id="s5"><span class="section-h"><span class="num">5</span> Writing it, not just reading it</span></h2>
+        <p>Five short pieces of code to complete. These are graded the same way the lesson challenges are.</p>
+
+        <div class="challenge" data-kind="fib"
+             data-win="That is a complete class skeleton: a private field, a constructor that sets it, and a method that uses it."
+             data-lose="A constructor has the same name as the class and no return type. Use this to tell the field apart from the parameter when they share a name.">
+          <div class="challenge-head"><span class="ch-kind">Fill in the blanks</span><span class="ch-title">Q21 · A class with a constructor</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Complete the class.</p>
+<pre class="fib">public class Intake {
+    <span class="blank" data-answer="private"></span> final int canId;
+
+    public <span class="blank" data-answer="Intake"></span>(int canId) {
+        <span class="blank" data-answer="this"></span>.canId = canId;
+    }
+}</pre>
+            <div class="challenge-actions">
+              <button class="btn btn--sm check-btn" type="button">Check</button>
+              <button class="btn btn--sm btn--ghost reset-btn" type="button">Reset</button>
+            </div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="fib"
+             data-win="Extends the parent, marks the replacement with @Override, and calls the parent's version through super."
+             data-lose="extends names the parent class. @Override tells the compiler you meant to replace a method, so it errors if you misspell the name. super calls the parent's version.">
+          <div class="challenge-head"><span class="ch-kind">Fill in the blanks</span><span class="ch-title">Q22 · Inheritance</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Complete the subclass.</p>
+<pre class="fib">public class Oven <span class="blank" data-answer="extends"></span> Appliance {
+
+    @<span class="blank" data-answer="Override"></span>
+    public void use() {
+        <span class="blank" data-answer="super"></span>.use();
+        System.out.println("baking");
+    }
+}</pre>
+            <div class="challenge-actions">
+              <button class="btn btn--sm check-btn" type="button">Check</button>
+              <button class="btn btn--sm btn--ghost reset-btn" type="button">Reset</button>
+            </div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="text"
+             data-win="6. The loop runs while i is less than 4, so i takes the values 0, 1, 2 and 3, and 0 + 1 + 2 + 3 is 6."
+             data-lose="6. i takes the values 0, 1, 2 and 3, because the loop stops as soon as i reaches 4. Adding those gives 6, not 10.">
+          <div class="challenge-head"><span class="ch-kind">Predict the output</span><span class="ch-title">Q23 · Trace the loop</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">What does this print?</p>
+            <div class="code" style="margin-bottom:12px"><pre><code>int total = 0;
+for (int i = 0; i &lt; 4; i++) {
+    total += i;
+}
+System.out.println(total);</code></pre></div>
+            <div class="answer-row">
+              <input class="answer-input" type="text" placeholder="a number" data-answer="6" aria-label="Your answer" />
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="text"
+             data-win="3. Both operands are int, so Java does integer division and discards the remainder."
+             data-lose="3. This is the integer division trap. Both sides are int, so 7 / 2 is 3 and the .5 is thrown away rather than rounded.">
+          <div class="challenge-head"><span class="ch-kind">Predict the output</span><span class="ch-title">Q24 · Types matter</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">What does this print?</p>
+            <div class="code" style="margin-bottom:12px"><pre><code>int a = 7;
+int b = 2;
+System.out.println(a / b);</code></pre></div>
+            <div class="answer-row">
+              <input class="answer-input" type="text" placeholder="a number" data-answer="3" aria-label="Your answer" />
+            </div>
+            <div class="challenge-actions"><button class="btn btn--sm check-btn" type="button">Check</button></div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <div class="challenge" data-kind="fib"
+             data-win="A lambda with no arguments, running one line when something else decides to. You will write hundreds of these in Phase 2."
+             data-lose="A lambda with no parameters starts with an empty pair of parentheses, then the arrow, then the code to run.">
+          <div class="challenge-head"><span class="ch-kind">Fill in the blanks</span><span class="ch-title">Q25 · A lambda</span></div>
+          <div class="challenge-body">
+            <p class="challenge-prompt">Complete the lambda that runs the intake when something calls it.</p>
+<pre class="fib">Runnable r = <span class="blank" data-answer="()"></span> <span class="blank" data-answer="->"></span> intake.runRoller(0.7);</pre>
+            <div class="challenge-actions">
+              <button class="btn btn--sm check-btn" type="button">Check</button>
+              <button class="btn btn--sm btn--ghost reset-btn" type="button">Reset</button>
+            </div>
+            <div class="feedback"></div>
+          </div>
+        </div>
+
+        <!-- ===================== AFTER ===================== -->
+        <h2 id="after"><span class="section-h"><span class="num">6</span> What your scores mean</span></h2>
+
+        <div class="tablewrap">
+          <table class="data">
+            <thead><tr><th>Weak section</th><th>Go back to</th></tr></thead>
+            <tbody>
+              <tr><td>1 · Types, operators and strings</td><td>Java units J1 and J2</td></tr>
+              <tr><td>2 · Methods and scope</td><td>Java unit J3</td></tr>
+              <tr><td>3 · Arrays, collections and errors</td><td>Java unit J4</td></tr>
+              <tr><td>4 · Object-oriented programming</td><td>Java unit J5. This is the one that matters most for Phase 2</td></tr>
+              <tr><td>5 · Writing code</td><td>The Alice's Kitchen capstone, J6</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout callout--tip">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12c.7.7 1 1.4 1 2h6c0-.6.3-1.3 1-2a7 7 0 0 0-4-12z"/></svg></div>
+          <div class="c-title">Section 4 is the one to take seriously</div>
+          <div class="c-body"><p>Phase 2 is object-oriented from its second lesson onward. A subsystem is a class
+            with private fields. A command extends an abstract class and overrides four methods. The scheduler holds
+            them polymorphically. Bindings are lambdas.</p>
+            <p>Every other section you can look up as you go. If section 4 went badly, re-read J5 before you start
+              Phase 2, because Phase 2 will not slow down for it.</p></div>
+        </div>
+
+        <p>Ready? <a href="/lessons/frc/what-programmers-do.html">Phase 2 starts here.</a></p>
+
+      </div>
+    </div>
+  </main>
+
+  <script src="/assets/js/course.js"></script>
+  <script src="/assets/js/site.js"></script>
+  <script src="/assets/js/widgets.js"></script>
+</body>
+</html>

@@ -8,8 +8,12 @@ const BASE="http://localhost:4321";
 const require = createRequire(import.meta.url);
 global.window = {};
 require("./site/assets/js/course.js");
+// Exams carry scored checkpoints and challenges too, so they belong in the
+// smoke run. Reference pages have no widgets and are skipped.
+const C = global.window.COURSE;
 const page_paths = process.argv.slice(2).length ? process.argv.slice(2)
-  : global.window.COURSE.readyList().map((l) => l.href);
+  : [...C.readyList().map((l) => l.href),
+     ...(C.exams || []).filter((e) => e.ready).map((e) => e.href)];
 const b=await puppeteer.launch({executablePath:CHROME,headless:"new",args:["--no-sandbox"]});
 let fails=0;
 for (const p of page_paths) {

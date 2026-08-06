@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Java Syntax Cheat-Sheet · Penguin Empire 2551</title>
+  <meta name="description" content="Every bit of Java syntax from Phase 1 on one page: types, operators, strings, control flow, methods, arrays, collections, exceptions, the whole of OOP, and lambdas." />
+  <link rel="icon" href="/assets/img/logo-2551.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Aldrich&family=Russo+One&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/brand.css" />
+  <link rel="stylesheet" href="/assets/css/layout.css" />
+  <link rel="stylesheet" href="/assets/css/pages.css" />
+  <link rel="stylesheet" href="/assets/css/lesson.css" />
+</head>
+<body data-page="reference">
+  <main id="main">
+
+    <div class="page-head">
+      <div class="container">
+        <span class="badge badge--dot">Reference</span>
+        <h1 style="margin-top:12px">Java Syntax Cheat-Sheet</h1>
+        <p>Every bit of syntax from Phase 1, on one page. Unlike the WPILib sheet, none of this changes between
+          seasons. Java from 2015 still compiles.</p>
+      </div>
+    </div>
+
+    <div class="container" style="padding-block: var(--s-8)">
+      <div class="prose">
+
+        <nav class="toc" aria-label="On this page">
+          <strong>On this page</strong>
+          <ol>
+            <li><a href="#shape">The shape of a program</a></li>
+            <li><a href="#types">Variables and types</a></li>
+            <li><a href="#operators">Operators</a></li>
+            <li><a href="#strings">Strings</a></li>
+            <li><a href="#flow">Decisions</a></li>
+            <li><a href="#loops">Loops</a></li>
+            <li><a href="#methods">Methods</a></li>
+            <li><a href="#arrays">Arrays and collections</a></li>
+            <li><a href="#exceptions">Exceptions and null</a></li>
+            <li><a href="#classes">Classes and objects</a></li>
+            <li><a href="#encapsulation">Encapsulation</a></li>
+            <li><a href="#inheritance">Inheritance and polymorphism</a></li>
+            <li><a href="#interfaces">Interfaces and abstract classes</a></li>
+            <li><a href="#enums">Enums</a></li>
+            <li><a href="#lambdas">Lambdas</a></li>
+            <li><a href="#errors">Errors you will actually see</a></li>
+          </ol>
+        </nav>
+
+        <!-- ===================== SHAPE ===================== -->
+        <h2 id="shape"><span class="section-h"><span class="num">1</span> The shape of a program</span></h2>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Main.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">public class Main {                          // file name must match the class name
+    public static void main(String[] args) { // where the program starts
+        System.out.println("Hello");         // one statement, one semicolon
+    }
+}</code></pre>
+        </div>
+
+        <p>Braces group. Semicolons end statements. The file <code>Main.java</code> must contain
+          <code>class Main</code>, which is the first error most people hit.</p>
+
+        <!-- ===================== TYPES ===================== -->
+        <h2 id="types"><span class="section-h"><span class="num">2</span> Variables and types</span></h2>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">types</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">int    ticks    = 20;          // whole numbers
+double speed    = 0.7;         // decimals. motor outputs are ALWAYS double
+boolean homed   = false;       // true or false
+char   grade    = 'A';         // one character, single quotes
+String name     = "intake";    // text, double quotes. a class, not a primitive
+
+final double MAX_OUTPUT = 0.8; // final: cannot be reassigned</code></pre>
+        </div>
+
+        <div class="tablewrap">
+          <table class="data">
+            <thead><tr><th>Type</th><th>Holds</th><th>Watch out for</th></tr></thead>
+            <tbody>
+              <tr><td><code>int</code></td><td>Whole numbers</td><td><code>7 / 2</code> is <strong>3</strong>, not 3.5</td></tr>
+              <tr><td><code>double</code></td><td>Decimals</td><td>Tiny rounding error. Never compare two with <code>==</code></td></tr>
+              <tr><td><code>boolean</code></td><td>true or false</td><td>Not <code>0</code> and <code>1</code>. Java will not convert</td></tr>
+              <tr><td><code>String</code></td><td>Text</td><td>Compare with <code>.equals()</code>, never <code>==</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- ===================== OPERATORS ===================== -->
+        <h2 id="operators"><span class="section-h"><span class="num">3</span> Operators</span></h2>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">operators</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">+  -  *  /  %          // arithmetic. % is the remainder
+=                      // assign
+==  !=  &lt;  &gt;  &lt;=  &gt;=   // compare, gives a boolean
+&amp;&amp;  ||  !               // and, or, not
++=  -=  *=  /=         // shorthand: x += 1 is x = x + 1
+++  --                 // add or subtract one
+
+Math.abs(-3.5)         // 3.5
+Math.min(a, b)         // the smaller
+Math.max(a, b)         // the larger
+Math.max(-0.8, Math.min(0.8, speed))   // the clamp you use all season</code></pre>
+        </div>
+
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">Integer division</div>
+          <div class="c-body"><p><code>7 / 2</code> is <code>3</code>. Both sides are <code>int</code>, so Java does
+            integer division and throws the remainder away. Make one side a decimal to fix it:
+            <code>7 / 2.0</code> gives <code>3.5</code>.</p></div>
+        </div>
+
+        <!-- ===================== STRINGS ===================== -->
+        <h2 id="strings"><span class="section-h"><span class="num">4</span> Strings</span></h2>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">strings</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">String s = "Penguin Empire";
+
+s.length()                 // 14
+s.charAt(0)                // 'P'
+s.substring(0, 7)          // "Penguin"
+s.toUpperCase()            // "PENGUIN EMPIRE"
+s.contains("Empire")       // true
+s.equals("penguin")        // false. USE THIS, not ==
+s.equalsIgnoreCase("PENGUIN EMPIRE")   // true
+s.trim()                   // strips surrounding whitespace
+
+"arm at " + 9.0            // "arm at 9.0"   string concatenation
+System.out.printf("pos %.2f%n", 9.0);  // "pos 9.00" and a newline</code></pre>
+        </div>
+
+        <div class="callout callout--pitfall">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          <div class="c-title">== compares identity, .equals() compares content</div>
+          <div class="c-body"><p>Two Strings holding identical text can still be two different objects, so
+            <code>==</code> returns false. It sometimes appears to work for short literals, which is what makes it
+            dangerous. Always use <code>.equals()</code>.</p></div>
+        </div>
+
+        <!-- ===================== FLOW ===================== -->
+        <h2 id="flow"><span class="section-h"><span class="num">5</span> Decisions</span></h2>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">if and switch</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">if (position &gt; 9.0) {
+    arm.stop();
+} else if (position &gt; 4.5) {
+    arm.slow();
+} else {
+    arm.raise();
+}
+
+// Ternary: a one-line if/else that produces a value
+double speed = homed ? 0.4 : 0.0;
+
+switch (state) {
+    case STOWED:  arm.raise(); break;      // break, or it falls through
+    case SCORING: arm.stop();  break;
+    default:      arm.stop();
+}</code></pre>
+        </div>
+
+        <!-- ===================== LOOPS ===================== -->
+        <h2 id="loops"><span class="section-h"><span class="num">6</span> Loops</span></h2>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">loops</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">for (int i = 0; i &lt; 4; i++) { }          // a known number of times
+
+while (!arm.atSetpoint()) { }            // until a condition changes
+
+for (String item : shoppingList) { }     // once per element. "for each"
+
+for (int row = 0; row &lt; 3; row++) {      // nested: rows then columns
+    for (int col = 0; col &lt; 3; col++) { }
+}
+
+break;      // leave the loop entirely
+continue;   // skip to the next pass</code></pre>
+        </div>
+
+        <p>A nested loop runs the inner one <em>completely</em> for every single pass of the outer one. Three by
+          three is nine passes.</p>
+
+        <!-- ===================== METHODS ===================== -->
+        <h2 id="methods"><span class="section-h"><span class="num">7</span> Methods</span></h2>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">methods</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">//  modifier  return-type  name  (parameters)
+    public    double       clamp (double value, double limit) {
+        return Math.max(-limit, Math.min(limit, value));   // return sends a value back
+    }
+
+    public void stop() {          // void returns nothing
+        motor.set(0);
+    }
+
+// Overloading: same name, different parameter lists. The compiler picks by type.
+public void setSpeed(double speed)            { }
+public void setSpeed(double speed, boolean safe) { }</code></pre>
+        </div>
+
+        <p><strong>Scope.</strong> A variable declared inside a method or a block exists only inside it. A field
+          declared in the class exists for the whole object. If the compiler says "cannot find symbol" for something
+          you can clearly see, check which braces it lives inside.</p>
+
+        <!-- ===================== ARRAYS ===================== -->
+        <h2 id="arrays"><span class="section-h"><span class="num">8</span> Arrays and collections</span></h2>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">arrays</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">int[] canIds = new int[4];              // four slots, all 0
+int[] steer  = { 14, 15, 16, 17 };      // declared with values
+
+steer[0]        // 14. indexes start at ZERO
+steer.length    // 4. a field, not a method. no parentheses
+steer[4]        // ArrayIndexOutOfBoundsException. the last index is 3
+
+String[][] grid = new String[3][3];      // 2D: rows, then columns
+grid[1][2] = "pan";
+
+import java.util.ArrayList;
+ArrayList&lt;String&gt; parts = new ArrayList&lt;&gt;();   // grows and shrinks
+parts.add("intake");
+parts.get(0);
+parts.size();          // a METHOD here. arrays use .length
+parts.remove(0);
+parts.contains("arm");</code></pre>
+        </div>
+
+        <div class="tablewrap">
+          <table class="data">
+            <thead><tr><th></th><th>Array</th><th>ArrayList</th></tr></thead>
+            <tbody>
+              <tr><td>Size</td><td>Fixed at creation</td><td>Grows and shrinks</td></tr>
+              <tr><td>Count</td><td><code>.length</code></td><td><code>.size()</code></td></tr>
+              <tr><td>Read</td><td><code>a[0]</code></td><td><code>a.get(0)</code></td></tr>
+              <tr><td>Holds</td><td>Primitives or objects</td><td>Objects only</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- ===================== EXCEPTIONS ===================== -->
+        <h2 id="exceptions"><span class="section-h"><span class="num">9</span> Exceptions and null</span></h2>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">exceptions</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">try {
+    risky();
+} catch (ArrayIndexOutOfBoundsException e) {
+    System.out.println("out of range: " + e.getMessage());
+} finally {
+    // runs either way
+}
+
+String name = null;      // "no object here"
+name.length();           // NullPointerException
+
+if (name != null &amp;&amp; name.length() &gt; 0) { }   // guard first. && stops early</code></pre>
+        </div>
+
+        <div class="tablewrap">
+          <table class="data">
+            <thead><tr><th>Exception</th><th>Means</th></tr></thead>
+            <tbody>
+              <tr><td><code>NullPointerException</code></td><td>You called a method on something that is null</td></tr>
+              <tr><td><code>ArrayIndexOutOfBoundsException</code></td><td>You asked for an index that does not exist</td></tr>
+              <tr><td><code>ArithmeticException</code></td><td>Integer division by zero</td></tr>
+              <tr><td><code>NumberFormatException</code></td><td>You tried to parse text that is not a number</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- ===================== CLASSES ===================== -->
+        <h2 id="classes"><span class="section-h"><span class="num">10</span> Classes and objects</span></h2>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">Intake.java</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">public class Intake {
+
+    private double speed;              // field: state each object carries
+    private final int canId;           // final: set once, in the constructor
+
+    public Intake(int canId) {         // constructor: same name, no return type
+        this.canId = canId;            // "this" = the object being built
+    }
+
+    public void run(double speed) {    // instance method: acts on THIS object
+        this.speed = speed;
+    }
+}
+
+Intake intake = new Intake(2);    // new builds one. intake is a reference to it
+intake.run(0.7);                  // call on the INSTANCE</code></pre>
+        </div>
+
+        <p><strong>A class is the blueprint. An object is the thing.</strong> One <code>Intake</code> class, and as
+          many <code>Intake</code> objects as you build with <code>new</code>.</p>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">static vs instance</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">public class Constants {
+    public static final double kMaxOutput = 0.8;   // belongs to the CLASS
+}
+
+Constants.kMaxOutput      // no object needed. like Math.PI
+intake.run(0.7);          // instance method: needs an object</code></pre>
+        </div>
+
+        <!-- ===================== ENCAPSULATION ===================== -->
+        <h2 id="encapsulation"><span class="section-h"><span class="num">11</span> Encapsulation</span></h2>
+
+        <div class="tablewrap">
+          <table class="data">
+            <thead><tr><th>Modifier</th><th>Reachable from</th></tr></thead>
+            <tbody>
+              <tr><td><code>public</code></td><td>Anywhere</td></tr>
+              <tr><td><code>private</code></td><td>Only inside the same class</td></tr>
+              <tr><td><code>protected</code></td><td>The same class and its subclasses</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>Make fields <code>private</code> and expose methods. That is what lets a subsystem promise "nothing else
+          touches this motor" and have the compiler enforce it rather than everyone remembering.</p>
+
+        <!-- ===================== INHERITANCE ===================== -->
+        <h2 id="inheritance"><span class="section-h"><span class="num">12</span> Inheritance and polymorphism</span></h2>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">inheritance</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">public class Appliance {
+    public void use() { System.out.println("using an appliance"); }
+}
+
+public class Oven extends Appliance {          // Oven IS an Appliance
+    public Oven() {
+        super();                               // call the parent constructor
+    }
+
+    @Override
+    public void use() {                        // replace the parent's version
+        System.out.println("baking");
+    }
+}
+
+Appliance a = new Oven();   // a variable of the PARENT type
+a.use();                    // prints "baking". the OBJECT decides, not the variable</code></pre>
+        </div>
+
+        <p>That last line is polymorphism. The variable's type decides what you are <em>allowed</em> to call. The
+          object's actual class decides <em>which version runs</em>. It is why
+          <code>ArmToScoreCommand extends Command</code> lets the scheduler hold a list of plain
+          <code>Command</code> and still run your code.</p>
+
+        <!-- ===================== INTERFACES ===================== -->
+        <h2 id="interfaces"><span class="section-h"><span class="num">13</span> Interfaces and abstract classes</span></h2>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">contracts</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">public interface Cookable {          // a contract. no state, no bodies
+    void cook();
+}
+
+public class Pizza implements Cookable {
+    @Override public void cook() { }
+}
+
+public abstract class Command {      // partly written. cannot be instantiated
+    public void initialize() { }     // a default you may override
+    public abstract boolean isFinished();   // no body. subclasses MUST write it
+}</code></pre>
+        </div>
+
+        <div class="tablewrap">
+          <table class="data">
+            <thead><tr><th></th><th>Interface</th><th>Abstract class</th></tr></thead>
+            <tbody>
+              <tr><td>Says</td><td>"Can do this"</td><td>"Is a kind of this"</td></tr>
+              <tr><td>Fields</td><td>No state</td><td>Can hold state</td></tr>
+              <tr><td>How many</td><td>Implement many</td><td>Extend exactly one</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- ===================== ENUMS ===================== -->
+        <h2 id="enums"><span class="section-h"><span class="num">14</span> Enums</span></h2>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">enums</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">public enum ArmState { STOWED, RAISING, SCORING }
+
+ArmState state = ArmState.STOWED;
+
+switch (state) {
+    case STOWED:  break;
+    case RAISING: break;
+    case SCORING: break;
+}</code></pre>
+        </div>
+
+        <p>A fixed set of named options. The compiler rejects anything outside the list, which a
+          <code>String</code> or an <code>int</code> never would. <code>MotorType.kBrushless</code> is an enum you
+          have used since Unit 4.</p>
+
+        <!-- ===================== LAMBDAS ===================== -->
+        <h2 id="lambdas"><span class="section-h"><span class="num">15</span> Lambdas</span></h2>
+
+        <div class="code with-lines">
+          <div class="code-head"><div class="code-dots"><i></i><i></i><i></i></div><span class="code-file">lambdas</span><span class="code-lang">Java</span><span class="code-spacer"></span></div>
+<pre><code class="language-java">() -&gt; intake.runRoller(0.7)      // no arguments, run this line
+
+(a, b) -&gt; a + b                 // two arguments, produce a value
+
+() -&gt; {                         // several statements need braces
+    intake.stop();
+    arm.stop();
+}
+
+intake::stop                    // method reference. shorthand for () -> intake.stop()</code></pre>
+        </div>
+
+        <p>A lambda is a small block of code you hand to something else to run later. In robot code that is almost
+          always a button binding: "run this when pressed."</p>
+
+        <!-- ===================== ERRORS ===================== -->
+        <h2 id="errors"><span class="section-h"><span class="num">16</span> Errors you will actually see</span></h2>
+
+        <div class="tablewrap">
+          <table class="data">
+            <thead><tr><th>The compiler says</th><th>It usually means</th></tr></thead>
+            <tbody>
+              <tr><td><code>cannot find symbol</code></td><td>A typo, a missing import, or the variable is out of scope</td></tr>
+              <tr><td><code>class X is public, should be declared in a file named X.java</code></td><td>You renamed the file but not the class, or the reverse</td></tr>
+              <tr><td><code>incompatible types: String cannot be converted to int</code></td><td>You are putting the wrong type in. Check what the method returns</td></tr>
+              <tr><td><code>missing return statement</code></td><td>Some path through the method does not return anything</td></tr>
+              <tr><td><code>variable might not have been initialized</code></td><td>You declared it but never gave it a value</td></tr>
+              <tr><td><code>unreachable statement</code></td><td>Code after a <code>return</code> or <code>break</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout callout--tip">
+          <div class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12c.7.7 1 1.4 1 2h6c0-.6.3-1.3 1-2a7 7 0 0 0-4-12z"/></svg></div>
+          <div class="c-title">Read the first error, not the last</div>
+          <div class="c-body"><p>One mistake often produces a cascade. Fix the top one and recompile before reading
+            any of the others, because most of them will disappear on their own.</p>
+            <p>The line number is where the compiler <em>noticed</em>, which is sometimes one line after where you
+              made the mistake. A missing semicolon usually reports on the line below it.</p></div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <script src="/assets/js/course.js"></script>
+  <script src="/assets/js/site.js"></script>
+  <script src="/assets/js/widgets.js"></script>
+</body>
+</html>

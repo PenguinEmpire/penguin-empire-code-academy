@@ -31,7 +31,17 @@ if (explicit.length) {
   targets = explicit;
 } else {
   const lessons = wantAll ? COURSE.allLessons() : COURSE.readyList();
-  targets = ["/", "/syllabus.html", ...lessons.map((l) => l.href || `/lessons/${l.id}`)];
+  // Reference pages and exams live outside the lesson sequence, so they are
+  // not in readyList() — audit them explicitly or they never get checked.
+  const extras = [
+    ...(COURSE.resources || []).filter((r) => wantAll || r.ready),
+    ...(COURSE.exams || []).filter((e) => wantAll || e.ready),
+  ];
+  targets = [
+    "/", "/syllabus.html",
+    ...lessons.map((l) => l.href || `/lessons/${l.id}`),
+    ...extras.map((e) => e.href),
+  ];
 }
 
 const validLessonIds = new Set(COURSE.allLessons().map((l) => l.id));

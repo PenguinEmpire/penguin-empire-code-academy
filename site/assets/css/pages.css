@@ -161,6 +161,8 @@
 .feature .f-icon svg { width: 26px; height: 26px; stroke: var(--ocean-700); }
 .feature h3 { font-size: 1.12rem; margin-bottom: var(--s-2); }
 .feature p { color: var(--text-soft); font-size: .96rem; }
+/* Reference and exam cards on the home page are links, not static cards. */
+a.feature { display: block; text-decoration: none; color: inherit; }
 
 /* path / journey steps */
 .path { display: grid; gap: var(--s-3); max-width: 760px; margin-inline: auto; }
@@ -184,6 +186,7 @@
 .syl-track-head .st-badge { font-family: var(--font-accent); color: #fff; padding: .5em .9em; border-radius: var(--r-md); font-size: .9rem; }
 .syl-track-head.java .st-badge { background: var(--ink-800); }
 .syl-track-head.frc .st-badge { background: var(--ocean-700); }
+.syl-track-head.ref .st-badge { background: var(--ink-600, var(--ink-800)); }
 .syl-track-head h2 { font-size: 1.6rem; }
 .syl-track-head p { color: var(--text-muted); font-size: .92rem; }
 
